@@ -101,7 +101,7 @@ class WeatherSource(private val context: Context) {
         if (!Geocoder.isPresent()) return null
         val geocoder = Geocoder(context, Locale.getDefault())
         val address: Address? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            withTimeoutOrNull(5_000) {
+            withTimeoutOrNull(10_000) {
                 suspendCancellableCoroutine { cont ->
                     geocoder.getFromLocation(
                         location.latitude,
@@ -123,7 +123,7 @@ class WeatherSource(private val context: Context) {
             @Suppress("DEPRECATION")
             runCatching { geocoder.getFromLocation(location.latitude, location.longitude, 1)?.firstOrNull() }.getOrNull()
         }
-        return address?.locality ?: address?.subAdminArea ?: address?.adminArea
+        return address?.locality ?: address?.subLocality ?: address?.subAdminArea ?: address?.adminArea
     }
 
     private companion object {

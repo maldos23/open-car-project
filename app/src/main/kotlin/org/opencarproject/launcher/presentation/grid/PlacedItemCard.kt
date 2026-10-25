@@ -29,12 +29,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -59,6 +59,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -255,23 +256,37 @@ fun PlacedItemCard(
             visible = editing,
             enter = fadeIn() + scaleIn(spring(dampingRatio = 0.55f)),
             exit = fadeOut() + scaleOut(),
-            modifier = Modifier.align(Alignment.TopEnd).offset(x = 8.dp, y = (-8).dp),
+            // 48 dp touch target centered on the corner (half outside the card) with a small
+            // badge, so even 1×1 cards keep most of their surface free for dragging.
+            modifier = Modifier.align(Alignment.TopEnd).offset(x = 20.dp, y = (-20).dp),
         ) {
-            FilledIconButton(
-                onClick = {
-                    view.haptic(EditHaptic.DELETE)
-                    scope.launch {
-                        presence.animateTo(0f, tween(180))
-                        viewModel.onDeleteItem(item.id)
-                    }
-                },
-                modifier = Modifier.size(40.dp),
+            Box(
+                Modifier
+                    .size(48.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        role = Role.Button,
+                    ) {
+                        view.haptic(EditHaptic.DELETE)
+                        scope.launch {
+                            presence.animateTo(0f, tween(180))
+                            viewModel.onDeleteItem(item.id)
+                        }
+                    },
+                contentAlignment = Alignment.Center,
             ) {
-                Icon(
-                    imageVector = Icons.Rounded.Close,
-                    contentDescription = "Eliminar",
-                    modifier = Modifier.size(20.dp),
-                )
+                Box(
+                    Modifier.size(24.dp).background(MaterialTheme.colorScheme.primary, CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Close,
+                        contentDescription = "Eliminar",
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(16.dp),
+                    )
+                }
             }
         }
 
@@ -336,7 +351,8 @@ private fun ResizeHandle(
 
     Box(
         modifier = Modifier
-            .offset(x = 10.dp, y = 10.dp)
+            // Centered on the corner (half outside the card), like the delete badge.
+            .offset(x = 20.dp, y = 20.dp)
             .size(48.dp)
             .pointerInput(Unit) {
                 var accum = Offset.Zero
@@ -356,7 +372,7 @@ private fun ResizeHandle(
             },
         contentAlignment = Alignment.Center,
     ) {
-        Canvas(Modifier.size(26.dp).graphicsLayer { scaleX = grow; scaleY = grow }) {
+        Canvas(Modifier.size(16.dp).graphicsLayer { scaleX = grow; scaleY = grow }) {
             // Bottom-right corner arc (like the card's edge).
             drawArc(
                 color = color,
@@ -365,7 +381,7 @@ private fun ResizeHandle(
                 useCenter = false,
                 topLeft = Offset(-size.width, -size.height),
                 size = Size(size.width * 2, size.height * 2),
-                style = Stroke(width = 5.dp.toPx(), cap = StrokeCap.Round),
+                style = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round),
             )
         }
     }

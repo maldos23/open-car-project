@@ -212,13 +212,20 @@ class LauncherViewModel(
             return
         }
         viewModelScope.launch {
-            layout.value = addBoundWidget(
+            val updated = addBoundWidget(
                 layout.value,
                 appWidgetId,
                 provider,
                 candidate.title,
                 candidate.packageName,
+                candidate.suggestedSpan,
             )
+            if (updated == null) {
+                deleteWidgetId(appWidgetId)
+                _messages.emit("No hay espacio en la cuadrícula. Quita o achica algo primero.")
+                return@launch
+            }
+            layout.value = updated
             _widgetConfigureRequest.emit(appWidgetId)
         }
     }

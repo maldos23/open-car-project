@@ -92,8 +92,12 @@ fun WeatherIndicator(unit: TemperatureUnit, modifier: Modifier = Modifier) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             while (true) {
                 val force = refreshKey > 0 && System.currentTimeMillis() - cachedAt > 5_000
-                if (cached == null || force || System.currentTimeMillis() - cachedAt > FRESH_MS) {
-                    source.current()?.let {
+                // No city yet (the geocoder timed out or failed): retry on the next pass.
+                val stale = cached?.city == null || System.currentTimeMillis() - cachedAt > FRESH_MS
+                if (force || stale) {
+                    source.current()?.let { fresh ->
+                        // A failed lookup keeps the last known city instead of falling back to the condition.
+                        val it = if (fresh.city == null) fresh.copy(city = cached?.city) else fresh
                         cached = it
                         cachedAt = System.currentTimeMillis()
                         CurrentWeather.value = it

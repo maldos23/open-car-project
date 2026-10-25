@@ -6,6 +6,19 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-10-25
+
+### Fixed
+
+- Widget picker shows each widget's real preview (generated preview, `previewLayout` or
+  `previewImage`) instead of a generic icon.
+- Widgets added through the system permission dialog get their suggested size and land in free
+  cells (they were always 1×1 and could overlap another item when the grid was full).
+- Edit-mode delete and resize controls are smaller and sit on the card corners, so 1×1 icons
+  can still be dragged (touch targets stay 48 dp).
+- Weather keeps showing the city when a geocoder lookup fails, and retries it later.
+- Bottom bar measures the real assistant pill width, so free shortcut slots are no longer hidden.
+
 ## [0.1.1] - 2026-10-25
 
 ### Changed
@@ -47,6 +60,7 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.1.1...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.1.2...develop
+[0.1.2]: https://github.com/maldos23/open-car-project/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/maldos23/open-car-project/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/maldos23/open-car-project/releases/tag/v0.1.0
