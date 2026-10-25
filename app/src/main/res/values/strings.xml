@@ -46,6 +46,8 @@
 
     <!-- Settings -->
     <string name="settings_language">Language</string>
+    <string name="settings_ui_scale">Zoom</string>
+    <string name="percent">%1$d %%</string>
     <string name="settings_fullscreen">Fullscreen</string>
     <string name="settings_fullscreen_desc">Hides the system bars. Swipe from the edge to show them.</string>
     <string name="settings_theme">Theme</string>

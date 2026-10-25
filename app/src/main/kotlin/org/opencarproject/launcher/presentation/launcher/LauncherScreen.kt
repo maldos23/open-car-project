@@ -368,6 +368,7 @@ fun LauncherScreen(
                     onAppMenuStyleChange = viewModel::onAppMenuStyleChange,
                     onDockIconSizeChange = viewModel::onDockIconSizeChange,
                     onAppLanguageChange = viewModel::onAppLanguageChange,
+                    onUiScaleChange = viewModel::onUiScaleChange,
                     onShowAppLabelsChange = viewModel::onShowAppLabelsChange,
                     onAccentColorChange = viewModel::onAccentColorChange,
                     onElementVisibilityChange = viewModel::onElementVisibilityChange,

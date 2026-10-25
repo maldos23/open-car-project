@@ -11,6 +11,7 @@ All notable changes to this project are documented here. The format follows
 - UI translations: English, Spanish, Simplified Chinese, Portuguese and French. Settings →
   Language picks one or follows the system (default); units and regional formats keep
   following the device region.
+- Settings → Zoom slider (80–130 %) scales the whole interface, settings and dialogs included.
 
 ## [0.1.2] - 2026-10-25
 
