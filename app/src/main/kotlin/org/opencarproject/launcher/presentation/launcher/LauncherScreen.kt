@@ -128,10 +128,11 @@ import kotlinx.coroutines.launch
 fun LauncherScreen(
     viewModel: LauncherViewModel,
     widgetHost: LauncherAppWidgetHost?,
+    initialSettingsOpen: Boolean = false,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var drawerOpen by rememberSaveable { mutableStateOf(false) }
-    var settingsOpen by rememberSaveable { mutableStateOf(false) }
+    var settingsOpen by rememberSaveable { mutableStateOf(initialSettingsOpen) }
     var notificationsOpen by rememberSaveable { mutableStateOf(false) }
     // Side of the bar a shortcut is being added to (null = picker closed).
     var dockPickerSide by remember { mutableStateOf<DockSide?>(null) }

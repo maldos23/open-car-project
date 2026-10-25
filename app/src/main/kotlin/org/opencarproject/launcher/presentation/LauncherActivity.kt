@@ -51,7 +51,7 @@ class LauncherActivity : ComponentActivity() {
         LauncherViewModelFactory(container)
     }
 
-    /** Language the resources were loaded with; a different saved one recreates the Activity. */
+    /** Language the resources were loaded with; a different saved one restarts the Activity. */
     private var appliedLanguage = AppLanguage.SYSTEM
 
     /**
@@ -79,6 +79,9 @@ class LauncherActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // Consumed once so a later relaunch of this same intent doesn't reopen settings.
+        val openSettings = intent.getBooleanExtra(EXTRA_OPEN_SETTINGS, false)
+        intent.removeExtra(EXTRA_OPEN_SETTINGS)
         setContent {
             val ready by viewModel.ready.collectAsStateWithLifecycle()
             if (!ready) return@setContent
@@ -93,13 +96,14 @@ class LauncherActivity : ComponentActivity() {
                 )
             }
             LaunchedEffect(settings.fullscreen) { window.setSystemBarsHidden(settings.fullscreen) }
-            LaunchedEffect(settings.appLanguage) { if (settings.appLanguage != appliedLanguage) recreate() }
+            LaunchedEffect(settings.appLanguage) { if (settings.appLanguage != appliedLanguage) restart() }
 
             LauncherTheme(themeMode = settings.themeMode, accent = settings.accentColor) {
                 CompositionLocalProvider(LocalFullscreen provides settings.fullscreen) {
                     LauncherScreen(
                         viewModel = viewModel,
                         widgetHost = container.widgetHost,
+                        initialSettingsOpen = openSettings,
                     )
                 }
             }
@@ -119,6 +123,18 @@ class LauncherActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * Reloads the resources with a new language, back in settings where it was changed.
+     * Not recreate(): it reuses the window, which then keeps fitting the system bars (the content
+     * gets inset and the wallpaper shows behind the status bar).
+     */
+    private fun restart() {
+        finish()
+        startActivity(Intent(this, LauncherActivity::class.java).putExtra(EXTRA_OPEN_SETTINGS, true))
+        @Suppress("DEPRECATION")
+        overridePendingTransition(0, 0)
     }
 
     override fun onStart() {
@@ -179,5 +195,6 @@ class LauncherActivity : ComponentActivity() {
 
     companion object {
         private const val REQUEST_CONFIGURE_APPWIDGET = 1002
+        private const val EXTRA_OPEN_SETTINGS = "open_settings"
     }
 }
