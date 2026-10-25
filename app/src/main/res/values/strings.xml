@@ -86,6 +86,9 @@
     <string name="settings_speed_dial_style">Speedometer style</string>
     <string name="speed_dial_circle">Circle</string>
     <string name="speed_dial_inline">Numbers</string>
+    <string name="settings_motion_glow">Motion glow</string>
+    <string name="settings_motion_glow_desc">The screen edges light up towards where the car is going: turns, speeding up and braking.</string>
+    <string name="settings_motion_glow_sensitivity">Glow sensitivity</string>
     <string name="settings_speed_scene">Speed scene</string>
     <string name="settings_speed_scene_desc">A car in the city that turns into a rocket when you go fast, opposite the weather.</string>
     <string name="settings_rocket_from">Rocket from (%1$s)</string>

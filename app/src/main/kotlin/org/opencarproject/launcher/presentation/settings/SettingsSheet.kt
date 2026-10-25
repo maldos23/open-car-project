@@ -83,6 +83,7 @@ val GridRowsRange = 2..6
 /** Zoom limits: below 80 % touch targets get too small for driving; above 130 % little fits. */
 val UiScaleRange = 0.8f..1.3f
 val MenuIconScaleRange = 0.75f..1.5f
+val MotionGlowSensitivityRange = 0.5f..2f
 
 /** Settings sheet: fullscreen, theme and grid size. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -111,6 +112,8 @@ fun SettingsSheet(
     onAppLanguageChange: (AppLanguage) -> Unit,
     onUiScaleChange: (Float) -> Unit,
     onMenuIconScaleChange: (Float) -> Unit,
+    onMotionGlowChange: (Boolean) -> Unit,
+    onMotionGlowSensitivityChange: (Float) -> Unit,
     onShowAppLabelsChange: (Boolean) -> Unit,
     onAccentColorChange: (AccentColor) -> Unit,
     onElementVisibilityChange: (DockElement, Boolean) -> Unit,
@@ -236,6 +239,19 @@ fun SettingsSheet(
                     options = listOf(SpeedDialStyle.CIRCLE to stringResource(R.string.speed_dial_circle), SpeedDialStyle.INLINE to stringResource(R.string.speed_dial_inline)),
                     selected = settings.speedDialStyle,
                     onSelect = onSpeedDialStyleChange,
+                )
+            }
+
+            Section(stringResource(R.string.settings_motion_glow), stringResource(R.string.settings_motion_glow_desc)) {
+                Switch(checked = settings.motionGlow, onCheckedChange = onMotionGlowChange)
+            }
+            AnimatedVisibility(settings.motionGlow) {
+                SliderRow(
+                    title = stringResource(R.string.settings_motion_glow_sensitivity),
+                    value = settings.motionGlowSensitivity,
+                    range = MotionGlowSensitivityRange,
+                    steps = 14,
+                    onChange = onMotionGlowSensitivityChange,
                 )
             }
 

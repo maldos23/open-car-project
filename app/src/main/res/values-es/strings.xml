@@ -75,6 +75,9 @@
     <string name="settings_speed_dial_style">Estilo del velocímetro</string>
     <string name="speed_dial_circle">Círculo</string>
     <string name="speed_dial_inline">Números</string>
+    <string name="settings_motion_glow">Brillo de movimiento</string>
+    <string name="settings_motion_glow_desc">Los bordes de la pantalla se iluminan hacia donde va el auto: vueltas, aceleración y frenado.</string>
+    <string name="settings_motion_glow_sensitivity">Sensibilidad del brillo</string>
     <string name="settings_speed_scene">Escena de velocidad</string>
     <string name="settings_speed_scene_desc">Coche en la ciudad que se vuelve cohete al ir rápido, del lado contrario al clima.</string>
     <string name="settings_rocket_from">Cohete desde (%1$s)</string>

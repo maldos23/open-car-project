@@ -15,6 +15,7 @@ import org.opencarproject.launcher.core.model.DockIconSize
 import org.opencarproject.launcher.core.model.DockSide
 import org.opencarproject.launcher.core.model.AppLanguage
 import org.opencarproject.launcher.presentation.settings.MenuIconScaleRange
+import org.opencarproject.launcher.presentation.settings.MotionGlowSensitivityRange
 import org.opencarproject.launcher.presentation.settings.UiScaleRange
 import kotlin.math.roundToInt
 import org.opencarproject.launcher.core.model.GridSpec
@@ -406,6 +407,16 @@ class LauncherViewModel(
 
     fun onMenuIconScaleChange(scale: Float) {
         viewModelScope.launch { updateSettings { it.copy(menuIconScale = ((scale * 20).roundToInt() / 20f).coerceIn(MenuIconScaleRange)) } }
+    }
+
+    fun onMotionGlowChange(enabled: Boolean) {
+        viewModelScope.launch { updateSettings { it.copy(motionGlow = enabled) } }
+    }
+
+    fun onMotionGlowSensitivityChange(sensitivity: Float) {
+        viewModelScope.launch {
+            updateSettings { it.copy(motionGlowSensitivity = ((sensitivity * 10).roundToInt() / 10f).coerceIn(MotionGlowSensitivityRange)) }
+        }
     }
 
     fun onAppLanguageChange(language: AppLanguage) {

@@ -19,8 +19,9 @@ Built with **Kotlin + Jetpack Compose (Material 3)**, native Android APIs (`AppW
 | **Built-in modules** | **Navigation** (next-turn guidance from Google Maps / Waze, or an animated *Navigate* button), **Media player** (cover art, progress, vibrant animated background), **Notifications** (cards with previews, actions, native rendering for unmapped styles). |
 | **Top bar** | Animated **weather** pill (gradient per condition) and a **speed scene**: a car / SUV / pickup / cat / dog in a city that changes with time of day and weather, turning into a rocket above a configurable speed. Optional standalone speedometer (circle or inline). |
 | **Notification island** | Dynamic-Island–style pop-up for new notifications and track changes that rests as a top-center bubble with the latest notification. |
+| **Motion glow** | Optional neon glow on the screen edges towards where the car is going: left/right in turns (gyroscope, or GPS bearing), top when speeding up and red bottom when braking (GPS). Adjustable sensitivity. |
 | **Bottom dock** | Clock, app drawer, Google Assistant button with rotating suggestions, app shortcuts, hotspot, signal (4G/5G, Wi-Fi standard), volume, notifications, settings. |
-| **Settings** | Theme (system/light/dark), accent color (incl. Material You), background (solid / wallpaper / animated gradient with particles), units (°C/°F, km/h/mph), 12/24 h, what to show in the bars, app-menu style, and more. |
+| **Settings** | Theme (system/light/dark), accent color (incl. Material You), background (solid / wallpaper / animated gradient with particles), units (°C/°F, km/h/mph), 12/24 h, language (5), UI zoom, app-menu style and icon size, what to show in the bars, and more. |
 
 > The UI is available in English, Spanish, Simplified Chinese, Portuguese and French (Settings →
 > Language). New languages are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).

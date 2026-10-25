@@ -37,6 +37,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import org.opencarproject.launcher.presentation.common.MotionGlowOverlay
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -371,6 +373,8 @@ fun LauncherScreen(
                     onAppLanguageChange = viewModel::onAppLanguageChange,
                     onUiScaleChange = viewModel::onUiScaleChange,
                     onMenuIconScaleChange = viewModel::onMenuIconScaleChange,
+                    onMotionGlowChange = viewModel::onMotionGlowChange,
+                    onMotionGlowSensitivityChange = viewModel::onMotionGlowSensitivityChange,
                     onShowAppLabelsChange = viewModel::onShowAppLabelsChange,
                     onAccentColorChange = viewModel::onAccentColorChange,
                     onElementVisibilityChange = viewModel::onElementVisibilityChange,
@@ -414,6 +418,9 @@ fun LauncherScreen(
             }
         }
     }
+    // Over everything (true screen edges, not the Scaffold's inset box) but above an opaque
+    // navigation bar/taskbar, which would hide the braking glow; draw-only.
+    if (settings.motionGlow) MotionGlowOverlay(settings.motionGlowSensitivity, Modifier.fillMaxSize().navigationBarsPadding())
 }
 
 /**
