@@ -245,7 +245,7 @@ fun PlacedItemCard(
             modifier = Modifier.align(Alignment.Center),
         ) {
             Text(
-                text = "${span.column} × ${span.row}",
+                text = stringResource(R.string.span_size, span.column, span.row),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier

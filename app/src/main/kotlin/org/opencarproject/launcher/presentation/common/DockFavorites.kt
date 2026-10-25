@@ -65,15 +65,10 @@ fun DockFavorites(
     // In edit mode, each free space shows as an outlined slot, making the limit visible.
     val freeSlots = if (editing) (capacity - visible.size).coerceAtLeast(0) else 0
     Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        if (plusFirst) repeat(freeSlots) { SlotIn { EmptySlot(size, onAdd) } }
+        if (plusFirst) repeat(freeSlots) { EmptySlot(size, onAdd) }
         visible.forEach { key -> FavoriteIcon(key, size, editing, onLaunch, onRemove) }
-        if (!plusFirst) repeat(freeSlots) { SlotIn { EmptySlot(size, onAdd) } }
+        if (!plusFirst) repeat(freeSlots) { EmptySlot(size, onAdd) }
     }
-}
-
-@Composable
-private fun SlotIn(content: @Composable () -> Unit) {
-    AnimatedVisibility(true, enter = fadeIn() + expandHorizontally(), exit = fadeOut() + shrinkHorizontally()) { content() }
 }
 
 /** Outlined free slot (dashed border + "+"); tapping it opens the app picker. */
@@ -131,15 +126,16 @@ private fun FavoriteIcon(
             visible = editing,
             enter = fadeIn() + scaleIn(),
             exit = fadeOut() + scaleOut(),
-            modifier = Modifier.align(Alignment.TopEnd).offset(x = 4.dp, y = (-4).dp),
+            // 48 dp touch target around the 26 dp badge; offset so the badge keeps its place.
+            modifier = Modifier.align(Alignment.TopEnd).offset(x = 15.dp, y = (-15).dp),
         ) {
             Box(
                 Modifier
-                    .size(26.dp)
-                    .background(MaterialTheme.colorScheme.primary, CircleShape)
+                    .size(48.dp)
                     .clickable { onRemove(key) },
                 contentAlignment = Alignment.Center,
             ) {
+                Box(Modifier.size(26.dp).background(MaterialTheme.colorScheme.primary, CircleShape))
                 Icon(
                     Icons.Rounded.Close,
                     contentDescription = stringResource(R.string.dock_remove),

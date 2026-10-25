@@ -22,6 +22,9 @@ sealed interface AddItemResult {
 
     /** The grid is full: nothing is added. */
     data object NoSpace : AddItemResult
+
+    /** The widget's provider is gone (e.g. its app was just uninstalled): nothing is added. */
+    data object Unavailable : AddItemResult
 }
 
 /**
@@ -45,46 +48,56 @@ class AddItem(
             CatalogItemKind.NOTIFICATIONS -> Cell(2, 2 * scale)
             CatalogItemKind.WIDGET -> (candidate.suggestedSpan ?: Cell(1, 1)).let { it.copy(column = it.column * scale) }
         }.let { GridMath.clampSpan(Cell(0, 0), it, current.grid) }
+        // Apps and built-in modules have a stable id: adding one twice would make both copies
+        // share it (a delete would remove both). Already placed means nothing to do.
+        if (candidate.kind != CatalogItemKind.WIDGET &&
+            current.items.any { it.id == PlacedItem.identity(candidate.kind, candidate.key, -1) }
+        ) {
+            return AddItemResult.Success(current)
+        }
         // Wherever the grid allows: if it doesn't fit at full size, it is placed smaller.
         val (freeCell, span) = GridMath.placeNew(current.grid, current.items, preferredSpan) ?: return AddItemResult.NoSpace
 
         return when (candidate.kind) {
-            CatalogItemKind.APP, CatalogItemKind.MAP, CatalogItemKind.MEDIA, CatalogItemKind.NOTIFICATIONS -> {
-                val item = PlacedItem(
-                    id = PlacedItem.identity(candidate.kind, candidate.key, -1),
-                    kind = candidate.kind,
-                    componentKey = candidate.key,
-                    cell = freeCell,
-                    span = span,
-                    title = candidate.title,
-                    packageName = candidate.packageName,
-                )
-                val newLayout = current.copy(items = current.items + item)
-                layoutRepository.saveLayout(newLayout)
-                AddItemResult.Success(newLayout)
-            }
+            CatalogItemKind.APP, CatalogItemKind.MAP, CatalogItemKind.MEDIA, CatalogItemKind.NOTIFICATIONS ->
+                AddItemResult.Success(placeAndSave(current, candidate, widgetId = -1, freeCell, span))
 
             CatalogItemKind.WIDGET -> {
                 val appWidgetId = host.allocateAppWidgetId()
-                if (host.bindWidgetIfAllowed(appWidgetId, candidate.key)) {
-                    val item = PlacedItem(
-                        id = PlacedItem.identity(candidate.kind, candidate.key, appWidgetId),
-                        kind = candidate.kind,
-                        componentKey = candidate.key,
-                        widgetId = appWidgetId,
-                        cell = freeCell,
-                        span = span,
-                        title = candidate.title,
-                        packageName = candidate.packageName,
-                    )
-                    val newLayout = current.copy(items = current.items + item)
-                    layoutRepository.saveLayout(newLayout)
-                    AddItemResult.Success(newLayout)
-                } else {
+                // The provider may disappear between listing and binding: the system then throws.
+                val bound = runCatching { host.bindWidgetIfAllowed(appWidgetId, candidate.key) }.getOrNull()
+                when (bound) {
+                    true -> AddItemResult.Success(placeAndSave(current, candidate, appWidgetId, freeCell, span))
                     // The id is not released: it will be reused in the ACTION_APPWIDGET_BIND flow.
-                    AddItemResult.NeedsWidgetPick(appWidgetId, candidate.key)
+                    false -> AddItemResult.NeedsWidgetPick(appWidgetId, candidate.key)
+                    null -> {
+                        host.deleteWidget(appWidgetId)
+                        AddItemResult.Unavailable
+                    }
                 }
             }
         }
+    }
+
+    private suspend fun placeAndSave(
+        current: LayoutDefinition,
+        candidate: CatalogItem,
+        widgetId: Int,
+        cell: Cell,
+        span: Cell,
+    ): LayoutDefinition {
+        val item = PlacedItem(
+            id = PlacedItem.identity(candidate.kind, candidate.key, widgetId),
+            kind = candidate.kind,
+            componentKey = candidate.key,
+            widgetId = widgetId,
+            cell = cell,
+            span = span,
+            title = candidate.title,
+            packageName = candidate.packageName,
+        )
+        val newLayout = current.copy(items = current.items + item)
+        layoutRepository.saveLayout(newLayout)
+        return newLayout
     }
 }

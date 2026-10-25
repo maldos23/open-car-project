@@ -98,7 +98,7 @@ private fun ClientList(clients: List<HotspotClient>?) {
                     Column(Modifier.padding(start = 12.dp)) {
                         Text(client.name ?: stringResource(R.string.hotspot_device), style = MaterialTheme.typography.titleMedium)
                         Text(
-                            listOfNotNull(client.ip, client.mac).joinToString(" · "),
+                            listOfNotNull(client.ip, client.mac).joinToString(stringResource(R.string.separator)),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

@@ -3,22 +3,17 @@ package org.opencarproject.launcher.presentation.launcher
 import org.opencarproject.launcher.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import org.opencarproject.launcher.core.model.AccentColor
-import org.opencarproject.launcher.core.model.AppMenuStyle
-import org.opencarproject.launcher.core.model.BackgroundStyle
 import org.opencarproject.launcher.core.model.CatalogItem
 import org.opencarproject.launcher.core.model.CatalogItemKind
 import org.opencarproject.launcher.core.model.Cell
 import org.opencarproject.launcher.core.model.DockElement
 import org.opencarproject.launcher.core.model.DragPhase
-import org.opencarproject.launcher.core.model.DockIconSize
 import org.opencarproject.launcher.core.model.DockSide
-import org.opencarproject.launcher.core.model.AppLanguage
-import org.opencarproject.launcher.presentation.settings.MenuIconScaleRange
-import org.opencarproject.launcher.presentation.settings.MotionGlowSensitivityRange
-import org.opencarproject.launcher.presentation.settings.UiScaleRange
-import kotlin.math.roundToInt
-import org.opencarproject.launcher.core.model.GlowColor
+import org.opencarproject.launcher.core.pure.MenuIconScaleRange
+import org.opencarproject.launcher.core.pure.MotionGlowSensitivityRange
+import org.opencarproject.launcher.core.pure.RocketKmhRange
+import org.opencarproject.launcher.core.pure.UiScaleRange
+import org.opencarproject.launcher.core.pure.snap
 import org.opencarproject.launcher.core.model.GridSpec
 import org.opencarproject.launcher.core.model.LayoutDefinition
 import org.opencarproject.launcher.core.model.LayoutMode
@@ -26,14 +21,6 @@ import org.opencarproject.launcher.core.model.LauncherSettings
 import org.opencarproject.launcher.core.model.LauncherUiState
 import org.opencarproject.launcher.core.model.PanelState
 import org.opencarproject.launcher.core.model.PlacedItem
-import org.opencarproject.launcher.core.model.SpeedDialStyle
-import org.opencarproject.launcher.core.model.SpeedSource
-import org.opencarproject.launcher.core.model.SpeedUnit
-import org.opencarproject.launcher.core.model.TemperatureUnit
-import org.opencarproject.launcher.core.model.ThemeMode
-import org.opencarproject.launcher.core.model.TimeFormat
-import org.opencarproject.launcher.core.model.VehicleColor
-import org.opencarproject.launcher.core.model.VehicleShape
 import org.opencarproject.launcher.core.model.WeatherPosition
 import org.opencarproject.launcher.domain.usecase.AddBoundWidget
 import org.opencarproject.launcher.domain.usecase.AddItem
@@ -61,6 +48,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /** Transient interaction state, kept separate from the persisted layout. */
 private data class InteractionState(
@@ -70,7 +59,10 @@ private data class InteractionState(
     val activeItemId: String? = null,
     val previewCell: Cell? = null,
     val previewSpan: Cell? = null,
-)
+) {
+    /** No gesture in progress. */
+    fun idle() = copy(dragPhase = DragPhase.IDLE, activeItemId = null, previewCell = null, previewSpan = null)
+}
 
 /**
  * Launcher ViewModel: orchestrates state between the persisted layout, the catalog and
@@ -95,6 +87,9 @@ class LauncherViewModel(
     private val layout = MutableStateFlow(LayoutDefinition())
     private val layoutLoaded = MutableStateFlow(false)
     private val interaction = MutableStateFlow(InteractionState())
+
+    /** Serializes layout changes: each one reads the result of the previous (no lost updates). */
+    private val layoutMutex = Mutex()
 
     /** Asks the Activity for the system permission to bind that widget (`ACTION_APPWIDGET_BIND`). */
     private val _widgetBindRequest = MutableSharedFlow<Pair<Int, String>>(extraBufferCapacity = 1)
@@ -149,7 +144,7 @@ class LauncherViewModel(
 
     init {
         viewModelScope.launch {
-            layout.value = loadLayout().first()
+            layoutMutex.withLock { layout.value = loadLayout().first() }
             layoutLoaded.value = true
         }
     }
@@ -162,29 +157,15 @@ class LauncherViewModel(
      * page.
      */
     fun onHomePressed() {
-        interaction.update {
-            it.copy(
-                layoutMode = LayoutMode.NORMAL,
-                panelState = PanelState.CLOSED,
-                dragPhase = DragPhase.IDLE,
-                activeItemId = null,
-                previewCell = null,
-                previewSpan = null,
-            )
-        }
+        interaction.update { it.idle().copy(layoutMode = LayoutMode.NORMAL, panelState = PanelState.CLOSED) }
         _homePressed.tryEmit(Unit)
     }
 
     fun toggleEditMode() {
         interaction.update { inter ->
             val newMode = if (inter.layoutMode == LayoutMode.EDIT) LayoutMode.NORMAL else LayoutMode.EDIT
-            inter.copy(
-                layoutMode = newMode,
-                dragPhase = DragPhase.IDLE,
-                activeItemId = null,
-                previewCell = null,
-                previewSpan = null,
-            )
+            // The add panel only makes sense while editing (Back would leave it floating).
+            inter.idle().copy(layoutMode = newMode, panelState = PanelState.CLOSED)
         }
     }
 
@@ -195,19 +176,22 @@ class LauncherViewModel(
     // ---- Add / remove ----
 
     fun onAddItem(candidate: CatalogItem) {
-        viewModelScope.launch {
-            when (val result = addItem(candidate, layout.value)) {
+        mutateLayout { current ->
+            val result = addItem(candidate, current)
+            closePanel()
+            when (result) {
                 is AddItemResult.Success -> {
-                    layout.value = result.layout
                     if (candidate.kind == CatalogItemKind.WIDGET) {
                         result.layout.items.lastOrNull()?.let { _widgetConfigureRequest.emit(it.widgetId) }
                     }
+                    return@mutateLayout result.layout
                 }
                 // Third-party launcher: the system asks the user for permission for this widget.
                 is AddItemResult.NeedsWidgetPick -> _widgetBindRequest.emit(result.appWidgetId to result.provider)
                 AddItemResult.NoSpace -> _messages.emit(R.string.grid_no_space)
+                AddItemResult.Unavailable -> _messages.emit(R.string.widget_unavailable)
             }
-            closePanel()
+            null
         }
     }
 
@@ -219,9 +203,9 @@ class LauncherViewModel(
             onWidgetPickCancelled(appWidgetId)
             return
         }
-        viewModelScope.launch {
+        mutateLayout { current ->
             val updated = addBoundWidget(
-                layout.value,
+                current,
                 appWidgetId,
                 provider,
                 candidate.title,
@@ -231,10 +215,10 @@ class LauncherViewModel(
             if (updated == null) {
                 deleteWidgetId(appWidgetId)
                 _messages.emit(R.string.grid_no_space)
-                return@launch
+            } else {
+                _widgetConfigureRequest.emit(appWidgetId)
             }
-            layout.value = updated
-            _widgetConfigureRequest.emit(appWidgetId)
+            updated
         }
     }
 
@@ -250,9 +234,7 @@ class LauncherViewModel(
     }
 
     fun onDeleteItem(itemId: String) {
-        viewModelScope.launch {
-            layout.value = removeItem(layout.value, itemId)
-        }
+        mutateLayout { removeItem(it, itemId) }
     }
 
     // ---- Drag gestures (move) ----
@@ -280,11 +262,7 @@ class LauncherViewModel(
         if (itemId == null || target == null) return clearDrag()
         // The gesture is cleared at the same instant the new layout arrives, so the card
         // goes from "stuck to the finger" to settling in its new cell without first snapping back to its origin.
-        viewModelScope.launch {
-            val result = moveItem(layout.value, itemId, target)
-            layout.value = result
-            clearDrag()
-        }
+        mutateLayout(onApplied = ::clearDrag) { moveItem(it, itemId, target) }
     }
 
     fun onMoveCancel() = clearDrag()
@@ -312,170 +290,56 @@ class LauncherViewModel(
         val itemId = inter.activeItemId
         val span = inter.previewSpan
         if (itemId == null || span == null) return clearDrag()
-        viewModelScope.launch {
-            val result = resizeItem(layout.value, itemId, span)
-            layout.value = result
-            clearDrag()
-        }
+        mutateLayout(onApplied = ::clearDrag) { resizeItem(it, itemId, span) }
     }
 
     fun onResizeCancel() = clearDrag()
 
     // ---- Settings ----
 
-    fun onFullscreenChange(enabled: Boolean) {
-        viewModelScope.launch { updateSettings { it.copy(fullscreen = enabled) } }
-    }
-
-    fun onThemeChange(mode: ThemeMode) {
-        viewModelScope.launch { updateSettings { it.copy(themeMode = mode) } }
-    }
-
-    fun onTemperatureUnitChange(unit: TemperatureUnit) {
-        viewModelScope.launch { updateSettings { it.copy(temperatureUnit = unit) } }
-    }
-
-    fun onGradientParticlesChange(enabled: Boolean) {
-        viewModelScope.launch { updateSettings { it.copy(gradientParticles = enabled) } }
-    }
-
-    fun onBackgroundChange(style: BackgroundStyle) {
-        viewModelScope.launch { updateSettings { it.copy(background = style) } }
+    /** Plain setting changes (one field, no rule): the settings sheet passes the copy to apply. */
+    fun onSettingsChange(transform: (LauncherSettings) -> LauncherSettings) {
+        viewModelScope.launch { updateSettings(transform) }
     }
 
     /** Centered weather and the speed scene are mutually exclusive: choosing "Centro" turns off the scene. */
-    fun onWeatherPositionChange(position: WeatherPosition) {
-        viewModelScope.launch {
-            updateSettings {
-                it.copy(weatherPosition = position, speedScene = it.speedScene && position != WeatherPosition.CENTER)
-            }
-        }
+    fun onWeatherPositionChange(position: WeatherPosition) = onSettingsChange {
+        it.copy(weatherPosition = position, speedScene = it.speedScene && position != WeatherPosition.CENTER)
     }
 
     /** Enabling the scene while the weather is centered moves it to the left. */
-    fun onSpeedSceneChange(enabled: Boolean) {
-        viewModelScope.launch {
-            updateSettings {
-                val position = if (enabled && it.weatherPosition == WeatherPosition.CENTER) WeatherPosition.LEFT else it.weatherPosition
-                it.copy(speedScene = enabled, weatherPosition = position)
-            }
-        }
+    fun onSpeedSceneChange(enabled: Boolean) = onSettingsChange {
+        val position = if (enabled && it.weatherPosition == WeatherPosition.CENTER) WeatherPosition.LEFT else it.weatherPosition
+        it.copy(speedScene = enabled, weatherPosition = position)
     }
 
-    fun onSpeedSourceChange(source: SpeedSource) {
-        viewModelScope.launch { updateSettings { it.copy(speedSource = source) } }
-    }
+    fun onRocketKmhChange(kmh: Int) = onSettingsChange { it.copy(rocketKmh = kmh.coerceIn(RocketKmhRange)) }
 
-    fun onVehicleShapeChange(shape: VehicleShape) {
-        viewModelScope.launch { updateSettings { it.copy(vehicleShape = shape) } }
-    }
+    fun onUiScaleChange(scale: Float) = onSettingsChange { it.copy(uiScale = snap(scale, 20, UiScaleRange)) }
 
-    fun onVehicleColorChange(color: VehicleColor) {
-        viewModelScope.launch { updateSettings { it.copy(vehicleColor = color) } }
-    }
+    fun onMenuIconScaleChange(scale: Float) = onSettingsChange { it.copy(menuIconScale = snap(scale, 20, MenuIconScaleRange)) }
 
-    fun onShowSpeedDialChange(show: Boolean) {
-        viewModelScope.launch { updateSettings { it.copy(showSpeedDial = show) } }
-    }
-
-    fun onSpeedDialStyleChange(style: SpeedDialStyle) {
-        viewModelScope.launch { updateSettings { it.copy(speedDialStyle = style) } }
-    }
-
-    fun onSpeedUnitChange(unit: SpeedUnit) {
-        viewModelScope.launch { updateSettings { it.copy(speedUnit = unit) } }
-    }
-
-    fun onRocketKmhChange(kmh: Int) {
-        viewModelScope.launch { updateSettings { it.copy(rocketKmh = kmh.coerceIn(20, 200)) } }
-    }
-
-    fun onTimeFormatChange(format: TimeFormat) {
-        viewModelScope.launch { updateSettings { it.copy(timeFormat = format) } }
-    }
-
-    fun onAccentColorChange(accent: AccentColor) {
-        viewModelScope.launch { updateSettings { it.copy(accentColor = accent) } }
-    }
-
-    fun onShowAppLabelsChange(show: Boolean) {
-        viewModelScope.launch { updateSettings { it.copy(showAppLabels = show) } }
-    }
-
-    fun onUiScaleChange(scale: Float) {
-        viewModelScope.launch { updateSettings { it.copy(uiScale = ((scale * 20).roundToInt() / 20f).coerceIn(UiScaleRange)) } }
-    }
-
-    fun onMenuIconScaleChange(scale: Float) {
-        viewModelScope.launch { updateSettings { it.copy(menuIconScale = ((scale * 20).roundToInt() / 20f).coerceIn(MenuIconScaleRange)) } }
-    }
-
-    fun onMotionGlowChange(enabled: Boolean) {
-        viewModelScope.launch { updateSettings { it.copy(motionGlow = enabled) } }
-    }
-
-    fun onMotionGlowColorChange(color: GlowColor) {
-        viewModelScope.launch { updateSettings { it.copy(motionGlowColor = color) } }
-    }
-
-    fun onMotionGlowSensitivityChange(sensitivity: Float) {
-        viewModelScope.launch {
-            updateSettings { it.copy(motionGlowSensitivity = ((sensitivity * 10).roundToInt() / 10f).coerceIn(MotionGlowSensitivityRange)) }
-        }
-    }
-
-    fun onAppLanguageChange(language: AppLanguage) {
-        viewModelScope.launch { updateSettings { it.copy(appLanguage = language) } }
-    }
-
-    fun onDockIconSizeChange(size: DockIconSize) {
-        viewModelScope.launch { updateSettings { it.copy(dockIconSize = size) } }
+    fun onMotionGlowSensitivityChange(sensitivity: Float) = onSettingsChange {
+        it.copy(motionGlowSensitivity = snap(sensitivity, 10, MotionGlowSensitivityRange))
     }
 
     /** Adds an app to one side of the bottom bar (without duplicating it on that side). */
-    fun onDockAppAdd(side: DockSide, componentKey: String) {
-        viewModelScope.launch {
-            updateSettings {
-                when (side) {
-                    DockSide.LEFT -> if (componentKey in it.dockLeftApps) it else it.copy(dockLeftApps = it.dockLeftApps + componentKey)
-                    DockSide.RIGHT -> if (componentKey in it.dockRightApps) it else it.copy(dockRightApps = it.dockRightApps + componentKey)
-                }
-            }
-        }
+    fun onDockAppAdd(side: DockSide, componentKey: String) = onSettingsChange {
+        val apps = it.dockApps(side)
+        if (componentKey in apps) it else it.withDockApps(side, apps + componentKey)
     }
 
-    fun onDockAppRemove(side: DockSide, componentKey: String) {
-        viewModelScope.launch {
-            updateSettings {
-                when (side) {
-                    DockSide.LEFT -> it.copy(dockLeftApps = it.dockLeftApps - componentKey)
-                    DockSide.RIGHT -> it.copy(dockRightApps = it.dockRightApps - componentKey)
-                }
-            }
-        }
+    fun onDockAppRemove(side: DockSide, componentKey: String) = onSettingsChange {
+        it.withDockApps(side, it.dockApps(side) - componentKey)
     }
 
-    fun onAppMenuStyleChange(style: AppMenuStyle) {
-        viewModelScope.launch { updateSettings { it.copy(appMenuStyle = style) } }
-    }
-
-    fun onElementVisibilityChange(element: DockElement, visible: Boolean) {
-        viewModelScope.launch {
-            updateSettings {
-                it.copy(hiddenElements = if (visible) it.hiddenElements - element else it.hiddenElements + element)
-            }
-        }
+    fun onElementVisibilityChange(element: DockElement, visible: Boolean) = onSettingsChange {
+        it.copy(hiddenElements = if (visible) it.hiddenElements - element else it.hiddenElements + element)
     }
 
     fun onGridChange(grid: GridSpec) {
-        viewModelScope.launch {
-            val result = changeGridSize(layout.value, grid)
-            if (result == null) {
-                _gridError.value = grid
-            } else {
-                layout.value = result
-                _gridError.value = null
-            }
+        mutateLayout { current ->
+            changeGridSize(current, grid).also { _gridError.value = if (it == null) grid else null }
         }
     }
 
@@ -502,14 +366,29 @@ class LauncherViewModel(
     /** Invokes the voice assistant (Google Assistant). */
     fun onLaunchAssistant() = launchAssistant()
 
-    private fun clearDrag() {
-        interaction.update {
-            it.copy(
-                dragPhase = DragPhase.IDLE,
-                activeItemId = null,
-                previewCell = null,
-                previewSpan = null,
-            )
+    private fun LauncherSettings.dockApps(side: DockSide) = when (side) {
+        DockSide.LEFT -> dockLeftApps
+        DockSide.RIGHT -> dockRightApps
+    }
+
+    private fun LauncherSettings.withDockApps(side: DockSide, apps: List<String>) = when (side) {
+        DockSide.LEFT -> copy(dockLeftApps = apps)
+        DockSide.RIGHT -> copy(dockRightApps = apps)
+    }
+
+    private fun clearDrag() = interaction.update { it.idle() }
+
+    /**
+     * Applies a layout change on top of the latest layout; `null` from [block] keeps it as is.
+     * Two quick actions (e.g. two deletes) would otherwise both start from the same old layout.
+     * [onApplied] runs right after the new layout is set (e.g. to end the gesture at that instant).
+     */
+    private fun mutateLayout(onApplied: () -> Unit = {}, block: suspend (LayoutDefinition) -> LayoutDefinition?) {
+        viewModelScope.launch {
+            layoutMutex.withLock {
+                block(layout.value)?.let { layout.value = it }
+                onApplied()
+            }
         }
     }
 }

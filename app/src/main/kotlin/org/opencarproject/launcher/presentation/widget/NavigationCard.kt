@@ -6,7 +6,6 @@ import android.app.Notification
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.service.notification.StatusBarNotification
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -55,6 +54,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.net.toUri
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -63,9 +63,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.opencarproject.launcher.core.util.dpInt
+import org.opencarproject.launcher.core.util.toBoundedImageBitmap
 import org.opencarproject.launcher.core.util.toImageBitmap
 import org.opencarproject.launcher.data.source.LauncherNotificationListener
 
@@ -98,7 +98,7 @@ private fun GuidanceContent(sbn: StatusBarNotification) {
     val instruction = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString().orEmpty()
     val arrival = extras.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString().orEmpty()
     val arrow = remember(sbn.key, sbn.postTime) {
-        runCatching { sbn.notification.getLargeIcon()?.loadDrawable(context)?.toBitmap()?.asImageBitmap() }.getOrNull()
+        runCatching { sbn.notification.getLargeIcon()?.loadDrawable(context)?.toBoundedImageBitmap(context.dpInt(96f)) }.getOrNull()
     }
     val app = remember(sbn.packageName) { context.appLabelAndIcon(sbn.packageName) }
 
@@ -223,26 +223,27 @@ private fun NavigateButton() {
     val app = remember { context.defaultNavigationApp() }
     val pressSource = remember { MutableInteractionSource() }
     val pressed by pressSource.collectIsPressedAsState()
-    val pressScale by animateFloatAsState(
+    // Read only inside graphicsLayer / Canvas (see NavigateStage): redraws without recomposing.
+    val pressScale = animateFloatAsState(
         targetValue = if (pressed) 0.9f else 1f,
         animationSpec = spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium),
         label = "press",
     )
 
     val transition = rememberInfiniteTransition(label = "navigate")
-    val pulse by transition.animateFloat(
+    val pulse = transition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(tween(2200, easing = LinearEasing)),
         label = "pulse",
     )
-    val sway by transition.animateFloat(
+    val sway = transition.animateFloat(
         initialValue = -1f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(tween(1500, easing = FastOutSlowInEasing), RepeatMode.Reverse),
         label = "sway",
     )
-    val dash by transition.animateFloat(
+    val dash = transition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(tween(900, easing = LinearEasing)),
@@ -264,7 +265,7 @@ private fun NavigateButton() {
         val wide = w > h * 1.6f && h >= 80.dp
         val compact = !wide && (h < 150.dp || w < 150.dp)
         val stage: @Composable (Dp) -> Unit = { size ->
-            NavigateStage(size, primary, pulse, dash, sway, pressScale)
+            NavigateStage(size, primary, { pulse.value }, { dash.value }, { sway.value }, { pressScale.value })
         }
         val label: @Composable () -> Unit = {
             Text(
@@ -308,17 +309,17 @@ private fun NavigateButton() {
 private fun NavigateStage(
     stageSize: Dp,
     primary: Color,
-    pulse: Float,
-    dash: Float,
-    sway: Float,
-    pressScale: Float,
+    pulse: () -> Float,
+    dash: () -> Float,
+    sway: () -> Float,
+    pressScale: () -> Float,
 ) {
     Box(Modifier.size(stageSize), contentAlignment = Alignment.Center) {
             Canvas(Modifier.fillMaxSize()) {
                 val maxRadius = size.minDimension / 2
                 // Two out-of-phase rings that expand and fade out (radar).
                 for (k in 0..1) {
-                    val p = (pulse + k * 0.5f) % 1f
+                    val p = (pulse() + k * 0.5f) % 1f
                     drawCircle(
                         color = primary.copy(alpha = (1f - p) * 0.45f),
                         radius = maxRadius * (0.42f + 0.58f * p),
@@ -333,7 +334,7 @@ private fun NavigateStage(
                     end = center.copy(y = center.y + maxRadius * 0.45f),
                     strokeWidth = 4.dp.toPx(),
                     cap = StrokeCap.Round,
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(step * 0.4f, step * 0.6f), phase = dash * step),
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(step * 0.4f, step * 0.6f), phase = dash() * step),
                 )
             }
             Surface(
@@ -343,8 +344,8 @@ private fun NavigateStage(
                 modifier = Modifier
                     .size(stageSize * 0.42f)
                     .graphicsLayer {
-                        scaleX = pressScale
-                        scaleY = pressScale
+                        scaleX = pressScale()
+                        scaleY = pressScale()
                     },
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -355,6 +356,7 @@ private fun NavigateStage(
                         modifier = Modifier
                             .size(stageSize * 0.22f)
                             .graphicsLayer {
+                                val sway = sway()
                                 rotationZ = sway * 8f
                                 translationY = -sway * 3.dp.toPx()
                             },
@@ -377,7 +379,10 @@ private fun AppHeader(app: NavApp?, status: String?) {
     ) {
         if (app.icon != null) Image(app.icon, contentDescription = null, modifier = Modifier.size(22.dp))
         Text(
-            text = listOfNotNull(if (status == null) stringResource(R.string.nav_with_app, app.label) else app.label, status).joinToString(" · "),
+            text = when (status) {
+                null -> stringResource(R.string.nav_with_app, app.label)
+                else -> listOf(app.label, status).joinToString(stringResource(R.string.separator))
+            },
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -397,7 +402,7 @@ private fun Context.appLabelAndIcon(packageName: String): NavApp? = runCatching 
  */
 private fun Context.defaultNavigationApp(): NavApp? {
     val pm = packageManager
-    val chosen = pm.resolveActivity(Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0")), PackageManager.MATCH_DEFAULT_ONLY)
+    val chosen = pm.resolveActivity(Intent(Intent.ACTION_VIEW, "geo:0,0".toUri()), PackageManager.MATCH_DEFAULT_ONLY)
         ?.activityInfo?.packageName
         ?.takeIf { it != "android" && pm.getLaunchIntentForPackage(it) != null }
     val pkg = chosen ?: LauncherNotificationListener.NAVIGATION_PACKAGES.firstOrNull { pm.getLaunchIntentForPackage(it) != null }
@@ -407,6 +412,6 @@ private fun Context.defaultNavigationApp(): NavApp? {
 /** Opens the given app; if none is installed, delegates to `geo:` (Android offers a choice). */
 private fun Context.openNavigationApp(packageName: String?) {
     val intent = packageName?.let { packageManager.getLaunchIntentForPackage(it) }
-        ?: Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0"))
+        ?: Intent(Intent.ACTION_VIEW, "geo:0,0".toUri())
     runCatching { startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
 }

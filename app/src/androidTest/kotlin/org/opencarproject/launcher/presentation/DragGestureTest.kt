@@ -15,6 +15,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import org.opencarproject.launcher.R
 import androidx.test.rule.GrantPermissionRule
 import android.Manifest
 import org.opencarproject.launcher.core.model.CatalogItem
@@ -122,7 +124,9 @@ class DragGestureTest {
         advanceUntil { viewModel.uiState.value.layoutMode == LayoutMode.EDIT }
 
         // 2) Open the panel and select an item.
-        rule.onNodeWithContentDescription("Agregar").performClick()
+        // Localized: the device language decides the label.
+        val add = InstrumentationRegistry.getInstrumentation().targetContext.getString(R.string.add)
+        rule.onNodeWithContentDescription(add).performClick()
         rule.mainClock.advanceTimeBy(1_000) // let the panel finish opening
         rule.onNodeWithText("Mapas").performClick()
         advanceUntil { viewModel.uiState.value.items.size == 1 }

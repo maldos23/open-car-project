@@ -38,6 +38,28 @@ private class FakeWidgetHost : WidgetHostGateway {
 class UseCaseTest {
 
     @Test
+    fun addApp_twice_keepsSingleCopy() = runTest {
+        val addItem = AddItem(FakeWidgetHost(), FakeLayoutRepository())
+        val app = CatalogItem(CatalogItemKind.APP, "pkg/A", "A", "pkg")
+        val first = (addItem(app, LayoutDefinition().toFineColumns()) as AddItemResult.Success).layout
+        val second = (addItem(app, first) as AddItemResult.Success).layout
+        assertEquals(1, second.items.size)
+    }
+
+    @Test
+    fun addWidget_whenBindThrows_releasesIdAndReportsUnavailable() = runTest {
+        val deleted = mutableListOf<Int>()
+        val host = object : WidgetHostGateway by FakeWidgetHost() {
+            override fun bindWidgetIfAllowed(appWidgetId: Int, provider: String): Boolean =
+                throw IllegalArgumentException("provider gone")
+            override fun deleteWidget(appWidgetId: Int) { deleted += appWidgetId }
+        }
+        val widget = CatalogItem(CatalogItemKind.WIDGET, "gone/W", "W", "gone")
+        assertEquals(AddItemResult.Unavailable, AddItem(host, FakeLayoutRepository())(widget, LayoutDefinition()))
+        assertEquals(listOf(100), deleted)
+    }
+
+    @Test
     fun addWidget_allocatesBindsAndPersists() = runTest {
         val repo = FakeLayoutRepository()
         val host = FakeWidgetHost()

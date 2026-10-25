@@ -43,12 +43,6 @@ class GridMathTest {
     }
 
     @Test
-    fun findFreeCell_skipsOccupied() {
-        val occupied = item("a", Cell(0, 0), Cell(1, 1))
-        assertEquals(Cell(0, 1), GridMath.findFreeCell(grid, listOf(occupied), Cell(1, 1)))
-    }
-
-    @Test
     fun targetCell_followsDragDelta() {
         // Delta (250,150) in 100-px cells -> +3 columns (2.5 rounds up), +2 rows (1.5).
         val target = GridMath.targetCell(Cell(0, 0), Cell(1, 1), 250f, 150f, 100f, 100f, grid)

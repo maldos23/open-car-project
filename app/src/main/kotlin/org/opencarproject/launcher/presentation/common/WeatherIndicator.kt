@@ -112,13 +112,14 @@ fun WeatherIndicator(unit: TemperatureUnit, modifier: Modifier = Modifier) {
 
     val current = weather
     val (from, to) = current?.gradient() ?: (Color.Transparent to Color.Transparent)
-    val c1 by animateColorAsState(from, tween(1200), label = "c1")
-    val c2 by animateColorAsState(to, tween(1200), label = "c2")
+    // Animated values are read only in drawBehind: they redraw the pill, never recompose it.
+    val c1 = animateColorAsState(from, tween(1200), label = "c1")
+    val c2 = animateColorAsState(to, tween(1200), label = "c2")
     // Slowly sliding gradient; during storms, a brief flash now and then.
     val t = rememberInfiniteTransition(label = "weatherBg")
-    val drift by t.animateFloat(0f, 1f, infiniteRepeatable(tween(7000, easing = LinearEasing), RepeatMode.Reverse), label = "drift")
-    val flashPhase by t.animateFloat(0f, 1f, infiniteRepeatable(tween(4200, easing = LinearEasing)), label = "flash")
-    val flash = if (current?.condition == WeatherCondition.THUNDERSTORM && flashPhase in 0.02f..0.06f) 0.25f else 0f
+    val drift = t.animateFloat(0f, 1f, infiniteRepeatable(tween(7000, easing = LinearEasing), RepeatMode.Reverse), label = "drift")
+    val flashPhase = t.animateFloat(0f, 1f, infiniteRepeatable(tween(4200, easing = LinearEasing)), label = "flash")
+    val storm = current?.condition == WeatherCondition.THUNDERSTORM
     val onColor = if (current != null) Color.White else MaterialTheme.colorScheme.onSurface
     val onColorDim = if (current != null) Color.White.copy(alpha = 0.85f) else MaterialTheme.colorScheme.onSurfaceVariant
     val shape = RoundedCornerShape(50)
@@ -128,14 +129,15 @@ fun WeatherIndicator(unit: TemperatureUnit, modifier: Modifier = Modifier) {
             .clip(shape)
             .drawBehind {
                 if (current == null) return@drawBehind
+                val d = drift.value
                 drawRect(
                     Brush.linearGradient(
-                        listOf(c1, c2, c1),
-                        start = Offset(-size.width * drift, 0f),
-                        end = Offset(size.width * (2f - drift), size.height),
+                        listOf(c1.value, c2.value, c1.value),
+                        start = Offset(-size.width * d, 0f),
+                        end = Offset(size.width * (2f - d), size.height),
                     ),
                 )
-                if (flash > 0f) drawRect(Color.White.copy(alpha = flash))
+                if (storm && flashPhase.value in 0.02f..0.06f) drawRect(Color.White.copy(alpha = 0.25f))
             }
             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
                 if (hasPermission) refreshKey++ else permissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -163,8 +165,9 @@ fun WeatherIndicator(unit: TemperatureUnit, modifier: Modifier = Modifier) {
         AnimatedContent(
             targetState = current?.let {
                 val fahrenheit = Temperature.usesFahrenheit(unit, Locale.getDefault().country)
-                "${Temperature.display(it.celsius, fahrenheit)}°${if (fahrenheit) "F" else "C"}"
-            } ?: "--°",
+                val degrees = Temperature.display(it.celsius, fahrenheit)
+                stringResource(if (fahrenheit) R.string.temperature_value_f else R.string.temperature_value_c, degrees)
+            } ?: stringResource(R.string.temperature_value_unknown),
             transitionSpec = { fadeIn() togetherWith fadeOut() },
             label = "temperature",
         ) {
