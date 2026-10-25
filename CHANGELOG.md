@@ -6,9 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-10-25
+
 ### Changed
 
 - The assistant opens faster: it is shown as a system overlay instead of launching the Google app.
+- Dependencies: datastore-preferences 1.3.0 (the 0.1.1 notes listed it, but the build still used 1.1.1).
 
 ## [0.3.0] - 2026-10-25
 
@@ -118,7 +121,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.3.0...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.3.1...develop
+[0.3.1]: https://github.com/maldos23/open-car-project/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/maldos23/open-car-project/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/maldos23/open-car-project/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/maldos23/open-car-project/compare/v0.1.1...v0.1.2
