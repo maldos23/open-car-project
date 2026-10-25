@@ -75,6 +75,11 @@
     <string name="settings_speed_dial_style">Style du compteur</string>
     <string name="speed_dial_circle">Cercle</string>
     <string name="speed_dial_inline">Chiffres</string>
+    <string name="settings_motion_glow">Lueur de mouvement</string>
+    <string name="settings_motion_glow_desc">Les bords de l\'écran s\'illuminent dans la direction de la voiture : virages, accélération et freinage.</string>
+    <string name="settings_motion_glow_sensitivity">Sensibilité de la lueur</string>
+    <string name="settings_motion_glow_color">Couleur de la lueur</string>
+    <string name="settings_motion_glow_test">Tester</string>
     <string name="settings_speed_scene">Scène de vitesse</string>
     <string name="settings_speed_scene_desc">Une voiture en ville qui se transforme en fusée quand vous roulez vite, du côté opposé à la météo.</string>
     <string name="settings_rocket_from">Fusée à partir de (%1$s)</string>

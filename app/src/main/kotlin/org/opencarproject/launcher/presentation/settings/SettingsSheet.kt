@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -26,8 +27,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -59,6 +62,7 @@ import org.opencarproject.launcher.core.model.AppMenuStyle
 import org.opencarproject.launcher.core.model.BackgroundStyle
 import org.opencarproject.launcher.core.model.DockElement
 import org.opencarproject.launcher.core.model.DockIconSize
+import org.opencarproject.launcher.core.model.GlowColor
 import org.opencarproject.launcher.core.model.GridSpec
 import org.opencarproject.launcher.core.model.LayoutDefinition
 import org.opencarproject.launcher.core.model.LauncherSettings
@@ -83,6 +87,7 @@ val GridRowsRange = 2..6
 /** Zoom limits: below 80 % touch targets get too small for driving; above 130 % little fits. */
 val UiScaleRange = 0.8f..1.3f
 val MenuIconScaleRange = 0.75f..1.5f
+val MotionGlowSensitivityRange = 0.5f..2f
 
 /** Settings sheet: fullscreen, theme and grid size. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -111,11 +116,17 @@ fun SettingsSheet(
     onAppLanguageChange: (AppLanguage) -> Unit,
     onUiScaleChange: (Float) -> Unit,
     onMenuIconScaleChange: (Float) -> Unit,
+    onMotionGlowChange: (Boolean) -> Unit,
+    onMotionGlowSensitivityChange: (Float) -> Unit,
+    onMotionGlowColorChange: (GlowColor) -> Unit,
+    onMotionGlowTest: () -> Unit,
     onShowAppLabelsChange: (Boolean) -> Unit,
     onAccentColorChange: (AccentColor) -> Unit,
     onElementVisibilityChange: (DockElement, Boolean) -> Unit,
     onGridChange: (GridSpec) -> Unit,
     onDismiss: () -> Unit,
+    // Hoisted by the caller so the position survives closing and reopening (e.g. around "Test").
+    scrollState: ScrollState = rememberScrollState(),
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -127,7 +138,7 @@ fun SettingsSheet(
             Modifier
                 .fillMaxWidth()
                 // With more options the sheet may not fit vertically: it scrolls.
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(horizontal = 28.dp)
                 .padding(bottom = 28.dp),
             verticalArrangement = Arrangement.spacedBy(28.dp),
@@ -239,6 +250,35 @@ fun SettingsSheet(
                 )
             }
 
+            Section(stringResource(R.string.settings_motion_glow), stringResource(R.string.settings_motion_glow_desc)) {
+                Switch(checked = settings.motionGlow, onCheckedChange = onMotionGlowChange)
+            }
+            AnimatedVisibility(settings.motionGlow) {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    SliderRow(
+                        title = stringResource(R.string.settings_motion_glow_sensitivity),
+                        value = settings.motionGlowSensitivity,
+                        range = MotionGlowSensitivityRange,
+                        steps = 14,
+                        onChange = onMotionGlowSensitivityChange,
+                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(stringResource(R.string.settings_motion_glow_color), style = MaterialTheme.typography.titleMedium)
+                        val accent = MaterialTheme.colorScheme.primary
+                        ColorSwatches(
+                            options = GlowColor.entries.map { it to (it.argb?.let(::Color) ?: accent) },
+                            selected = settings.motionGlowColor,
+                            onSelect = onMotionGlowColorChange,
+                        )
+                    }
+                    FilledTonalButton(onClick = onMotionGlowTest, modifier = Modifier.height(48.dp)) {
+                        Icon(Icons.Rounded.PlayArrow, contentDescription = null, modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.settings_motion_glow_test))
+                    }
+                }
+            }
+
             Section(
                 stringResource(R.string.settings_speed_scene),
                 stringResource(R.string.settings_speed_scene_desc),
@@ -270,23 +310,11 @@ fun SettingsSheet(
                     )
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text(stringResource(R.string.settings_color), style = MaterialTheme.typography.titleMedium)
-                        Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                            VehicleColor.entries.forEach { c ->
-                                val isSelected = c == settings.vehicleColor
-                                Box(
-                                    Modifier
-                                        .size(44.dp)
-                                        .border(if (isSelected) 3.dp else 1.dp, if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline, CircleShape)
-                                        .padding(5.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(c.argb))
-                                        .clickable { onVehicleColorChange(c) },
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    if (isSelected) Icon(Icons.Rounded.Check, contentDescription = null, tint = if (c == VehicleColor.WHITE || c == VehicleColor.YELLOW) Color.Black else Color.White, modifier = Modifier.size(18.dp))
-                                }
-                            }
-                        }
+                        ColorSwatches(
+                            options = VehicleColor.entries.map { it to Color(it.argb) },
+                            selected = settings.vehicleColor,
+                            onSelect = onVehicleColorChange,
+                        )
                     }
                 }
             }
@@ -441,6 +469,28 @@ private fun AccentPicker(selected: AccentColor, onSelect: (AccentColor) -> Unit)
                     }
                     Text(stringResource(label), style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top = 4.dp))
                 }
+            }
+        }
+    }
+}
+
+/** Row of 48 dp color circles; the selected one gets a ring and ✓ (dark on light colors). */
+@Composable
+private fun <T> ColorSwatches(options: List<Pair<T, Color>>, selected: T, onSelect: (T) -> Unit) {
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        options.forEach { (value, color) ->
+            val isSelected = value == selected
+            Box(
+                Modifier
+                    .size(48.dp)
+                    .border(if (isSelected) 3.dp else 1.dp, if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline, CircleShape)
+                    .padding(5.dp)
+                    .clip(CircleShape)
+                    .background(color)
+                    .clickable { onSelect(value) },
+                contentAlignment = Alignment.Center,
+            ) {
+                if (isSelected) Icon(Icons.Rounded.Check, contentDescription = null, tint = if (color.luminance() > 0.5f) Color.Black else Color.White, modifier = Modifier.size(18.dp))
             }
         }
     }

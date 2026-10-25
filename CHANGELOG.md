@@ -13,6 +13,12 @@ All notable changes to this project are documented here. The format follows
   following the device region.
 - Settings → Zoom slider (80–130 %) scales the whole interface, settings and dialogs included.
 - Settings → App menu icon size slider (75–150 %) for the app menu and its full-page variant.
+- Motion glow (off by default): a neon light travels along the screen border towards where the
+  car is going — brightest at that point and fading along the edge; left/right in turns
+  (gyroscope, GPS bearing as fallback), up when speeding up, down and red when braking (GPS),
+  corners when combined,
+  with an adjustable sensitivity, a choice of glow color and a Test button that plays the
+  four cues on the home screen.
 
 ### Changed
 
