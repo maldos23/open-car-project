@@ -134,6 +134,23 @@ class GridMathTest {
         assertEquals(null, GridMath.placeNew(grid, full, Cell(1, 1)))
     }
 
+    @Test
+    fun placeNew_usesCellsFreedByGrowThenShrink() {
+        // Default head-unit layout (half-cell columns): map left, media + notifications right.
+        val fine = GridSpec(columns = 12, rows = 4)
+        val start = listOf(
+            item("map", Cell(0, 0), Cell(4, 6)),
+            item("media", Cell(0, 6), Cell(2, 6)),
+            item("notif", Cell(2, 6), Cell(2, 6)),
+        )
+        val small = GridMath.placeWithPush(start, start[0].copy(span = Cell(2, 6)), fine)!!
+        val grown = GridMath.placeWithPush(small, small[0].copy(span = Cell(3, 6)), fine)!!
+        val shrunk = GridMath.placeWithPush(grown, grown[0].copy(span = Cell(2, 6)), fine)!!
+        val (cell, span) = GridMath.placeNew(fine, shrunk, Cell(1, 1))!!
+        assertTrue(shrunk.none { GridMath.overlaps(it, cell, span) })
+        assertEquals(Cell(2, 0), cell)
+    }
+
     private fun item(id: String, cell: Cell, span: Cell) = PlacedItem(
         id = id,
         kind = CatalogItemKind.APP,
