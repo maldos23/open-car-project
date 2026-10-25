@@ -19,7 +19,6 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -38,12 +37,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -65,6 +66,18 @@ private val GoogleGreen = Color(0xFF34A853)
 /** Closed sweep (starts and ends on blue) so the halo rotates seamlessly. */
 private val GoogleSweep = listOf(GoogleBlue, GoogleRed, GoogleYellow, GoogleGreen, GoogleBlue)
 
+/** Google colors flowing along the pill for the spin [angle] (the sweep is closed: no seam). */
+private fun googleFlow(angle: Float): Brush {
+    val flowWidthPx = 600f
+    val shift = angle / 360f * flowWidthPx
+    return Brush.linearGradient(
+        colors = GoogleSweep,
+        start = Offset(shift, 0f),
+        end = Offset(shift + flowWidthPx, flowWidthPx * 0.2f),
+        tileMode = TileMode.Repeated,
+    )
+}
+
 /**
  * AI-styled assistant button: a dark pill with a halo of Google colors that flow
  * and "breathe", animated voice bars, and rotating suggestions of what to ask.
@@ -73,13 +86,14 @@ private val GoogleSweep = listOf(GoogleBlue, GoogleRed, GoogleYellow, GoogleGree
 @Composable
 fun GoogleAssistantButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     val transition = rememberInfiniteTransition(label = "assistant")
-    val angle by transition.animateFloat(
+    // Animated values are read only while drawing: the pill redraws, it never recomposes.
+    val angle = transition.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
         animationSpec = infiniteRepeatable(tween(4000, easing = LinearEasing)),
         label = "spin",
     )
-    val glow by transition.animateFloat(
+    val glow = transition.animateFloat(
         initialValue = 0.35f,
         targetValue = 0.75f,
         animationSpec = infiniteRepeatable(tween(1800, easing = FastOutSlowInEasing), RepeatMode.Reverse),
@@ -88,20 +102,14 @@ fun GoogleAssistantButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     val shape = RoundedCornerShape(percent = 50)
     // The colors flow along the pill (the shape doesn't rotate). The sweep is closed,
     // so the repeated tile has no seam.
-    val flowWidthPx = 600f
-    val shift = angle / 360f * flowWidthPx
-    val flow = Brush.linearGradient(
-        colors = GoogleSweep,
-        start = Offset(shift, 0f),
-        end = Offset(shift + flowWidthPx, flowWidthPx * 0.2f),
-        tileMode = TileMode.Repeated,
-    )
 
     Row(
         modifier = modifier
             .height(64.dp)
             // Glow: increasingly wide and faint layers (cheap blur, works on API 26+).
             .drawBehind {
+                val flow = googleFlow(angle.value)
+                val glow = glow.value
                 for (layer in 1..4) {
                     val spread = layer * 3.dp.toPx()
                     drawRoundRect(
@@ -115,7 +123,17 @@ fun GoogleAssistantButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
             }
             .clip(shape)
             .background(Color(0xFF111318))
-            .border(2.dp, flow, shape)
+            .drawWithContent {
+                drawContent()
+                val stroke = 2.dp.toPx()
+                drawRoundRect(
+                    brush = googleFlow(angle.value),
+                    topLeft = Offset(stroke / 2, stroke / 2),
+                    size = Size(size.width - stroke, size.height - stroke),
+                    cornerRadius = CornerRadius((size.height - stroke) / 2),
+                    style = Stroke(stroke),
+                )
+            }
             .clickable(role = Role.Button, onClickLabel = stringResource(R.string.assistant_open), onClick = onClick)
             .widthIn(max = AssistantMaxWidth)
             .padding(horizontal = 24.dp),

@@ -16,10 +16,16 @@ import android.os.Looper
 import android.os.SystemClock
 import org.opencarproject.launcher.core.model.SpeedSource
 import org.opencarproject.launcher.core.pure.SpeedMath
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlin.math.sqrt
 
@@ -34,6 +40,34 @@ internal fun locationListener(onFix: (Location) -> Unit): LocationListener = obj
 
     @Deprecated("Deprecated in API 29")
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) = Unit
+}
+
+/**
+ * GPS fixes (1 s) shared by every reader: the speed scene, the speedometer and the motion glow
+ * use a single system listener, which stops when nobody collects (the launcher is stopped).
+ * Requires ACCESS_FINE_LOCATION; without it the flow stays silent.
+ */
+internal object GpsFixes {
+    private var shared: SharedFlow<Location>? = null
+
+    // ponytail: process-wide scope, it only hosts this upstream and dies with the process.
+    private val scope: CoroutineScope = MainScope()
+
+    /** Without the permission there is nothing to share: callers subscribe again once granted. */
+    fun get(context: Context): Flow<Location> {
+        if (!SpeedReader.hasGpsPermission(context)) return emptyFlow()
+        return shared ?: fixes(context.applicationContext)
+            .shareIn(scope, SharingStarted.WhileSubscribed())
+            .also { shared = it }
+    }
+
+    @SuppressLint("MissingPermission") // checked in get()
+    private fun fixes(context: Context): Flow<Location> = callbackFlow {
+        val manager = context.getSystemService(LocationManager::class.java) ?: return@callbackFlow awaitClose { }
+        val listener = locationListener { trySend(it) }
+        runCatching { manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 0f, listener, Looper.getMainLooper()) }
+        awaitClose { manager.removeUpdates(listener) }
+    }
 }
 
 /** Vehicle speed in km/h from the source chosen in settings. */
@@ -53,14 +87,8 @@ object SpeedReader {
      * GPS: uses the fix speed; if missing (some receivers or mock locations), computes it
      * from distance/time between readings. With no signal for a few seconds, it decays to 0.
      */
-    @SuppressLint("MissingPermission") // checked with hasGpsPermission
     private fun gps(context: Context): Flow<Float> = callbackFlow {
-        val manager = context.getSystemService(LocationManager::class.java)
-        if (manager == null || !hasGpsPermission(context)) {
-            trySend(0f)
-            awaitClose { }
-            return@callbackFlow
-        }
+        trySend(0f)
         var last: Location? = null
         var smoothed = 0f
         var lastFixAt = 0L
@@ -74,20 +102,21 @@ object SpeedReader {
                 }
             }
         }
-        val listener = locationListener { fix ->
-            lastFixAt = SystemClock.elapsedRealtime()
-            val raw = when {
-                fix.hasSpeed() -> fix.speed * 3.6f
-                else -> last?.let { SpeedMath.speedKmh(it.latitude, it.longitude, it.time, fix.latitude, fix.longitude, fix.time) }
-            }
-            last = fix
-            if (raw != null) {
-                smoothed = SpeedMath.smooth(smoothed, raw, 0.5f)
-                trySend(if (smoothed < 1.5f) 0f else smoothed)
+        launch {
+            GpsFixes.get(context).collect { fix ->
+                lastFixAt = SystemClock.elapsedRealtime()
+                val raw = when {
+                    fix.hasSpeed() -> fix.speed * 3.6f
+                    else -> last?.let { SpeedMath.speedKmh(it.latitude, it.longitude, it.time, fix.latitude, fix.longitude, fix.time) }
+                }
+                last = fix
+                if (raw != null) {
+                    smoothed = SpeedMath.smooth(smoothed, raw, 0.5f)
+                    trySend(if (smoothed < 1.5f) 0f else smoothed)
+                }
             }
         }
-        runCatching { manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 0f, listener, Looper.getMainLooper()) }
-        awaitClose { manager.removeUpdates(listener) }
+        awaitClose { }
     }
 
     /**
@@ -103,21 +132,28 @@ object SpeedReader {
             return@callbackFlow
         }
         val linear = sensor.type == Sensor.TYPE_LINEAR_ACCELERATION
-        var gravity = floatArrayOf(0f, 0f, 0f)
+        // Seeded with the first reading: starting at 0 would count gravity (~9.8 m/s²) as motion.
+        var gravity: FloatArray? = null
         var sumSq = 0f
         var count = 0
         var windowStart = 0L
         var smoothed = 0f
         val listener = object : SensorEventListener {
             override fun onSensorChanged(e: SensorEvent) {
-                val (x, y, z) = if (linear) {
-                    Triple(e.values[0], e.values[1], e.values[2])
+                // ~50 events per second: no allocations here.
+                var magnitudeSq = 0f
+                if (linear) {
+                    for (i in 0..2) magnitudeSq += e.values[i] * e.values[i]
                 } else {
                     // No linear sensor: gravity is removed with a low-pass filter.
-                    gravity = FloatArray(3) { i -> 0.9f * gravity[i] + 0.1f * e.values[i] }
-                    Triple(e.values[0] - gravity[0], e.values[1] - gravity[1], e.values[2] - gravity[2])
+                    val g = gravity ?: e.values.copyOf(3).also { gravity = it }
+                    for (i in 0..2) {
+                        g[i] = 0.9f * g[i] + 0.1f * e.values[i]
+                        val d = e.values[i] - g[i]
+                        magnitudeSq += d * d
+                    }
                 }
-                sumSq += x * x + y * y + z * z
+                sumSq += magnitudeSq
                 count++
                 if (windowStart == 0L) windowStart = e.timestamp
                 if (e.timestamp - windowStart > 1_000_000_000L) {

@@ -64,8 +64,8 @@ object GridMath {
         cellHeight: Float,
         grid: GridSpec,
     ): Cell {
-        val column = start.column + if (cellWidth <= 0f) 0 else Math.round(deltaX / cellWidth)
-        val row = start.row + if (cellHeight <= 0f) 0 else Math.round(deltaY / cellHeight)
+        val column = start.column + steps(deltaX, cellWidth)
+        val row = start.row + steps(deltaY, cellHeight)
         return clampCell(Cell(row, column), span, grid)
     }
 
@@ -79,32 +79,13 @@ object GridMath {
         cellHeight: Float,
         grid: GridSpec,
     ): Cell {
-        val extraColumns = if (cellWidth <= 0f) 0 else Math.round(deltaX / cellWidth).toInt()
-        val extraRows = if (cellHeight <= 0f) 0 else Math.round(deltaY / cellHeight).toInt()
+        val extraColumns = steps(deltaX, cellWidth)
+        val extraRows = steps(deltaY, cellHeight)
         return clampSpan(start, Cell(startSpan.row + extraRows, startSpan.column + extraColumns), grid)
     }
 
-    /**
-     * First free cell (row-by-row scan) where `span` fits without colliding.
-     * `exceptId` lets the item being relocated be ignored.
-     */
-    fun findFreeCell(
-        grid: GridSpec,
-        items: List<PlacedItem>,
-        span: Cell,
-        exceptId: String? = null,
-    ): Cell {
-        for (row in 0 until grid.rows) {
-            for (column in 0 until grid.columns) {
-                val candidate = Cell(row, column)
-                if (!isWithin(candidate, span, grid)) continue
-                val collides = items.any { it.id != exceptId && overlaps(it, candidate, span) }
-                if (!collides) return candidate
-            }
-        }
-        // No room: return the origin; the UI layer will report it as unplaced.
-        return Cell(0, 0)
-    }
+    /** Whole cells covered by a [delta]-pixel drag; 0 before the grid has been measured. */
+    private fun steps(delta: Float, cellSize: Float): Int = if (cellSize <= 0f) 0 else Math.round(delta / cellSize)
 
     /**
      * Places `moved` (already with its new cell/span) and pushes the items it overlaps to the

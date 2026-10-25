@@ -6,6 +6,29 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Two quick changes to the home screen (e.g. deleting two items) no longer undo each other.
+- Cancelling a widget's setup screen removes the half-added widget.
+- Pressing Back in edit mode also closes the add panel.
+- Adding an app or module that is already on the home screen no longer creates a broken copy.
+- Adding a widget whose app was just uninstalled shows a message instead of crashing.
+- A corrupt layout file falls back to the default menu instead of crashing the launcher.
+- The sensor speedometer no longer jumps to ~50 km/h for a moment on start.
+- With both Waze and Google Maps navigating, the navigation card prefers Waze, as intended.
+- Newly installed or removed apps show up in the app menu without restarting the launcher.
+- The speed scene no longer keeps the GPS or accelerometer running while another app is in
+  front, saving battery.
+
+### Changed
+
+- Smoother home screen with less battery use: the speed scene, weather pill, assistant button,
+  player and navigation cards and card dragging now animate by redrawing instead of rebuilding
+  the screen on every frame.
+- Settings switches toggle by tapping anywhere on their row; color swatches and the dock's
+  remove badge have full 48 dp touch targets and announce their selected state.
+- With the system wallpaper in light theme, the bars' scrim is light so their text stays readable.
+
 ## [0.2.0] - 2026-10-25
 
 ### Added

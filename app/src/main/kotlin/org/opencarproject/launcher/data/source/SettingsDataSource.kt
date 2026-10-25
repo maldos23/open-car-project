@@ -69,7 +69,7 @@ class SettingsDataSource(private val context: Context) {
     private val motionGlowSensitivityKey = floatPreferencesKey("motion_glow_sensitivity")
     private val motionGlowColorKey = stringPreferencesKey("motion_glow_color")
 
-    val settingsFlow: Flow<LauncherSettings> = context.settingsDataStore.data.map { it.toSettings() }
+    val settingsFlow: Flow<LauncherSettings> = context.settingsDataStore.data.recoverIoErrors().map { it.toSettings() }
 
     /** Reads, transforms and saves in a single DataStore transaction. */
     suspend fun update(transform: (LauncherSettings) -> LauncherSettings) {

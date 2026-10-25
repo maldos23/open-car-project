@@ -192,34 +192,28 @@ private fun Context.listenCell(
     onDisplay: (CellDisplay) -> Unit,
 ): () -> Unit {
     val tm = getSystemService(TelephonyManager::class.java) ?: return {}
-    return runCatching {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val level = object : TelephonyCallback(), TelephonyCallback.SignalStrengthsListener {
-                override fun onSignalStrengthsChanged(strength: SignalStrength) = onLevel()
-            }
-            tm.registerTelephonyCallback(mainExecutor, level)
-            val display = if (hasPhoneState) {
-                object : TelephonyCallback(), TelephonyCallback.DisplayInfoListener {
-                    override fun onDisplayInfoChanged(info: TelephonyDisplayInfo) =
-                        onDisplay(CellDisplay(info.networkType, info.overrideNetworkType))
-                }.also { tm.registerTelephonyCallback(mainExecutor, it) }
-            } else {
-                null
-            }
-            val stop: () -> Unit = {
-                tm.unregisterTelephonyCallback(level)
-                display?.let(tm::unregisterTelephonyCallback)
-            }
-            stop
-        } else {
-            // Before API 31 the type is read on every refresh (dataNetworkType).
-            val listener = object : PhoneStateListener() {
-                override fun onSignalStrengthsChanged(strength: SignalStrength?) = onLevel()
-            }
-            tm.listen(listener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
-            val stop: () -> Unit = { tm.listen(listener, PhoneStateListener.LISTEN_NONE) }
-            stop
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val level = object : TelephonyCallback(), TelephonyCallback.SignalStrengthsListener {
+            override fun onSignalStrengthsChanged(strength: SignalStrength) = onLevel()
         }
+        val display = object : TelephonyCallback(), TelephonyCallback.DisplayInfoListener {
+            override fun onDisplayInfoChanged(info: TelephonyDisplayInfo) =
+                onDisplay(CellDisplay(info.networkType, info.overrideNetworkType))
+        }
+        // Each one on its own: if the second fails, the first must still be unregistered.
+        val registered = listOfNotNull(level, display.takeIf { hasPhoneState }).filter {
+            runCatching { tm.registerTelephonyCallback(mainExecutor, it) }.isSuccess
+        }
+        return { registered.forEach { runCatching { tm.unregisterTelephonyCallback(it) } } }
+    }
+    // Before API 31 the type is read on every refresh (dataNetworkType).
+    val listener = object : PhoneStateListener() {
+        override fun onSignalStrengthsChanged(strength: SignalStrength?) = onLevel()
+    }
+    return runCatching {
+        tm.listen(listener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
+        val stop: () -> Unit = { tm.listen(listener, PhoneStateListener.LISTEN_NONE) }
+        stop
     }.getOrDefault {} // Head unit without a modem: no cellular level to listen to.
 }
 

@@ -21,17 +21,24 @@ class LauncherNotificationListener : NotificationListenerService() {
     override fun onListenerConnected() {
         // Ones already present must not "pop" in the island on connect.
         alerted.clear()
-        runCatching { activeNotifications.orEmpty().forEach { alerted += it.key } }
-        refresh()
+        active.clear()
+        runCatching { activeNotifications.orEmpty().forEach { active[it.key] = it } }
+        alerted += active.keys
+        publish()
     }
 
     override fun onListenerDisconnected() {
-        _notifications.value = emptyList()
+        active.clear()
+        publish()
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
-        refresh()
-        if (sbn == null || !sbn.isUserFacing()) return
+        if (sbn == null) return
+        // The posted notification is applied to the local copy: asking the system for the whole
+        // list (a binder call) on every progress update would be wasteful.
+        active[sbn.key] = sbn
+        publish()
+        if (!sbn.isUserFacing()) return
         // Only new ones alert, or updated ones that don't request "alert only once"
         // (so a download progress or an edited chat doesn't pop on every change).
         val isNew = alerted.add(sbn.key)
@@ -41,17 +48,22 @@ class LauncherNotificationListener : NotificationListenerService() {
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
-        sbn?.let { alerted -= it.key }
-        refresh()
+        if (sbn == null) return
+        alerted -= sbn.key
+        active -= sbn.key
+        publish()
     }
 
-    private fun refresh() {
-        val active = runCatching { activeNotifications.orEmpty().toList() }.getOrDefault(emptyList())
+    /** Active notifications by key, kept in sync with the posted/removed callbacks. */
+    private val active = LinkedHashMap<String, StatusBarNotification>()
+
+    private fun publish() {
         // "Ongoing" ones (music, navigation) already have their own module. Group summaries
         // (e.g. the "ranker_group" Android creates when bundling several from one app) carry no content.
-        _notifications.value = active.filter { it.isUserFacing() }.sortedByDescending { it.postTime }
+        _notifications.value = active.values.filter { it.isUserFacing() }.sortedByDescending { it.postTime }
         // Google Maps / Waze don't share their route; their guidance notification is the only public data.
-        _navigation.value = active.firstOrNull { it.isOngoing && it.packageName in NAVIGATION_PACKAGES }
+        val ongoing = active.values.filter { it.isOngoing }
+        _navigation.value = NAVIGATION_PACKAGES.firstNotNullOfOrNull { pkg -> ongoing.firstOrNull { it.packageName == pkg } }
     }
 
     companion object {

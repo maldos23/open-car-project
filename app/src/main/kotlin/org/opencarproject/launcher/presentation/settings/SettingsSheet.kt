@@ -6,7 +6,6 @@ import androidx.compose.animation.AnimatedVisibility
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.rememberScrollState
@@ -43,6 +42,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +56,17 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.semantics.Role
+import org.opencarproject.launcher.core.pure.GridColumnsRange
+import org.opencarproject.launcher.core.pure.GridRowsRange
+import org.opencarproject.launcher.core.pure.MenuIconScaleRange
+import org.opencarproject.launcher.core.pure.MotionGlowSensitivityRange
+import org.opencarproject.launcher.core.pure.UiScaleRange
 import org.opencarproject.launcher.core.model.AccentColor
 import org.opencarproject.launcher.core.model.AppLanguage
 import org.opencarproject.launcher.core.model.AppMenuStyle
@@ -80,15 +91,6 @@ import org.opencarproject.launcher.core.model.WeatherPosition
 import org.opencarproject.launcher.core.ui.theme.swatch
 import org.opencarproject.launcher.presentation.common.MatchSystemBarsInDialog
 
-/** Grid limits: fewer doesn't use the screen well; more makes cards unreadable while driving. */
-val GridColumnsRange = 3..8
-val GridRowsRange = 2..6
-
-/** Zoom limits: below 80 % touch targets get too small for driving; above 130 % little fits. */
-val UiScaleRange = 0.8f..1.3f
-val MenuIconScaleRange = 0.75f..1.5f
-val MotionGlowSensitivityRange = 0.5f..2f
-
 /** Settings sheet: fullscreen, theme and grid size. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,32 +98,16 @@ fun SettingsSheet(
     settings: LauncherSettings,
     grid: GridSpec,
     gridError: GridSpec?,
-    onFullscreenChange: (Boolean) -> Unit,
-    onThemeChange: (ThemeMode) -> Unit,
-    onTemperatureUnitChange: (TemperatureUnit) -> Unit,
-    onTimeFormatChange: (TimeFormat) -> Unit,
+    /** Plain one-field changes: receives the copy to apply (e.g. `{ it.copy(fullscreen = true) }`). */
+    onChange: ((LauncherSettings) -> LauncherSettings) -> Unit,
+    // Changes with a rule (coupled fields, clamping, rounding) go through their own callback.
     onWeatherPositionChange: (WeatherPosition) -> Unit,
-    onBackgroundChange: (BackgroundStyle) -> Unit,
-    onGradientParticlesChange: (Boolean) -> Unit,
     onSpeedSceneChange: (Boolean) -> Unit,
-    onSpeedSourceChange: (SpeedSource) -> Unit,
     onRocketKmhChange: (Int) -> Unit,
-    onShowSpeedDialChange: (Boolean) -> Unit,
-    onSpeedUnitChange: (SpeedUnit) -> Unit,
-    onSpeedDialStyleChange: (SpeedDialStyle) -> Unit,
-    onVehicleShapeChange: (VehicleShape) -> Unit,
-    onVehicleColorChange: (VehicleColor) -> Unit,
-    onAppMenuStyleChange: (AppMenuStyle) -> Unit,
-    onDockIconSizeChange: (DockIconSize) -> Unit,
-    onAppLanguageChange: (AppLanguage) -> Unit,
     onUiScaleChange: (Float) -> Unit,
     onMenuIconScaleChange: (Float) -> Unit,
-    onMotionGlowChange: (Boolean) -> Unit,
     onMotionGlowSensitivityChange: (Float) -> Unit,
-    onMotionGlowColorChange: (GlowColor) -> Unit,
     onMotionGlowTest: () -> Unit,
-    onShowAppLabelsChange: (Boolean) -> Unit,
-    onAccentColorChange: (AccentColor) -> Unit,
     onElementVisibilityChange: (DockElement, Boolean) -> Unit,
     onGridChange: (GridSpec) -> Unit,
     onDismiss: () -> Unit,
@@ -156,7 +142,7 @@ fun SettingsSheet(
                     AppLanguage.FR to stringResource(R.string.language_fr),
                 ),
                 selected = settings.appLanguage,
-                onSelect = onAppLanguageChange,
+                onSelect = { v -> onChange { it.copy(appLanguage = v) } },
             )
 
             // Commits on release only: each change recreates the screen at the new density.
@@ -168,18 +154,18 @@ fun SettingsSheet(
                 onChange = onUiScaleChange,
             )
 
-            Section(stringResource(R.string.settings_fullscreen), stringResource(R.string.settings_fullscreen_desc)) {
-                Switch(checked = settings.fullscreen, onCheckedChange = onFullscreenChange)
+            SwitchRow(stringResource(R.string.settings_fullscreen), stringResource(R.string.settings_fullscreen_desc), settings.fullscreen) { v ->
+                onChange { it.copy(fullscreen = v) }
             }
 
             Choice(
                 title = stringResource(R.string.settings_theme),
                 options = listOf(ThemeMode.SYSTEM to stringResource(R.string.option_system), ThemeMode.LIGHT to stringResource(R.string.theme_light), ThemeMode.DARK to stringResource(R.string.theme_dark)),
                 selected = settings.themeMode,
-                onSelect = onThemeChange,
+                onSelect = { v -> onChange { it.copy(themeMode = v) } },
             )
 
-            AccentPicker(selected = settings.accentColor, onSelect = onAccentColorChange)
+            AccentPicker(selected = settings.accentColor, onSelect = { v -> onChange { it.copy(accentColor = v) } })
 
             Choice(
                 title = stringResource(R.string.settings_background),
@@ -189,20 +175,20 @@ fun SettingsSheet(
                     BackgroundStyle.GRADIENT to stringResource(R.string.background_gradient),
                 ),
                 selected = settings.background,
-                onSelect = onBackgroundChange,
+                onSelect = { v -> onChange { it.copy(background = v) } },
             )
             // Only applies to the gradient.
             AnimatedVisibility(settings.background == BackgroundStyle.GRADIENT) {
-                Section(stringResource(R.string.settings_particles), stringResource(R.string.settings_particles_desc)) {
-                    Switch(checked = settings.gradientParticles, onCheckedChange = onGradientParticlesChange)
+                SwitchRow(stringResource(R.string.settings_particles), stringResource(R.string.settings_particles_desc), settings.gradientParticles) { v ->
+                    onChange { it.copy(gradientParticles = v) }
                 }
             }
 
             Choice(
                 title = stringResource(R.string.settings_speed_unit),
-                options = listOf(SpeedUnit.AUTO to stringResource(R.string.option_auto), SpeedUnit.KMH to "km/h", SpeedUnit.MPH to "mph"),
+                options = listOf(SpeedUnit.AUTO to stringResource(R.string.option_auto), SpeedUnit.KMH to SpeedUnits.label(mph = false), SpeedUnit.MPH to SpeedUnits.label(mph = true)),
                 selected = settings.speedUnit,
-                onSelect = onSpeedUnitChange,
+                onSelect = { v -> onChange { it.copy(speedUnit = v) } },
             )
 
             Choice(
@@ -213,7 +199,7 @@ fun SettingsSheet(
                     TemperatureUnit.FAHRENHEIT to stringResource(R.string.temperature_fahrenheit),
                 ),
                 selected = settings.temperatureUnit,
-                onSelect = onTemperatureUnitChange,
+                onSelect = { v -> onChange { it.copy(temperatureUnit = v) } },
             )
 
             Choice(
@@ -231,27 +217,26 @@ fun SettingsSheet(
                     title = stringResource(R.string.settings_speed_source),
                     options = listOf(SpeedSource.GPS to stringResource(R.string.speed_source_gps), SpeedSource.SENSORS to stringResource(R.string.speed_source_sensors)),
                     selected = settings.speedSource,
-                    onSelect = onSpeedSourceChange,
+                    onSelect = { v -> onChange { it.copy(speedSource = v) } },
                 )
             }
 
-            Section(
+            SwitchRow(
                 stringResource(R.string.settings_speed_dial),
-                if (settings.speedScene) stringResource(R.string.settings_speed_dial_desc_scene) else stringResource(R.string.settings_speed_dial_desc),
-            ) {
-                Switch(checked = settings.showSpeedDial, onCheckedChange = onShowSpeedDialChange)
-            }
+                stringResource(if (settings.speedScene) R.string.settings_speed_dial_desc_scene else R.string.settings_speed_dial_desc),
+                settings.showSpeedDial,
+            ) { v -> onChange { it.copy(showSpeedDial = v) } }
             AnimatedVisibility(settings.showSpeedDial) {
                 Choice(
                     title = stringResource(R.string.settings_speed_dial_style),
                     options = listOf(SpeedDialStyle.CIRCLE to stringResource(R.string.speed_dial_circle), SpeedDialStyle.INLINE to stringResource(R.string.speed_dial_inline)),
                     selected = settings.speedDialStyle,
-                    onSelect = onSpeedDialStyleChange,
+                    onSelect = { v -> onChange { it.copy(speedDialStyle = v) } },
                 )
             }
 
-            Section(stringResource(R.string.settings_motion_glow), stringResource(R.string.settings_motion_glow_desc)) {
-                Switch(checked = settings.motionGlow, onCheckedChange = onMotionGlowChange)
+            SwitchRow(stringResource(R.string.settings_motion_glow), stringResource(R.string.settings_motion_glow_desc), settings.motionGlow) { v ->
+                onChange { it.copy(motionGlow = v) }
             }
             AnimatedVisibility(settings.motionGlow) {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -268,7 +253,7 @@ fun SettingsSheet(
                         ColorSwatches(
                             options = GlowColor.entries.map { it to (it.argb?.let(::Color) ?: accent) },
                             selected = settings.motionGlowColor,
-                            onSelect = onMotionGlowColorChange,
+                            onSelect = { v -> onChange { it.copy(motionGlowColor = v) } },
                         )
                     }
                     FilledTonalButton(onClick = onMotionGlowTest, modifier = Modifier.height(48.dp)) {
@@ -279,12 +264,7 @@ fun SettingsSheet(
                 }
             }
 
-            Section(
-                stringResource(R.string.settings_speed_scene),
-                stringResource(R.string.settings_speed_scene_desc),
-            ) {
-                Switch(checked = settings.speedScene, onCheckedChange = onSpeedSceneChange)
-            }
+            SwitchRow(stringResource(R.string.settings_speed_scene), stringResource(R.string.settings_speed_scene_desc), settings.speedScene, onCheckedChange = onSpeedSceneChange)
             AnimatedVisibility(settings.speedScene) {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     // The threshold is stored in km/h and shown in the chosen unit.
@@ -306,14 +286,14 @@ fun SettingsSheet(
                             VehicleShape.DOG to stringResource(R.string.vehicle_dog),
                         ),
                         selected = settings.vehicleShape,
-                        onSelect = onVehicleShapeChange,
+                        onSelect = { v -> onChange { it.copy(vehicleShape = v) } },
                     )
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text(stringResource(R.string.settings_color), style = MaterialTheme.typography.titleMedium)
                         ColorSwatches(
                             options = VehicleColor.entries.map { it to Color(it.argb) },
                             selected = settings.vehicleColor,
-                            onSelect = onVehicleColorChange,
+                            onSelect = { v -> onChange { it.copy(vehicleColor = v) } },
                         )
                     }
                 }
@@ -323,7 +303,7 @@ fun SettingsSheet(
                 title = stringResource(R.string.settings_time_format),
                 options = listOf(TimeFormat.SYSTEM to stringResource(R.string.option_auto), TimeFormat.H12 to stringResource(R.string.time_12h), TimeFormat.H24 to stringResource(R.string.time_24h)),
                 selected = settings.timeFormat,
-                onSelect = onTimeFormatChange,
+                onSelect = { v -> onChange { it.copy(timeFormat = v) } },
             )
 
             Choice(
@@ -333,7 +313,7 @@ fun SettingsSheet(
                     AppMenuStyle.SWIPE_PAGE to stringResource(R.string.app_menu_swipe_page),
                 ),
                 selected = settings.appMenuStyle,
-                onSelect = onAppMenuStyleChange,
+                onSelect = { v -> onChange { it.copy(appMenuStyle = v) } },
             )
 
             SliderRow(
@@ -344,15 +324,15 @@ fun SettingsSheet(
                 onChange = onMenuIconScaleChange,
             )
 
-            Section(stringResource(R.string.settings_app_labels), stringResource(R.string.settings_app_labels_desc)) {
-                Switch(checked = settings.showAppLabels, onCheckedChange = onShowAppLabelsChange)
+            SwitchRow(stringResource(R.string.settings_app_labels), stringResource(R.string.settings_app_labels_desc), settings.showAppLabels) { v ->
+                onChange { it.copy(showAppLabels = v) }
             }
 
             Choice(
                 title = stringResource(R.string.settings_dock_icon_size),
                 options = listOf(DockIconSize.SMALL to stringResource(R.string.size_small), DockIconSize.MEDIUM to stringResource(R.string.size_medium), DockIconSize.LARGE to stringResource(R.string.size_large)),
                 selected = settings.dockIconSize,
-                onSelect = onDockIconSizeChange,
+                onSelect = { v -> onChange { it.copy(dockIconSize = v) } },
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -366,13 +346,13 @@ fun SettingsSheet(
                 DOCK_ELEMENT_LABELS.chunked(2).forEach { pair ->
                     Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                         pair.forEach { (element, label) ->
-                            Row(Modifier.weight(1f).height(56.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Text(stringResource(label), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-                                Switch(
-                                    checked = element !in settings.hiddenElements,
-                                    onCheckedChange = { onElementVisibilityChange(element, it) },
-                                )
-                            }
+                            SwitchRow(
+                                title = stringResource(label),
+                                subtitle = null,
+                                checked = element !in settings.hiddenElements,
+                                onCheckedChange = { onElementVisibilityChange(element, it) },
+                                modifier = Modifier.weight(1f).height(56.dp),
+                            )
                         }
                         if (pair.size == 1) Spacer(Modifier.weight(1f))
                     }
@@ -389,9 +369,12 @@ fun SettingsSheet(
                     Spacer(Modifier.width(24.dp))
                     GridPreview(grid, Modifier.width(180.dp))
                 }
+                // The last error stays shown while the message animates out.
+                var lastError by remember { mutableStateOf(gridError) }
+                SideEffect { if (gridError != null) lastError = gridError }
                 AnimatedVisibility(gridError != null) {
                     Text(
-                        text = gridError?.let { stringResource(R.string.settings_grid_error, it.columns / LayoutDefinition.COLUMN_SCALE, it.rows) }.orEmpty(),
+                        text = (gridError ?: lastError)?.let { stringResource(R.string.settings_grid_error, it.columns / LayoutDefinition.COLUMN_SCALE, it.rows) }.orEmpty(),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium,
                     )
@@ -443,30 +426,13 @@ private fun AccentPicker(selected: AccentColor, onSelect: (AccentColor) -> Unit)
         Text(stringResource(R.string.settings_accent), style = MaterialTheme.typography.titleMedium)
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             options.forEach { (accent, label) ->
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    val isSelected = accent == selected
-                    Box(
-                        Modifier
-                            .size(48.dp)
-                            .border(
-                                width = if (isSelected) 3.dp else 0.dp,
-                                color = if (isSelected) MaterialTheme.colorScheme.onSurface else Color.Transparent,
-                                shape = CircleShape,
-                            )
-                            .padding(5.dp)
-                            .clip(CircleShape)
-                            .then(
-                                if (accent == AccentColor.DYNAMIC) {
-                                    Modifier.background(Brush.sweepGradient(listOf(Color(0xFF4285F4), Color(0xFFEA4335), Color(0xFFFBBC05), Color(0xFF34A853), Color(0xFF4285F4))))
-                                } else {
-                                    Modifier.background(accent.swatch(dark))
-                                },
-                            )
-                            .clickable { onSelect(accent) },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        if (isSelected) Icon(Icons.Rounded.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
-                    }
+                // Swatch and name are one target: bigger to hit, and read together by TalkBack.
+                Column(
+                    Modifier.selectable(accent == selected, role = Role.RadioButton) { onSelect(accent) },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    val fill = if (accent == AccentColor.DYNAMIC) DynamicSwatch else SolidColor(accent.swatch(dark))
+                    Swatch(fill, accent == selected, outlined = false, checkTint = Color.White)
                     Text(stringResource(label), style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top = 4.dp))
                 }
             }
@@ -479,22 +445,43 @@ private fun AccentPicker(selected: AccentColor, onSelect: (AccentColor) -> Unit)
 private fun <T> ColorSwatches(options: List<Pair<T, Color>>, selected: T, onSelect: (T) -> Unit) {
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         options.forEach { (value, color) ->
-            val isSelected = value == selected
-            Box(
-                Modifier
-                    .size(48.dp)
-                    .border(if (isSelected) 3.dp else 1.dp, if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline, CircleShape)
-                    .padding(5.dp)
-                    .clip(CircleShape)
-                    .background(color)
-                    .clickable { onSelect(value) },
-                contentAlignment = Alignment.Center,
-            ) {
-                if (isSelected) Icon(Icons.Rounded.Check, contentDescription = null, tint = if (color.luminance() > 0.5f) Color.Black else Color.White, modifier = Modifier.size(18.dp))
-            }
+            Swatch(
+                fill = SolidColor(color),
+                selected = value == selected,
+                outlined = true,
+                checkTint = if (color.luminance() > 0.5f) Color.Black else Color.White,
+                // Selectable before the padding: the whole 48 dp circle is the touch target.
+                modifier = Modifier.selectable(value == selected, role = Role.RadioButton) { onSelect(value) },
+            )
         }
     }
 }
+
+/** 48 dp color circle; the selected one gets a ring and ✓. */
+@Composable
+private fun Swatch(fill: Brush, selected: Boolean, outlined: Boolean, checkTint: Color, modifier: Modifier = Modifier) {
+    val ring = when {
+        selected -> MaterialTheme.colorScheme.onSurface
+        outlined -> MaterialTheme.colorScheme.outline
+        else -> Color.Transparent
+    }
+    Box(
+        modifier
+            .size(48.dp)
+            .border(if (selected) 3.dp else 1.dp, ring, CircleShape)
+            .padding(5.dp)
+            .clip(CircleShape)
+            .background(fill),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (selected) Icon(Icons.Rounded.Check, contentDescription = null, tint = checkTint, modifier = Modifier.size(18.dp))
+    }
+}
+
+/** "Dynamic" accent: the wallpaper decides, shown as a Google-colors wheel. */
+private val DynamicSwatch = Brush.sweepGradient(
+    listOf(Color(0xFF4285F4), Color(0xFFEA4335), Color(0xFFFBBC05), Color(0xFF34A853), Color(0xFF4285F4)),
+)
 
 /** Title + single-choice segmented buttons. */
 @Composable
@@ -526,14 +513,30 @@ private fun <T> Choice(
     }
 }
 
+/** Title (and optional description) with a switch; the whole row toggles it, not only the switch. */
 @Composable
-private fun Section(title: String, subtitle: String, trailing: @Composable () -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+private fun SwitchRow(
+    title: String,
+    subtitle: String?,
+    checked: Boolean,
+    modifier: Modifier = Modifier,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier
+            .heightIn(min = 48.dp)
+            .toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.titleMedium)
-            Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (subtitle == null) {
+                Text(title, style = MaterialTheme.typography.bodyLarge)
+            } else {
+                Text(title, style = MaterialTheme.typography.titleMedium)
+                Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
-        trailing()
+        Switch(checked = checked, onCheckedChange = null)
     }
 }
 
