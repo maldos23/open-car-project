@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Glass drop for the app icon. The inner stroke simulates the
+  reflection/highlight characteristic of the glass material.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Main drop -->
+    <path
+        android:fillColor="#9FE3FF"
+        android:pathData="M54,20 C44,34 36,44 36,55 C36,66 44,74 54,74 C64,74 72,66 72,55 C72,44 64,34 54,20 Z" />
+
+    <!-- Highlight / reflection -->
+    <path
+        android:fillColor="#66FFFFFF"
+        android:pathData="M46,38 C44,42 43,46 43,50 C43,51 43.4,52 44,52.6 L52,42 C50.4,40.2 48.4,38.8 46,38 Z" />
+</vector>

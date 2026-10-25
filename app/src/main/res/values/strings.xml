@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Open Car Project</string>
+    <string name="widget_clock_label">Reloj de vidrio</string>
+    <string name="widget_media_label">Medios de vidrio</string>
+</resources>
