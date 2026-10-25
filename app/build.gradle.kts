@@ -85,7 +85,7 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 
     // JSON serialization of the layout (no annotation processors).
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
 
     // Compose UI.
     implementation("androidx.compose.ui:ui")
