@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-24
+
 First public release.
 
 ### Added
@@ -27,4 +29,5 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/commits/develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.1.0...develop
+[0.1.0]: https://github.com/maldos23/open-car-project/releases/tag/v0.1.0
