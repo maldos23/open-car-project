@@ -82,6 +82,7 @@ val GridRowsRange = 2..6
 
 /** Zoom limits: below 80 % touch targets get too small for driving; above 130 % little fits. */
 val UiScaleRange = 0.8f..1.3f
+val MenuIconScaleRange = 0.75f..1.5f
 
 /** Settings sheet: fullscreen, theme and grid size. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -109,6 +110,7 @@ fun SettingsSheet(
     onDockIconSizeChange: (DockIconSize) -> Unit,
     onAppLanguageChange: (AppLanguage) -> Unit,
     onUiScaleChange: (Float) -> Unit,
+    onMenuIconScaleChange: (Float) -> Unit,
     onShowAppLabelsChange: (Boolean) -> Unit,
     onAccentColorChange: (AccentColor) -> Unit,
     onElementVisibilityChange: (DockElement, Boolean) -> Unit,
@@ -304,6 +306,14 @@ fun SettingsSheet(
                 ),
                 selected = settings.appMenuStyle,
                 onSelect = onAppMenuStyleChange,
+            )
+
+            SliderRow(
+                title = stringResource(R.string.settings_menu_icon_size),
+                value = settings.menuIconScale,
+                range = MenuIconScaleRange,
+                steps = 14,
+                onChange = onMenuIconScaleChange,
             )
 
             Section(stringResource(R.string.settings_app_labels), stringResource(R.string.settings_app_labels_desc)) {

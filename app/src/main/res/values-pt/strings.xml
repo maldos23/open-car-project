@@ -91,6 +91,7 @@
     <string name="settings_app_menu">Menu de aplicativos</string>
     <string name="app_menu_bottom_sheet">De baixo</string>
     <string name="app_menu_swipe_page">Página à direita (deslize ←)</string>
+    <string name="settings_menu_icon_size">Tamanho dos ícones do menu</string>
     <string name="settings_app_labels">Nomes dos apps</string>
     <string name="settings_app_labels_desc">Mostra o nome abaixo do ícone dos apps da área de trabalho.</string>
     <string name="settings_dock_icon_size">Tamanho dos ícones da barra</string>

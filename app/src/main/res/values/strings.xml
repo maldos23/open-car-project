@@ -102,6 +102,7 @@
     <string name="settings_app_menu">App menu</string>
     <string name="app_menu_bottom_sheet">From the bottom</string>
     <string name="app_menu_swipe_page">Page on the right (swipe ←)</string>
+    <string name="settings_menu_icon_size">App menu icon size</string>
     <string name="settings_app_labels">App names</string>
     <string name="settings_app_labels_desc">Shows the name under the desktop app icons.</string>
     <string name="settings_dock_icon_size">Bar icon size</string>

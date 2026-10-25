@@ -96,6 +96,8 @@ data class LauncherSettings(
     val appLanguage: AppLanguage = AppLanguage.SYSTEM,
     /** Zoom of the whole UI (1 = device density). */
     val uiScale: Float = 1f,
+    /** Size of the app menu icons relative to the default. */
+    val menuIconScale: Float = 1f,
 )
 
 /** Current weather for the dock. */

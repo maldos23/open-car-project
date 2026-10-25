@@ -64,6 +64,7 @@ fun AppDrawerSheet(
     onLaunch: (CatalogItem) -> Unit,
     onDismiss: () -> Unit,
     title: String? = null,
+    iconScale: Float = 1f,
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -77,7 +78,7 @@ fun AppDrawerSheet(
         AppDrawerContent(
             apps = apps,
             onLaunch = onLaunch,
-            iconSize = 56.dp,
+            iconSize = 56.dp * iconScale,
             modifier = Modifier.fillMaxWidth().fillMaxHeight(0.85f).padding(horizontal = 24.dp),
         )
     }

@@ -91,6 +91,7 @@
     <string name="settings_app_menu">应用菜单</string>
     <string name="app_menu_bottom_sheet">从底部</string>
     <string name="app_menu_swipe_page">右侧页面（向 ← 滑动）</string>
+    <string name="settings_menu_icon_size">应用菜单图标大小</string>
     <string name="settings_app_labels">应用名称</string>
     <string name="settings_app_labels_desc">在桌面应用图标下方显示名称。</string>
     <string name="settings_dock_icon_size">栏图标大小</string>

@@ -63,6 +63,7 @@ class SettingsDataSource(private val context: Context) {
     private val dockRightKey = stringPreferencesKey("dock_right_apps")
     private val appLanguageKey = stringPreferencesKey("app_language")
     private val uiScaleKey = floatPreferencesKey("ui_scale")
+    private val menuIconScaleKey = floatPreferencesKey("menu_icon_scale")
 
     val settingsFlow: Flow<LauncherSettings> = context.settingsDataStore.data.map { it.toSettings() }
 
@@ -95,6 +96,7 @@ class SettingsDataSource(private val context: Context) {
             prefs[dockRightKey] = next.dockRightApps.joinToString("\n")
             prefs[appLanguageKey] = next.appLanguage.name
             prefs[uiScaleKey] = next.uiScale
+            prefs[menuIconScaleKey] = next.menuIconScale
         }
     }
 
@@ -125,6 +127,7 @@ class SettingsDataSource(private val context: Context) {
             .toSet(),
         appLanguage = enumOr(this[appLanguageKey], AppLanguage.SYSTEM),
         uiScale = this[uiScaleKey] ?: 1f,
+        menuIconScale = this[menuIconScaleKey] ?: 1f,
     )
 
     /** Stored value, or the default if missing or from a version that no longer exists. */
