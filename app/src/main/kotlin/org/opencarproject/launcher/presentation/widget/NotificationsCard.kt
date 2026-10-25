@@ -1,5 +1,7 @@
 package org.opencarproject.launcher.presentation.widget
 
+import org.opencarproject.launcher.R
+import androidx.compose.ui.res.stringResource
 import android.app.Notification
 import android.content.Context
 import android.graphics.Bitmap
@@ -89,7 +91,7 @@ private const val LONG_TEXT_CHARS = 70
 @Composable
 fun NotificationsCard(modifier: Modifier = Modifier) {
     if (!rememberNotificationAccess()) {
-        NotificationAccessPrompt("Permite el acceso a notificaciones para verlas aquí", modifier)
+        NotificationAccessPrompt(stringResource(R.string.notifications_access_prompt), modifier)
         return
     }
     val notifications by LauncherNotificationListener.notifications.collectAsStateWithLifecycle()
@@ -108,13 +110,13 @@ fun NotificationsCard(modifier: Modifier = Modifier) {
         }
         Column(Modifier.fillMaxSize()) {
             Text(
-                text = "Notificaciones",
+                text = stringResource(R.string.notifications),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )
             if (notifications.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Sin notificaciones", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.notifications_empty), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } else {
                 LazyColumn(
@@ -149,7 +151,7 @@ private fun CompactSummary(notifications: List<StatusBarNotification>) {
         }
         Column(Modifier.weight(1f)) {
             Text(
-                text = content?.title ?: "Sin notificaciones",
+                text = content?.title ?: stringResource(R.string.notifications_empty),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
@@ -263,7 +265,7 @@ private fun NotificationItem(sbn: StatusBarNotification, modifier: Modifier = Mo
                     IconButton(onClick = { expanded = !expanded }, modifier = Modifier.size(36.dp)) {
                         Icon(
                             imageVector = Icons.Rounded.ExpandMore,
-                            contentDescription = if (expanded) "Contraer" else "Expandir",
+                            contentDescription = if (expanded) stringResource(R.string.collapse) else stringResource(R.string.expand),
                             modifier = Modifier.graphicsLayer { rotationZ = chevron },
                         )
                     }

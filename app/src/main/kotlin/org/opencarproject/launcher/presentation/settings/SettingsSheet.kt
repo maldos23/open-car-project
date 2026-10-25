@@ -1,5 +1,7 @@
 package org.opencarproject.launcher.presentation.settings
 
+import org.opencarproject.launcher.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.AnimatedVisibility
 import android.os.Build
 import androidx.compose.foundation.background
@@ -47,11 +49,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.opencarproject.launcher.core.model.AccentColor
+import org.opencarproject.launcher.core.model.AppLanguage
 import org.opencarproject.launcher.core.model.AppMenuStyle
 import org.opencarproject.launcher.core.model.BackgroundStyle
 import org.opencarproject.launcher.core.model.DockElement
 import org.opencarproject.launcher.core.model.DockIconSize
 import org.opencarproject.launcher.core.model.GridSpec
+import org.opencarproject.launcher.core.model.LayoutDefinition
 import org.opencarproject.launcher.core.model.LauncherSettings
 import org.opencarproject.launcher.core.model.SpeedDialStyle
 import org.opencarproject.launcher.core.model.SpeedSource
@@ -77,7 +81,7 @@ val GridRowsRange = 2..6
 fun SettingsSheet(
     settings: LauncherSettings,
     grid: GridSpec,
-    gridError: String?,
+    gridError: GridSpec?,
     onFullscreenChange: (Boolean) -> Unit,
     onThemeChange: (ThemeMode) -> Unit,
     onTemperatureUnitChange: (TemperatureUnit) -> Unit,
@@ -95,6 +99,7 @@ fun SettingsSheet(
     onVehicleColorChange: (VehicleColor) -> Unit,
     onAppMenuStyleChange: (AppMenuStyle) -> Unit,
     onDockIconSizeChange: (DockIconSize) -> Unit,
+    onAppLanguageChange: (AppLanguage) -> Unit,
     onShowAppLabelsChange: (Boolean) -> Unit,
     onAccentColorChange: (AccentColor) -> Unit,
     onElementVisibilityChange: (DockElement, Boolean) -> Unit,
@@ -116,15 +121,29 @@ fun SettingsSheet(
                 .padding(bottom = 28.dp),
             verticalArrangement = Arrangement.spacedBy(28.dp),
         ) {
-            Text("Configuración", style = MaterialTheme.typography.headlineSmall)
+            Text(stringResource(R.string.settings_title), style = MaterialTheme.typography.headlineSmall)
 
-            Section("Pantalla completa", "Oculta las barras del sistema. Desliza desde el borde para verlas.") {
+            Choice(
+                title = stringResource(R.string.settings_language),
+                options = listOf(
+                    AppLanguage.SYSTEM to stringResource(R.string.option_system),
+                    AppLanguage.ES to stringResource(R.string.language_es),
+                    AppLanguage.EN to stringResource(R.string.language_en),
+                    AppLanguage.ZH to stringResource(R.string.language_zh),
+                    AppLanguage.PT to stringResource(R.string.language_pt),
+                    AppLanguage.FR to stringResource(R.string.language_fr),
+                ),
+                selected = settings.appLanguage,
+                onSelect = onAppLanguageChange,
+            )
+
+            Section(stringResource(R.string.settings_fullscreen), stringResource(R.string.settings_fullscreen_desc)) {
                 Switch(checked = settings.fullscreen, onCheckedChange = onFullscreenChange)
             }
 
             Choice(
-                title = "Tema",
-                options = listOf(ThemeMode.SYSTEM to "Sistema", ThemeMode.LIGHT to "Claro", ThemeMode.DARK to "Oscuro"),
+                title = stringResource(R.string.settings_theme),
+                options = listOf(ThemeMode.SYSTEM to stringResource(R.string.option_system), ThemeMode.LIGHT to stringResource(R.string.theme_light), ThemeMode.DARK to stringResource(R.string.theme_dark)),
                 selected = settings.themeMode,
                 onSelect = onThemeChange,
             )
@@ -132,77 +151,77 @@ fun SettingsSheet(
             AccentPicker(selected = settings.accentColor, onSelect = onAccentColorChange)
 
             Choice(
-                title = "Fondo",
+                title = stringResource(R.string.settings_background),
                 options = listOf(
-                    BackgroundStyle.SOLID to "Liso",
-                    BackgroundStyle.WALLPAPER to "Fondo del sistema",
-                    BackgroundStyle.GRADIENT to "Degradado",
+                    BackgroundStyle.SOLID to stringResource(R.string.background_solid),
+                    BackgroundStyle.WALLPAPER to stringResource(R.string.background_wallpaper),
+                    BackgroundStyle.GRADIENT to stringResource(R.string.background_gradient),
                 ),
                 selected = settings.background,
                 onSelect = onBackgroundChange,
             )
             // Only applies to the gradient.
             AnimatedVisibility(settings.background == BackgroundStyle.GRADIENT) {
-                Section("Partículas", "Puntos de luz que flotan sobre el degradado.") {
+                Section(stringResource(R.string.settings_particles), stringResource(R.string.settings_particles_desc)) {
                     Switch(checked = settings.gradientParticles, onCheckedChange = onGradientParticlesChange)
                 }
             }
 
             Choice(
-                title = "Velocidad",
-                options = listOf(SpeedUnit.AUTO to "Automático", SpeedUnit.KMH to "km/h", SpeedUnit.MPH to "mph"),
+                title = stringResource(R.string.settings_speed_unit),
+                options = listOf(SpeedUnit.AUTO to stringResource(R.string.option_auto), SpeedUnit.KMH to "km/h", SpeedUnit.MPH to "mph"),
                 selected = settings.speedUnit,
                 onSelect = onSpeedUnitChange,
             )
 
             Choice(
-                title = "Temperatura",
+                title = stringResource(R.string.settings_temperature),
                 options = listOf(
-                    TemperatureUnit.AUTO to "Automático",
-                    TemperatureUnit.CELSIUS to "Celsius (°C)",
-                    TemperatureUnit.FAHRENHEIT to "Fahrenheit (°F)",
+                    TemperatureUnit.AUTO to stringResource(R.string.option_auto),
+                    TemperatureUnit.CELSIUS to stringResource(R.string.temperature_celsius),
+                    TemperatureUnit.FAHRENHEIT to stringResource(R.string.temperature_fahrenheit),
                 ),
                 selected = settings.temperatureUnit,
                 onSelect = onTemperatureUnitChange,
             )
 
             Choice(
-                title = "Posición del clima",
-                options = listOf(WeatherPosition.LEFT to "Izquierda", WeatherPosition.CENTER to "Centro", WeatherPosition.RIGHT to "Derecha"),
+                title = stringResource(R.string.settings_weather_position),
+                options = listOf(WeatherPosition.LEFT to stringResource(R.string.position_left), WeatherPosition.CENTER to stringResource(R.string.position_center), WeatherPosition.RIGHT to stringResource(R.string.position_right)),
                 selected = settings.weatherPosition,
                 onSelect = onWeatherPositionChange,
                 // The center is freed when the speed scene is disabled.
                 enabled = { it != WeatherPosition.CENTER || !settings.speedScene },
-                note = if (settings.speedScene) "Centro no disponible con la escena de velocidad activa." else null,
+                note = if (settings.speedScene) stringResource(R.string.settings_weather_center_unavailable) else null,
             )
 
             AnimatedVisibility(settings.speedScene || settings.showSpeedDial) {
                 Choice(
-                    title = "Fuente de velocidad",
-                    options = listOf(SpeedSource.GPS to "GPS (preciso)", SpeedSource.SENSORS to "Sensores (aproximado)"),
+                    title = stringResource(R.string.settings_speed_source),
+                    options = listOf(SpeedSource.GPS to stringResource(R.string.speed_source_gps), SpeedSource.SENSORS to stringResource(R.string.speed_source_sensors)),
                     selected = settings.speedSource,
                     onSelect = onSpeedSourceChange,
                 )
             }
 
             Section(
-                "Velocímetro",
-                if (settings.speedScene) "En la barra superior, dentro de la escena de velocidad." else "En la barra superior, del lado contrario al clima.",
+                stringResource(R.string.settings_speed_dial),
+                if (settings.speedScene) stringResource(R.string.settings_speed_dial_desc_scene) else stringResource(R.string.settings_speed_dial_desc),
             ) {
                 Switch(checked = settings.showSpeedDial, onCheckedChange = onShowSpeedDialChange)
             }
             AnimatedVisibility(settings.showSpeedDial) {
                 Choice(
-                    title = "Estilo del velocímetro",
-                    options = listOf(SpeedDialStyle.CIRCLE to "Círculo", SpeedDialStyle.INLINE to "Números"),
+                    title = stringResource(R.string.settings_speed_dial_style),
+                    options = listOf(SpeedDialStyle.CIRCLE to stringResource(R.string.speed_dial_circle), SpeedDialStyle.INLINE to stringResource(R.string.speed_dial_inline)),
                     selected = settings.speedDialStyle,
                     onSelect = onSpeedDialStyleChange,
                 )
             }
 
             Section(
-                "Escena de velocidad",
-                "Coche en la ciudad que se vuelve cohete al ir rápido, del lado contrario al clima.",
+                stringResource(R.string.settings_speed_scene),
+                stringResource(R.string.settings_speed_scene_desc),
             ) {
                 Switch(checked = settings.speedScene, onCheckedChange = onSpeedSceneChange)
             }
@@ -211,26 +230,26 @@ fun SettingsSheet(
                     // The threshold is stored in km/h and shown in the chosen unit.
                     val mph = SpeedUnits.usesMph(settings.speedUnit, androidx.compose.ui.text.intl.Locale.current.region)
                     Stepper(
-                        "Cohete desde (${SpeedUnits.label(mph)})",
+                        stringResource(R.string.settings_rocket_from, SpeedUnits.label(mph)),
                         SpeedUnits.display(settings.rocketKmh.toFloat(), mph).roundToInt(),
                         if (mph) 15..125 else 20..200,
                         step = if (mph) 5 else 10,
                         onChange = { onRocketKmhChange(SpeedUnits.toKmh(it.toFloat(), mph).roundToInt()) },
                     )
                     Choice(
-                        title = "Silueta",
+                        title = stringResource(R.string.settings_vehicle_shape),
                         options = listOf(
-                            VehicleShape.CAR to "Carro",
-                            VehicleShape.SUV to "Camioneta",
-                            VehicleShape.PICKUP to "Pickup",
-                            VehicleShape.CAT to "Gato",
-                            VehicleShape.DOG to "Perro",
+                            VehicleShape.CAR to stringResource(R.string.vehicle_car),
+                            VehicleShape.SUV to stringResource(R.string.vehicle_suv),
+                            VehicleShape.PICKUP to stringResource(R.string.vehicle_pickup),
+                            VehicleShape.CAT to stringResource(R.string.vehicle_cat),
+                            VehicleShape.DOG to stringResource(R.string.vehicle_dog),
                         ),
                         selected = settings.vehicleShape,
                         onSelect = onVehicleShapeChange,
                     )
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text("Color", style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.settings_color), style = MaterialTheme.typography.titleMedium)
                         Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                             VehicleColor.entries.forEach { c ->
                                 val isSelected = c == settings.vehicleColor
@@ -253,37 +272,37 @@ fun SettingsSheet(
             }
 
             Choice(
-                title = "Formato de hora",
-                options = listOf(TimeFormat.SYSTEM to "Automático", TimeFormat.H12 to "12 h", TimeFormat.H24 to "24 h"),
+                title = stringResource(R.string.settings_time_format),
+                options = listOf(TimeFormat.SYSTEM to stringResource(R.string.option_auto), TimeFormat.H12 to stringResource(R.string.time_12h), TimeFormat.H24 to stringResource(R.string.time_24h)),
                 selected = settings.timeFormat,
                 onSelect = onTimeFormatChange,
             )
 
             Choice(
-                title = "Menú de aplicaciones",
+                title = stringResource(R.string.settings_app_menu),
                 options = listOf(
-                    AppMenuStyle.BOTTOM_SHEET to "Desde abajo",
-                    AppMenuStyle.SWIPE_PAGE to "Página a la derecha (desliza ←)",
+                    AppMenuStyle.BOTTOM_SHEET to stringResource(R.string.app_menu_bottom_sheet),
+                    AppMenuStyle.SWIPE_PAGE to stringResource(R.string.app_menu_swipe_page),
                 ),
                 selected = settings.appMenuStyle,
                 onSelect = onAppMenuStyleChange,
             )
 
-            Section("Nombres de apps", "Muestra el nombre debajo del icono de las apps del escritorio.") {
+            Section(stringResource(R.string.settings_app_labels), stringResource(R.string.settings_app_labels_desc)) {
                 Switch(checked = settings.showAppLabels, onCheckedChange = onShowAppLabelsChange)
             }
 
             Choice(
-                title = "Tamaño de iconos de la barra",
-                options = listOf(DockIconSize.SMALL to "Chico", DockIconSize.MEDIUM to "Mediano", DockIconSize.LARGE to "Grande"),
+                title = stringResource(R.string.settings_dock_icon_size),
+                options = listOf(DockIconSize.SMALL to stringResource(R.string.size_small), DockIconSize.MEDIUM to stringResource(R.string.size_medium), DockIconSize.LARGE to stringResource(R.string.size_large)),
                 selected = settings.dockIconSize,
                 onSelect = onDockIconSizeChange,
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Mostrar", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.settings_show), style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "Elige qué se ve en las barras. Configuración siempre queda visible.",
+                    stringResource(R.string.settings_show_desc),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -292,7 +311,7 @@ fun SettingsSheet(
                     Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                         pair.forEach { (element, label) ->
                             Row(Modifier.weight(1f).height(56.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                                Text(stringResource(label), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
                                 Switch(
                                     checked = element !in settings.hiddenElements,
                                     onCheckedChange = { onElementVisibilityChange(element, it) },
@@ -305,18 +324,18 @@ fun SettingsSheet(
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Cuadrícula", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.settings_grid), style = MaterialTheme.typography.titleMedium)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Stepper("Columnas", grid.columns, GridColumnsRange) { onGridChange(grid.copy(columns = it)) }
-                        Stepper("Filas", grid.rows, GridRowsRange) { onGridChange(grid.copy(rows = it)) }
+                        Stepper(stringResource(R.string.settings_columns), grid.columns, GridColumnsRange) { onGridChange(grid.copy(columns = it)) }
+                        Stepper(stringResource(R.string.settings_rows), grid.rows, GridRowsRange) { onGridChange(grid.copy(rows = it)) }
                     }
                     Spacer(Modifier.width(24.dp))
                     GridPreview(grid, Modifier.width(180.dp))
                 }
                 AnimatedVisibility(gridError != null) {
                     Text(
-                        text = gridError.orEmpty(),
+                        text = gridError?.let { stringResource(R.string.settings_grid_error, it.columns / LayoutDefinition.COLUMN_SCALE, it.rows) }.orEmpty(),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium,
                     )
@@ -325,7 +344,7 @@ fun SettingsSheet(
 
             // Attribution required by the CC BY 4.0 license of the weather data.
             Text(
-                text = "Datos del clima: Open-Meteo.com (CC BY 4.0)",
+                text = stringResource(R.string.settings_weather_attribution),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -335,26 +354,26 @@ fun SettingsSheet(
 
 /** Labels of the items that can be hidden (in the order they appear). */
 private val DOCK_ELEMENT_LABELS = listOf(
-    DockElement.WEATHER to "Clima",
-    DockElement.CLOCK to "Hora",
-    DockElement.APPS to "Apps",
-    DockElement.ASSISTANT to "Asistente",
-    DockElement.HOTSPOT to "Hotspot",
-    DockElement.SIGNAL to "Señal",
-    DockElement.VOLUME to "Volumen",
-    DockElement.NOTIFICATIONS to "Notificaciones",
+    DockElement.WEATHER to R.string.element_weather,
+    DockElement.CLOCK to R.string.element_clock,
+    DockElement.APPS to R.string.apps,
+    DockElement.ASSISTANT to R.string.element_assistant,
+    DockElement.HOTSPOT to R.string.element_hotspot,
+    DockElement.SIGNAL to R.string.element_signal,
+    DockElement.VOLUME to R.string.element_volume,
+    DockElement.NOTIFICATIONS to R.string.notifications,
 )
 
 /** Accent names in the order they're shown. */
 private val ACCENT_LABELS = listOf(
-    AccentColor.BLUE to "Azul",
-    AccentColor.TEAL to "Turquesa",
-    AccentColor.GREEN to "Verde",
-    AccentColor.PURPLE to "Morado",
-    AccentColor.PINK to "Rosa",
-    AccentColor.ORANGE to "Naranja",
-    AccentColor.RED to "Rojo",
-    AccentColor.DYNAMIC to "Dinámico",
+    AccentColor.BLUE to R.string.accent_blue,
+    AccentColor.TEAL to R.string.accent_teal,
+    AccentColor.GREEN to R.string.accent_green,
+    AccentColor.PURPLE to R.string.accent_purple,
+    AccentColor.PINK to R.string.accent_pink,
+    AccentColor.ORANGE to R.string.accent_orange,
+    AccentColor.RED to R.string.accent_red,
+    AccentColor.DYNAMIC to R.string.accent_dynamic,
 )
 
 /** 48 dp circular swatches; the selected one gets a ring and ✓. "Dinámico" only on Android 12+. */
@@ -365,7 +384,7 @@ private fun AccentPicker(selected: AccentColor, onSelect: (AccentColor) -> Unit)
         accent != AccentColor.DYNAMIC || Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Color de acento", style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.settings_accent), style = MaterialTheme.typography.titleMedium)
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             options.forEach { (accent, label) ->
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -392,7 +411,7 @@ private fun AccentPicker(selected: AccentColor, onSelect: (AccentColor) -> Unit)
                     ) {
                         if (isSelected) Icon(Icons.Rounded.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
                     }
-                    Text(label, style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top = 4.dp))
+                    Text(stringResource(label), style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top = 4.dp))
                 }
             }
         }
@@ -446,7 +465,7 @@ private fun Stepper(label: String, value: Int, range: IntRange, step: Int = 1, o
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
         FilledTonalIconButton(onClick = { onChange(value - step) }, enabled = value > range.first, modifier = Modifier.size(48.dp)) {
-            Icon(Icons.Rounded.Remove, contentDescription = "Menos $label")
+            Icon(Icons.Rounded.Remove, contentDescription = stringResource(R.string.stepper_decrease, label))
         }
         Text(
             text = "$value",
@@ -456,7 +475,7 @@ private fun Stepper(label: String, value: Int, range: IntRange, step: Int = 1, o
             textAlign = TextAlign.Center,
         )
         FilledTonalIconButton(onClick = { onChange(value + step) }, enabled = value < range.last, modifier = Modifier.size(48.dp)) {
-            Icon(Icons.Rounded.Add, contentDescription = "Más $label")
+            Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.stepper_increase, label))
         }
     }
 }

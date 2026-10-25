@@ -1,5 +1,6 @@
 package org.opencarproject.launcher.presentation.launcher
 
+import org.opencarproject.launcher.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import org.opencarproject.launcher.core.model.AccentColor
@@ -12,6 +13,7 @@ import org.opencarproject.launcher.core.model.DockElement
 import org.opencarproject.launcher.core.model.DragPhase
 import org.opencarproject.launcher.core.model.DockIconSize
 import org.opencarproject.launcher.core.model.DockSide
+import org.opencarproject.launcher.core.model.AppLanguage
 import org.opencarproject.launcher.core.model.GridSpec
 import org.opencarproject.launcher.core.model.LayoutDefinition
 import org.opencarproject.launcher.core.model.LayoutMode
@@ -127,17 +129,18 @@ class LauncherViewModel(
     val ready: StateFlow<Boolean> = combine(observeSettings(), layoutLoaded) { _, loaded -> loaded }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
-    /** Short messages for the user (the Activity shows them as Toasts). */
-    private val _messages = MutableSharedFlow<String>(extraBufferCapacity = 2)
-    val messages: SharedFlow<String> = _messages.asSharedFlow()
+    /** Short messages for the user as string resources (the Activity shows them as Toasts). */
+    private val _messages = MutableSharedFlow<Int>(extraBufferCapacity = 2)
+    val messages: SharedFlow<Int> = _messages.asSharedFlow()
 
     /** Emitted when Home is pressed with the launcher already open: the screen returns to the desktop. */
     private val _homePressed = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val homePressed: SharedFlow<Unit> = _homePressed.asSharedFlow()
 
     /** Reason for the last rejected grid change (cleared on the next valid one). */
-    private val _gridError = MutableStateFlow<String?>(null)
-    val gridError: StateFlow<String?> = _gridError.asStateFlow()
+    private val _gridError = MutableStateFlow<GridSpec?>(null)
+    /** The last grid size rejected because the items don't fit (the UI words the error). */
+    val gridError: StateFlow<GridSpec?> = _gridError.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -197,7 +200,7 @@ class LauncherViewModel(
                 }
                 // Third-party launcher: the system asks the user for permission for this widget.
                 is AddItemResult.NeedsWidgetPick -> _widgetBindRequest.emit(result.appWidgetId to result.provider)
-                AddItemResult.NoSpace -> _messages.emit("No hay espacio en la cuadrícula. Quita o achica algo primero.")
+                AddItemResult.NoSpace -> _messages.emit(R.string.grid_no_space)
             }
             closePanel()
         }
@@ -222,7 +225,7 @@ class LauncherViewModel(
             )
             if (updated == null) {
                 deleteWidgetId(appWidgetId)
-                _messages.emit("No hay espacio en la cuadrícula. Quita o achica algo primero.")
+                _messages.emit(R.string.grid_no_space)
                 return@launch
             }
             layout.value = updated
@@ -394,6 +397,10 @@ class LauncherViewModel(
         viewModelScope.launch { updateSettings { it.copy(showAppLabels = show) } }
     }
 
+    fun onAppLanguageChange(language: AppLanguage) {
+        viewModelScope.launch { updateSettings { it.copy(appLanguage = language) } }
+    }
+
     fun onDockIconSizeChange(size: DockIconSize) {
         viewModelScope.launch { updateSettings { it.copy(dockIconSize = size) } }
     }
@@ -437,7 +444,7 @@ class LauncherViewModel(
         viewModelScope.launch {
             val result = changeGridSize(layout.value, grid)
             if (result == null) {
-                _gridError.value = "No caben todos los elementos en ${grid.columns / LayoutDefinition.COLUMN_SCALE} × ${grid.rows}. Quita alguno primero."
+                _gridError.value = grid
             } else {
                 layout.value = result
                 _gridError.value = null

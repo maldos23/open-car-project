@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- UI translations: English, Spanish, Simplified Chinese, Portuguese and French. Settings →
+  Language picks one or follows the system (default); units and regional formats keep
+  following the device region.
+
 ## [0.1.2] - 2026-10-25
 
 ### Fixed

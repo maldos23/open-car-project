@@ -18,7 +18,8 @@ Paths are under `app/src/main/kotlin/org/opencarproject/launcher/`.
 5. **Card** — create `presentation/widget/XxxCard.kt`. Use `MaterialTheme.colorScheme`, touch
    targets ≥ 48 dp, and handle the "no data / no permission" state with a clear action.
    Data from the system goes in a `data/source` class; pure formatting/logic in `core/pure`
-   with a unit test.
+   with a unit test. Every visible text is a `stringResource` key present in all five
+   `res/values*/strings.xml` locales; name the module in `WidgetPickerPanel`'s `CatalogTile`.
 6. **Render** — add the branch in `presentation/grid/PlacedItemCard.kt`'s `when (item.kind)`.
 7. **Verify** — `./gradlew test assembleDebug`; on the emulator long-press the home screen,
    add the module from "+", drag and resize it, restart the app and check it persisted.

@@ -1,5 +1,211 @@
 <resources>
-    <string name="app_name">Open Car Project</string>
-    <string name="widget_clock_label">Reloj de vidrio</string>
-    <string name="widget_media_label">Medios de vidrio</string>
+    <!-- English is the fallback for locales without their own values-* folder.
+         Every key must also exist in values-es, values-zh-rCN, values-pt and values-fr. -->
+    <string name="app_name" translatable="false">Open Car Project</string>
+
+    <!-- Common -->
+    <string name="close">Close</string>
+    <string name="add">Add</string>
+    <string name="delete">Delete</string>
+    <string name="option_system">System</string>
+    <string name="option_auto">Automatic</string>
+    <string name="notifications">Notifications</string>
+    <string name="notifications_count">Notifications: %1$d</string>
+    <string name="apps">Apps</string>
+
+    <!-- Home-screen widgets (RemoteViews) -->
+    <string name="widget_clock_label">Glass clock</string>
+    <string name="widget_media_label">Glass media</string>
+    <string name="widget_media_now_playing">Now playing</string>
+    <string name="widget_media_playing">Playing…</string>
+    <string name="widget_media_next_track">Next track</string>
+
+    <!-- Built-in modules -->
+    <string name="module_navigation">Navigation</string>
+    <string name="module_media">Player</string>
+
+    <!-- Launcher -->
+    <string name="settings_title">Settings</string>
+    <string name="dock_add_left">Add to the bar (left)</string>
+    <string name="dock_add_right">Add to the bar (right)</string>
+    <string name="dock_add_shortcut">Add shortcut</string>
+    <string name="dock_remove">Remove from the bar</string>
+    <string name="edit_done">Finish editing</string>
+    <string name="grid_no_space">There\'s no room on the grid. Remove or shrink something first.</string>
+
+    <!-- App menu -->
+    <string name="drawer_search">Search apps</string>
+    <string name="drawer_clear_search">Clear search</string>
+    <string name="drawer_no_results">No results</string>
+    <string name="apps_back_home">Back to home</string>
+    <string name="apps_title">Applications</string>
+
+    <!-- Widget picker -->
+    <string name="picker_title">Add to desktop</string>
+    <string name="picker_empty">No items available</string>
+
+    <!-- Settings -->
+    <string name="settings_language">Language</string>
+    <string name="settings_fullscreen">Fullscreen</string>
+    <string name="settings_fullscreen_desc">Hides the system bars. Swipe from the edge to show them.</string>
+    <string name="settings_theme">Theme</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="settings_accent">Accent color</string>
+    <string name="accent_blue">Blue</string>
+    <string name="accent_teal">Teal</string>
+    <string name="accent_green">Green</string>
+    <string name="accent_purple">Purple</string>
+    <string name="accent_pink">Pink</string>
+    <string name="accent_orange">Orange</string>
+    <string name="accent_red">Red</string>
+    <string name="accent_dynamic">Dynamic</string>
+    <string name="settings_background">Background</string>
+    <string name="background_solid">Plain</string>
+    <string name="background_wallpaper">System wallpaper</string>
+    <string name="background_gradient">Gradient</string>
+    <string name="settings_particles">Particles</string>
+    <string name="settings_particles_desc">Points of light floating over the gradient.</string>
+    <string name="settings_speed_unit">Speed</string>
+    <string name="settings_temperature">Temperature</string>
+    <string name="temperature_celsius">Celsius (°C)</string>
+    <string name="temperature_fahrenheit">Fahrenheit (°F)</string>
+    <string name="settings_weather_position">Weather position</string>
+    <string name="position_left">Left</string>
+    <string name="position_center">Center</string>
+    <string name="position_right">Right</string>
+    <string name="settings_weather_center_unavailable">Center isn\'t available while the speed scene is on.</string>
+    <string name="settings_speed_source">Speed source</string>
+    <string name="speed_source_gps">GPS (accurate)</string>
+    <string name="speed_source_sensors">Sensors (approximate)</string>
+    <string name="settings_speed_dial">Speedometer</string>
+    <string name="settings_speed_dial_desc_scene">In the top bar, inside the speed scene.</string>
+    <string name="settings_speed_dial_desc">In the top bar, opposite the weather.</string>
+    <string name="settings_speed_dial_style">Speedometer style</string>
+    <string name="speed_dial_circle">Circle</string>
+    <string name="speed_dial_inline">Numbers</string>
+    <string name="settings_speed_scene">Speed scene</string>
+    <string name="settings_speed_scene_desc">A car in the city that turns into a rocket when you go fast, opposite the weather.</string>
+    <string name="settings_rocket_from">Rocket from (%1$s)</string>
+    <string name="settings_vehicle_shape">Silhouette</string>
+    <string name="vehicle_car">Car</string>
+    <string name="vehicle_suv">SUV</string>
+    <string name="vehicle_pickup">Pickup</string>
+    <string name="vehicle_cat">Cat</string>
+    <string name="vehicle_dog">Dog</string>
+    <string name="settings_color">Color</string>
+    <string name="settings_time_format">Time format</string>
+    <string name="time_12h">12 h</string>
+    <string name="time_24h">24 h</string>
+    <string name="settings_app_menu">App menu</string>
+    <string name="app_menu_bottom_sheet">From the bottom</string>
+    <string name="app_menu_swipe_page">Page on the right (swipe ←)</string>
+    <string name="settings_app_labels">App names</string>
+    <string name="settings_app_labels_desc">Shows the name under the desktop app icons.</string>
+    <string name="settings_dock_icon_size">Bar icon size</string>
+    <string name="size_small">Small</string>
+    <string name="size_medium">Medium</string>
+    <string name="size_large">Large</string>
+    <string name="settings_show">Show</string>
+    <string name="settings_show_desc">Choose what appears in the bars. Settings always stays visible.</string>
+    <string name="element_weather">Weather</string>
+    <string name="element_clock">Time</string>
+    <string name="element_assistant">Assistant</string>
+    <string name="element_hotspot">Hotspot</string>
+    <string name="element_signal">Signal</string>
+    <string name="element_volume">Volume</string>
+    <string name="settings_grid">Grid</string>
+    <string name="settings_columns">Columns</string>
+    <string name="settings_rows">Rows</string>
+    <string name="settings_grid_error">Not everything fits in %1$d × %2$d. Remove something first.</string>
+    <string name="settings_weather_attribution">Weather data: Open-Meteo.com (CC BY 4.0)</string>
+    <string name="stepper_decrease">Less %1$s</string>
+    <string name="stepper_increase">More %1$s</string>
+
+    <!-- Language names are always shown in their own language. -->
+    <string name="language_es" translatable="false">Español</string>
+    <string name="language_en" translatable="false">English</string>
+    <string name="language_zh" translatable="false">中文</string>
+    <string name="language_pt" translatable="false">Português</string>
+    <string name="language_fr" translatable="false">Français</string>
+
+    <!-- Media -->
+    <string name="media_access_prompt">Allow notification access to control the music</string>
+    <string name="media_nothing_playing">Nothing playing</string>
+    <string name="media_unknown">Unknown</string>
+    <string name="media_previous">Previous</string>
+    <string name="media_next">Next</string>
+    <string name="media_pause">Pause</string>
+    <string name="media_play">Play</string>
+
+    <!-- Navigation -->
+    <string name="nav_navigating">Navigating</string>
+    <string name="nav_navigate">Navigate</string>
+    <string name="nav_with_app">with %1$s</string>
+
+    <!-- Notifications -->
+    <string name="notification_access_grant">Grant access</string>
+    <string name="notifications_access_prompt">Allow notification access to see them here</string>
+    <string name="notifications_empty">No notifications</string>
+    <string name="collapse">Collapse</string>
+    <string name="expand">Expand</string>
+    <string name="island_now">now</string>
+    <string name="island_playing">playing</string>
+
+    <!-- Status -->
+    <string name="signal_none">No connection</string>
+    <string name="signal_wifi">%1$s, level %2$d of 4</string>
+    <string name="signal_mobile">Mobile data %1$s, level %2$d of 4</string>
+    <string name="volume_level">Volume %1$d %%</string>
+    <string name="volume_mute">Mute</string>
+    <string name="volume_unmute">Unmute</string>
+    <string name="volume_down">Volume down</string>
+    <string name="volume_up">Volume up</string>
+
+    <!-- Weather -->
+    <string name="weather_enable">Enable weather</string>
+    <string name="weather_loading">Loading…</string>
+    <string name="weather_clear">Clear</string>
+    <string name="weather_partly_cloudy">Partly cloudy</string>
+    <string name="weather_cloudy">Cloudy</string>
+    <string name="weather_fog">Fog</string>
+    <string name="weather_drizzle">Drizzle</string>
+    <string name="weather_rain">Rain</string>
+    <string name="weather_snow">Snow</string>
+    <string name="weather_thunderstorm">Thunderstorm</string>
+    <string name="weather_unknown">Weather</string>
+
+    <!-- Hotspot -->
+    <string name="hotspot_active">Hotspot on</string>
+    <plurals name="hotspot_devices">
+        <item quantity="one">Hotspot on, %d device</item>
+        <item quantity="other">Hotspot on, %d devices</item>
+    </plurals>
+    <plurals name="hotspot_connected">
+        <item quantity="one">Hotspot · %d connected</item>
+        <item quantity="other">Hotspot · %d connected</item>
+    </plurals>
+    <string name="hotspot_system_only">Android only lets system apps see the connected devices. Install the launcher as a system app to see the list (docs/HOTSPOT.md).</string>
+    <string name="hotspot_none">No devices connected.</string>
+    <string name="hotspot_device">Device</string>
+
+    <!-- Assistant -->
+    <string name="assistant_open">Open assistant</string>
+    <string name="assistant_talk">Talk to Google</string>
+    <string-array name="assistant_suggestions">
+        <item>How\'s traffic on the way home?</item>
+        <item>Take me to the nearest gas station</item>
+        <item>Play some driving music</item>
+        <item>Call mom</item>
+        <item>Read my messages</item>
+        <item>When will I get to work?</item>
+        <item>Tell Ana I\'m on my way</item>
+        <item>Is it going to rain today?</item>
+        <item>Find a coffee shop nearby</item>
+        <item>Turn up the volume</item>
+        <item>Remind me to buy milk when I get there</item>
+        <item>Where can I park?</item>
+        <item>Play my favorite podcast</item>
+        <item>What restaurants are nearby?</item>
+    </string-array>
 </resources>

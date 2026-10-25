@@ -216,3 +216,16 @@ enum class GlassTone {
     DARK,
     ACCENT,
 }
+
+/**
+ * UI language: [SYSTEM] follows the device; the others force a BCP 47 language (+ script) tag.
+ * No region on purpose: the device region keeps driving the automatic units.
+ */
+enum class AppLanguage(val tag: String) {
+    SYSTEM(""),
+    ES("es"),
+    EN("en"),
+    ZH("zh-Hans"),
+    PT("pt"),
+    FR("fr"),
+}

@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import org.opencarproject.launcher.core.model.AccentColor
+import org.opencarproject.launcher.core.model.AppLanguage
 import org.opencarproject.launcher.core.model.BackgroundStyle
 import org.opencarproject.launcher.core.model.AppMenuStyle
 import org.opencarproject.launcher.core.model.DockElement
@@ -53,6 +54,7 @@ class SettingsDataSource(private val context: Context) {
     private val dockIconSizeKey = stringPreferencesKey("dock_icon_size")
     private val appLabelsKey = booleanPreferencesKey("show_app_labels")
     private val dockRightKey = stringPreferencesKey("dock_right_apps")
+    private val appLanguageKey = stringPreferencesKey("app_language")
 
     val settingsFlow: Flow<LauncherSettings> = context.settingsDataStore.data.map { it.toSettings() }
 
@@ -83,6 +85,7 @@ class SettingsDataSource(private val context: Context) {
             prefs[dockIconSizeKey] = next.dockIconSize.name
             prefs[appLabelsKey] = next.showAppLabels
             prefs[dockRightKey] = next.dockRightApps.joinToString("\n")
+            prefs[appLanguageKey] = next.appLanguage.name
         }
     }
 
@@ -111,6 +114,7 @@ class SettingsDataSource(private val context: Context) {
         hiddenElements = this[hiddenElementsKey].orEmpty()
             .mapNotNull { runCatching { DockElement.valueOf(it) }.getOrNull() }
             .toSet(),
+        appLanguage = enumOr(this[appLanguageKey], AppLanguage.SYSTEM),
     )
 
     /** Stored value, or the default if missing or from a version that no longer exists. */

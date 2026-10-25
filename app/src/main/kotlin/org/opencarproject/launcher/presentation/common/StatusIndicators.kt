@@ -1,5 +1,7 @@
 package org.opencarproject.launcher.presentation.common
 
+import org.opencarproject.launcher.R
+import androidx.compose.ui.res.stringResource
 import android.annotation.SuppressLint
 import android.Manifest
 import android.content.BroadcastReceiver
@@ -104,9 +106,9 @@ private data class CellDisplay(val networkType: Int, val override: Int)
 fun SignalIndicator(modifier: Modifier = Modifier) {
     val signal = rememberSignal()
     val label = when {
-        !signal.connected -> "Sin conexión"
-        signal.wifi -> "${signal.type ?: "Wi-Fi"}, nivel ${signal.level} de 4"
-        else -> "Datos móviles ${signal.type.orEmpty()}, nivel ${signal.level} de 4"
+        !signal.connected -> stringResource(R.string.signal_none)
+        signal.wifi -> stringResource(R.string.signal_wifi, signal.type ?: "Wi-Fi", signal.level)
+        else -> stringResource(R.string.signal_mobile, signal.type.orEmpty(), signal.level)
     }
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
         if (signal.connected && signal.type != null) {

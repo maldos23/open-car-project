@@ -2,6 +2,9 @@ package org.opencarproject.launcher.presentation
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
+import android.content.Context
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -26,7 +29,11 @@ import org.opencarproject.launcher.di.AppContainer
 import org.opencarproject.launcher.presentation.launcher.LauncherScreen
 import org.opencarproject.launcher.presentation.launcher.LauncherViewModel
 import org.opencarproject.launcher.presentation.launcher.LauncherViewModelFactory
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import org.opencarproject.launcher.core.model.AppLanguage
+import java.util.Locale
 
 /**
  * Home screen (HOME) of the launcher.
@@ -42,6 +49,31 @@ class LauncherActivity : ComponentActivity() {
 
     private val viewModel: LauncherViewModel by viewModels {
         LauncherViewModelFactory(container)
+    }
+
+    /** Language the resources were loaded with; a different saved one recreates the Activity. */
+    private var appliedLanguage = AppLanguage.SYSTEM
+
+    /**
+     * Applies the in-app language before any resource is read. Done at the Activity level (not
+     * in Compose) so dialogs and bottom sheets, which have their own windows, get it too.
+     */
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(newBase)
+        // ponytail: one blocking DataStore read at startup (a few ms); a mirror in SharedPreferences
+        // would avoid it at the cost of a second source of truth.
+        appliedLanguage = runBlocking { container.observeSettings().first().appLanguage }
+        val system = Resources.getSystem().configuration.locales[0]
+        val locale = if (appliedLanguage == AppLanguage.SYSTEM) {
+            system
+        } else {
+            // Keep the device region: °F/mph and other regional defaults must not follow the language.
+            Locale.Builder().setLanguageTag(appliedLanguage.tag).setRegion(system.country).build().also {
+                applyOverrideConfiguration(Configuration().apply { setLocale(it) })
+            }
+        }
+        // Date and relative-time formatting reads the default locale, not the resources.
+        Locale.setDefault(locale)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,6 +93,7 @@ class LauncherActivity : ComponentActivity() {
                 )
             }
             LaunchedEffect(settings.fullscreen) { window.setSystemBarsHidden(settings.fullscreen) }
+            LaunchedEffect(settings.appLanguage) { if (settings.appLanguage != appliedLanguage) recreate() }
 
             LauncherTheme(themeMode = settings.themeMode, accent = settings.accentColor) {
                 CompositionLocalProvider(LocalFullscreen provides settings.fullscreen) {
@@ -82,7 +115,7 @@ class LauncherActivity : ComponentActivity() {
                     viewModel.widgetConfigureRequest.collect { appWidgetId -> configureIfNeeded(appWidgetId) }
                 }
                 launch {
-                    viewModel.messages.collect { android.widget.Toast.makeText(this@LauncherActivity, it, android.widget.Toast.LENGTH_LONG).show() }
+                    viewModel.messages.collect { android.widget.Toast.makeText(this@LauncherActivity, getString(it), android.widget.Toast.LENGTH_LONG).show() }
                 }
             }
         }

@@ -22,8 +22,8 @@ Built with **Kotlin + Jetpack Compose (Material 3)**, native Android APIs (`AppW
 | **Bottom dock** | Clock, app drawer, Google Assistant button with rotating suggestions, app shortcuts, hotspot, signal (4G/5G, Wi-Fi standard), volume, notifications, settings. |
 | **Settings** | Theme (system/light/dark), accent color (incl. Material You), background (solid / wallpaper / animated gradient with particles), units (°C/°F, km/h/mph), 12/24 h, what to show in the bars, app-menu style, and more. |
 
-> UI text is currently in Spanish. Translating the UI (moving strings to `strings.xml`) is a
-> welcome contribution — see [CONTRIBUTING.md](CONTRIBUTING.md).
+> The UI is available in English, Spanish, Simplified Chinese, Portuguese and French (Settings →
+> Language). New languages are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Quick start
 

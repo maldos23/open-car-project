@@ -1,5 +1,7 @@
 package org.opencarproject.launcher.presentation.common
 
+import org.opencarproject.launcher.R
+import androidx.compose.ui.res.stringResource
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -115,7 +117,7 @@ fun VolumeButton(modifier: Modifier = Modifier) {
         BadgedBox(badge = { Badge { Text("$percent") } }) {
             Icon(
                 imageVector = volumeIcon(percent),
-                contentDescription = "Volumen $percent %",
+                contentDescription = stringResource(R.string.volume_level, percent),
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(30.dp),
             )
@@ -156,10 +158,10 @@ fun VolumeButton(modifier: Modifier = Modifier) {
                             },
                             modifier = Modifier.size(48.dp),
                         ) {
-                            Icon(volumeIcon(percent), contentDescription = if (level > 0) "Silenciar" else "Quitar silencio")
+                            Icon(volumeIcon(percent), contentDescription = if (level > 0) stringResource(R.string.volume_mute) else stringResource(R.string.volume_unmute))
                         }
                         FilledTonalIconButton(onClick = { setLevel(level - 1) }, modifier = Modifier.size(48.dp)) {
-                            Icon(Icons.Rounded.Remove, contentDescription = "Bajar volumen")
+                            Icon(Icons.Rounded.Remove, contentDescription = stringResource(R.string.volume_down))
                         }
                         Slider(
                             value = level.toFloat(),
@@ -169,7 +171,7 @@ fun VolumeButton(modifier: Modifier = Modifier) {
                             modifier = Modifier.width(280.dp),
                         )
                         FilledTonalIconButton(onClick = { setLevel(level + 1) }, modifier = Modifier.size(48.dp)) {
-                            Icon(Icons.Rounded.Add, contentDescription = "Subir volumen")
+                            Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.volume_up))
                         }
                         Text(
                             text = "$percent %",

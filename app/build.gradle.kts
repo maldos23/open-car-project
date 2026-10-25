@@ -54,6 +54,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    // The in-app language picker needs every locale in the install: no per-language splits.
+    bundle { language { enableSplit = false } }
+
     buildFeatures {
         compose = true
     }
