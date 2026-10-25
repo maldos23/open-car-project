@@ -40,6 +40,7 @@ class WidgetHostGatewayImpl(
     }
 
     override fun launchAssistant() {
+        // Fallback for when Activity.showAssist finds no default assistant (see LauncherScreen).
         // VOICE_COMMAND targeted at the Google app opens the Assistant session over the
         // launcher, listening (same as "Ok Google"). Plain ACTION_ASSIST opens the Google app
         // on its search screen, so it's only kept as a fallback.

@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- The assistant opens faster: it is shown as a system overlay instead of launching the Google app.
+
 ## [0.3.0] - 2026-10-25
 
 ### Fixed
