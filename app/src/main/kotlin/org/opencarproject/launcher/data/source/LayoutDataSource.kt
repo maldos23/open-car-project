@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.retry
 import java.io.IOException
 
 /** Per-process DataStore (singleton per Context). */
@@ -38,7 +39,9 @@ class LayoutDataSource(
     private val layoutKey = stringPreferencesKey("layout_json")
 
     /** Flow of the persisted layout; emits the default menu if none exists yet. */
-    val layoutFlow: Flow<LayoutDefinition> = context.launcherDataStore.data.recoverIoErrors().map { prefs ->
+    // No fallback on read errors here (unlike settings): showing the default menu would get it
+    // saved over the user's intact layout on the first edit. A transient error is retried.
+    val layoutFlow: Flow<LayoutDefinition> = context.launcherDataStore.data.retry(2) { it is IOException }.map { prefs ->
         prefs[layoutKey]?.let { codec.decode(it)?.toFineColumns() } ?: LayoutDefinition.DEFAULT
     }.flowOn(decodeDispatcher) // JSON decoding stays off the main thread.
 

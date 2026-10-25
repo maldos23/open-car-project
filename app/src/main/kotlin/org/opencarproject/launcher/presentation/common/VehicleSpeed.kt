@@ -30,5 +30,7 @@ fun rememberVehicleSpeed(source: SpeedSource): VehicleSpeed {
         .collectAsStateWithLifecycle(0f)
     // Visual smoothing so needles and scenes don't jerk.
     val smooth = animateFloatAsState(raw.value, tween(900), label = "speed")
-    return VehicleSpeed(smooth, raw, source == SpeedSource.GPS && !hasGps)
+    val needsGps = source == SpeedSource.GPS && !hasGps
+    // Remembered: callers key effects on it, so it must not be a new object every recomposition.
+    return remember(smooth, raw, needsGps) { VehicleSpeed(smooth, raw, needsGps) }
 }

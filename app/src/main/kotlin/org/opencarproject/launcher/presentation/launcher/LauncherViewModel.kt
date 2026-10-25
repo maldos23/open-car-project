@@ -144,7 +144,7 @@ class LauncherViewModel(
 
     init {
         viewModelScope.launch {
-            layout.value = loadLayout().first()
+            layoutMutex.withLock { layout.value = loadLayout().first() }
             layoutLoaded.value = true
         }
     }
@@ -262,7 +262,7 @@ class LauncherViewModel(
         if (itemId == null || target == null) return clearDrag()
         // The gesture is cleared at the same instant the new layout arrives, so the card
         // goes from "stuck to the finger" to settling in its new cell without first snapping back to its origin.
-        mutateLayout { moveItem(it, itemId, target).also { clearDrag() } }
+        mutateLayout(onApplied = ::clearDrag) { moveItem(it, itemId, target) }
     }
 
     fun onMoveCancel() = clearDrag()
@@ -290,7 +290,7 @@ class LauncherViewModel(
         val itemId = inter.activeItemId
         val span = inter.previewSpan
         if (itemId == null || span == null) return clearDrag()
-        mutateLayout { resizeItem(it, itemId, span).also { clearDrag() } }
+        mutateLayout(onApplied = ::clearDrag) { resizeItem(it, itemId, span) }
     }
 
     fun onResizeCancel() = clearDrag()
@@ -381,10 +381,14 @@ class LauncherViewModel(
     /**
      * Applies a layout change on top of the latest layout; `null` from [block] keeps it as is.
      * Two quick actions (e.g. two deletes) would otherwise both start from the same old layout.
+     * [onApplied] runs right after the new layout is set (e.g. to end the gesture at that instant).
      */
-    private fun mutateLayout(block: suspend (LayoutDefinition) -> LayoutDefinition?) {
+    private fun mutateLayout(onApplied: () -> Unit = {}, block: suspend (LayoutDefinition) -> LayoutDefinition?) {
         viewModelScope.launch {
-            layoutMutex.withLock { block(layout.value)?.let { layout.value = it } }
+            layoutMutex.withLock {
+                block(layout.value)?.let { layout.value = it }
+                onApplied()
+            }
         }
     }
 }
