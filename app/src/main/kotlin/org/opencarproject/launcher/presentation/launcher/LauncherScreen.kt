@@ -236,6 +236,7 @@ fun LauncherScreen(
                             AppsPage(
                                 apps = apps,
                                 onLaunch = launchFromMenu,
+                                iconScale = settings.menuIconScale,
                                 onBack = { scope.launch { pagerState.animateScrollToPage(HOME_PAGE) } },
                             )
                         }
@@ -369,6 +370,7 @@ fun LauncherScreen(
                     onDockIconSizeChange = viewModel::onDockIconSizeChange,
                     onAppLanguageChange = viewModel::onAppLanguageChange,
                     onUiScaleChange = viewModel::onUiScaleChange,
+                    onMenuIconScaleChange = viewModel::onMenuIconScaleChange,
                     onShowAppLabelsChange = viewModel::onShowAppLabelsChange,
                     onAccentColorChange = viewModel::onAccentColorChange,
                     onElementVisibilityChange = viewModel::onElementVisibilityChange,
@@ -384,6 +386,7 @@ fun LauncherScreen(
             dockPickerSide?.let { side ->
                 AppDrawerSheet(
                     apps = apps,
+                    iconScale = settings.menuIconScale,
                     title = if (side == DockSide.LEFT) stringResource(R.string.dock_add_left) else stringResource(R.string.dock_add_right),
                     onLaunch = {
                         viewModel.onDockAppAdd(side, it.key)
@@ -394,7 +397,7 @@ fun LauncherScreen(
             }
 
             if (!swipeMenu && drawerOpen) {
-                AppDrawerSheet(apps = apps, onLaunch = launchFromMenu, onDismiss = { drawerOpen = false })
+                AppDrawerSheet(apps = apps, onLaunch = launchFromMenu, onDismiss = { drawerOpen = false }, iconScale = settings.menuIconScale)
             }
 
             AnimatedVisibility(

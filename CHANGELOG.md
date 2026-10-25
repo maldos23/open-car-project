@@ -12,6 +12,7 @@ All notable changes to this project are documented here. The format follows
   Language picks one or follows the system (default); units and regional formats keep
   following the device region.
 - Settings → Zoom slider (80–130 %) scales the whole interface, settings and dialogs included.
+- Settings → App menu icon size slider (75–150 %) for the app menu and its full-page variant.
 
 ## [0.1.2] - 2026-10-25
 

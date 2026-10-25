@@ -91,6 +91,7 @@
     <string name="settings_app_menu">Menú de aplicaciones</string>
     <string name="app_menu_bottom_sheet">Desde abajo</string>
     <string name="app_menu_swipe_page">Página a la derecha (desliza ←)</string>
+    <string name="settings_menu_icon_size">Tamaño de iconos del menú</string>
     <string name="settings_app_labels">Nombres de apps</string>
     <string name="settings_app_labels_desc">Muestra el nombre debajo del icono de las apps del escritorio.</string>
     <string name="settings_dock_icon_size">Tamaño de iconos de la barra</string>

@@ -14,6 +14,7 @@ import org.opencarproject.launcher.core.model.DragPhase
 import org.opencarproject.launcher.core.model.DockIconSize
 import org.opencarproject.launcher.core.model.DockSide
 import org.opencarproject.launcher.core.model.AppLanguage
+import org.opencarproject.launcher.presentation.settings.MenuIconScaleRange
 import org.opencarproject.launcher.presentation.settings.UiScaleRange
 import kotlin.math.roundToInt
 import org.opencarproject.launcher.core.model.GridSpec
@@ -401,6 +402,10 @@ class LauncherViewModel(
 
     fun onUiScaleChange(scale: Float) {
         viewModelScope.launch { updateSettings { it.copy(uiScale = ((scale * 20).roundToInt() / 20f).coerceIn(UiScaleRange)) } }
+    }
+
+    fun onMenuIconScaleChange(scale: Float) {
+        viewModelScope.launch { updateSettings { it.copy(menuIconScale = ((scale * 20).roundToInt() / 20f).coerceIn(MenuIconScaleRange)) } }
     }
 
     fun onAppLanguageChange(language: AppLanguage) {
