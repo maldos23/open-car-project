@@ -32,6 +32,7 @@
     <string name="dock_remove">Remove from the bar</string>
     <string name="edit_done">Finish editing</string>
     <string name="grid_no_space">There\'s no room on the grid. Remove or shrink something first.</string>
+    <string name="widget_unavailable">That widget is no longer available.</string>
 
     <!-- App menu -->
     <string name="drawer_search">Search apps</string>

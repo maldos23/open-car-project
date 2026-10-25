@@ -4,12 +4,23 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
 import android.content.Intent
+import android.content.pm.LauncherApps
 import android.content.pm.ResolveInfo
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.os.UserHandle
 import org.opencarproject.launcher.core.model.BuiltinKeys
 import org.opencarproject.launcher.core.model.CatalogItem
 import org.opencarproject.launcher.core.model.CatalogItemKind
 import org.opencarproject.launcher.core.model.Cell
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlin.math.ceil
 
 /**
@@ -17,6 +28,24 @@ import kotlin.math.ceil
  * It is the only class that queries `AppWidgetManager` / `PackageManager` for the catalog.
  */
 class SystemCatalogSource(private val context: Context) {
+
+    /**
+     * The catalog, listed again whenever an app is installed, removed or changed. Listing queries
+     * PackageManager for every app, so it runs off the main thread.
+     */
+    fun observeItems(): Flow<List<CatalogItem>> = callbackFlow {
+        val launcherApps = context.getSystemService(LauncherApps::class.java)
+        val callback = object : LauncherApps.Callback() {
+            override fun onPackageAdded(packageName: String, user: UserHandle) { trySend(Unit) }
+            override fun onPackageRemoved(packageName: String, user: UserHandle) { trySend(Unit) }
+            override fun onPackageChanged(packageName: String, user: UserHandle) { trySend(Unit) }
+            override fun onPackagesAvailable(names: Array<out String>, user: UserHandle, replacing: Boolean) { trySend(Unit) }
+            override fun onPackagesUnavailable(names: Array<out String>, user: UserHandle, replacing: Boolean) { trySend(Unit) }
+        }
+        trySend(Unit)
+        launcherApps?.registerCallback(callback, Handler(Looper.getMainLooper()))
+        awaitClose { launcherApps?.unregisterCallback(callback) }
+    }.conflate().map { listItems() }.flowOn(Dispatchers.IO)
 
     /** Returns built-in modules first, then widgets and apps, deduplicated by component. */
     fun listItems(): List<CatalogItem> =

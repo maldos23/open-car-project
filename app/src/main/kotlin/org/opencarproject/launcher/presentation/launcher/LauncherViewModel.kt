@@ -61,6 +61,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /** Transient interaction state, kept separate from the persisted layout. */
 private data class InteractionState(
@@ -70,7 +72,10 @@ private data class InteractionState(
     val activeItemId: String? = null,
     val previewCell: Cell? = null,
     val previewSpan: Cell? = null,
-)
+) {
+    /** No gesture in progress. */
+    fun idle() = copy(dragPhase = DragPhase.IDLE, activeItemId = null, previewCell = null, previewSpan = null)
+}
 
 /**
  * Launcher ViewModel: orchestrates state between the persisted layout, the catalog and
@@ -95,6 +100,9 @@ class LauncherViewModel(
     private val layout = MutableStateFlow(LayoutDefinition())
     private val layoutLoaded = MutableStateFlow(false)
     private val interaction = MutableStateFlow(InteractionState())
+
+    /** Serializes layout changes: each one reads the result of the previous (no lost updates). */
+    private val layoutMutex = Mutex()
 
     /** Asks the Activity for the system permission to bind that widget (`ACTION_APPWIDGET_BIND`). */
     private val _widgetBindRequest = MutableSharedFlow<Pair<Int, String>>(extraBufferCapacity = 1)
@@ -162,29 +170,15 @@ class LauncherViewModel(
      * page.
      */
     fun onHomePressed() {
-        interaction.update {
-            it.copy(
-                layoutMode = LayoutMode.NORMAL,
-                panelState = PanelState.CLOSED,
-                dragPhase = DragPhase.IDLE,
-                activeItemId = null,
-                previewCell = null,
-                previewSpan = null,
-            )
-        }
+        interaction.update { it.idle().copy(layoutMode = LayoutMode.NORMAL, panelState = PanelState.CLOSED) }
         _homePressed.tryEmit(Unit)
     }
 
     fun toggleEditMode() {
         interaction.update { inter ->
             val newMode = if (inter.layoutMode == LayoutMode.EDIT) LayoutMode.NORMAL else LayoutMode.EDIT
-            inter.copy(
-                layoutMode = newMode,
-                dragPhase = DragPhase.IDLE,
-                activeItemId = null,
-                previewCell = null,
-                previewSpan = null,
-            )
+            // The add panel only makes sense while editing (Back would leave it floating).
+            inter.idle().copy(layoutMode = newMode, panelState = PanelState.CLOSED)
         }
     }
 
@@ -195,19 +189,22 @@ class LauncherViewModel(
     // ---- Add / remove ----
 
     fun onAddItem(candidate: CatalogItem) {
-        viewModelScope.launch {
-            when (val result = addItem(candidate, layout.value)) {
+        mutateLayout { current ->
+            val result = addItem(candidate, current)
+            closePanel()
+            when (result) {
                 is AddItemResult.Success -> {
-                    layout.value = result.layout
                     if (candidate.kind == CatalogItemKind.WIDGET) {
                         result.layout.items.lastOrNull()?.let { _widgetConfigureRequest.emit(it.widgetId) }
                     }
+                    return@mutateLayout result.layout
                 }
                 // Third-party launcher: the system asks the user for permission for this widget.
                 is AddItemResult.NeedsWidgetPick -> _widgetBindRequest.emit(result.appWidgetId to result.provider)
                 AddItemResult.NoSpace -> _messages.emit(R.string.grid_no_space)
+                AddItemResult.Unavailable -> _messages.emit(R.string.widget_unavailable)
             }
-            closePanel()
+            null
         }
     }
 
@@ -219,9 +216,9 @@ class LauncherViewModel(
             onWidgetPickCancelled(appWidgetId)
             return
         }
-        viewModelScope.launch {
+        mutateLayout { current ->
             val updated = addBoundWidget(
-                layout.value,
+                current,
                 appWidgetId,
                 provider,
                 candidate.title,
@@ -231,10 +228,10 @@ class LauncherViewModel(
             if (updated == null) {
                 deleteWidgetId(appWidgetId)
                 _messages.emit(R.string.grid_no_space)
-                return@launch
+            } else {
+                _widgetConfigureRequest.emit(appWidgetId)
             }
-            layout.value = updated
-            _widgetConfigureRequest.emit(appWidgetId)
+            updated
         }
     }
 
@@ -250,9 +247,7 @@ class LauncherViewModel(
     }
 
     fun onDeleteItem(itemId: String) {
-        viewModelScope.launch {
-            layout.value = removeItem(layout.value, itemId)
-        }
+        mutateLayout { removeItem(it, itemId) }
     }
 
     // ---- Drag gestures (move) ----
@@ -280,11 +275,7 @@ class LauncherViewModel(
         if (itemId == null || target == null) return clearDrag()
         // The gesture is cleared at the same instant the new layout arrives, so the card
         // goes from "stuck to the finger" to settling in its new cell without first snapping back to its origin.
-        viewModelScope.launch {
-            val result = moveItem(layout.value, itemId, target)
-            layout.value = result
-            clearDrag()
-        }
+        mutateLayout { moveItem(it, itemId, target).also { clearDrag() } }
     }
 
     fun onMoveCancel() = clearDrag()
@@ -312,11 +303,7 @@ class LauncherViewModel(
         val itemId = inter.activeItemId
         val span = inter.previewSpan
         if (itemId == null || span == null) return clearDrag()
-        viewModelScope.launch {
-            val result = resizeItem(layout.value, itemId, span)
-            layout.value = result
-            clearDrag()
-        }
+        mutateLayout { resizeItem(it, itemId, span).also { clearDrag() } }
     }
 
     fun onResizeCancel() = clearDrag()
@@ -468,14 +455,8 @@ class LauncherViewModel(
     }
 
     fun onGridChange(grid: GridSpec) {
-        viewModelScope.launch {
-            val result = changeGridSize(layout.value, grid)
-            if (result == null) {
-                _gridError.value = grid
-            } else {
-                layout.value = result
-                _gridError.value = null
-            }
+        mutateLayout { current ->
+            changeGridSize(current, grid).also { _gridError.value = if (it == null) grid else null }
         }
     }
 
@@ -502,14 +483,15 @@ class LauncherViewModel(
     /** Invokes the voice assistant (Google Assistant). */
     fun onLaunchAssistant() = launchAssistant()
 
-    private fun clearDrag() {
-        interaction.update {
-            it.copy(
-                dragPhase = DragPhase.IDLE,
-                activeItemId = null,
-                previewCell = null,
-                previewSpan = null,
-            )
+    private fun clearDrag() = interaction.update { it.idle() }
+
+    /**
+     * Applies a layout change on top of the latest layout; `null` from [block] keeps it as is.
+     * Two quick actions (e.g. two deletes) would otherwise both start from the same old layout.
+     */
+    private fun mutateLayout(block: suspend (LayoutDefinition) -> LayoutDefinition?) {
+        viewModelScope.launch {
+            layoutMutex.withLock { block(layout.value)?.let { layout.value = it } }
         }
     }
 }

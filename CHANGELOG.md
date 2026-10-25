@@ -6,6 +6,18 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Two quick changes to the home screen (e.g. deleting two items) no longer undo each other.
+- Cancelling a widget's setup screen removes the half-added widget.
+- Pressing Back in edit mode also closes the add panel.
+- Adding an app or module that is already on the home screen no longer creates a broken copy.
+- Adding a widget whose app was just uninstalled shows a message instead of crashing.
+- A corrupt or unreadable layout file falls back to the default menu instead of crashing.
+- The sensor speedometer no longer jumps to ~50 km/h for a moment on start.
+- With both Waze and Google Maps navigating, the navigation card prefers Waze, as intended.
+- Newly installed or removed apps show up in the app menu without restarting the launcher.
+
 ## [0.2.0] - 2026-10-25
 
 ### Added

@@ -202,17 +202,22 @@ class LauncherActivity : ComponentActivity() {
     private fun configureIfNeeded(appWidgetId: Int) {
         val info = AppWidgetManager.getInstance(this).getAppWidgetInfo(appWidgetId) ?: return
         if (info.configure == null) return
+        pendingConfigureId = appWidgetId
         runCatching {
             container.widgetHost.startAppWidgetConfigureActivityForResult(this, appWidgetId, 0, REQUEST_CONFIGURE_APPWIDGET, null)
-        }
+        }.onFailure { pendingConfigureId = null }
     }
+
+    /** Widget whose configuration is open: a cancel usually comes back without data (no id). */
+    private var pendingConfigureId: Int? = null
 
     @Deprecated("startAppWidgetConfigureActivityForResult only delivers its result here")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         @Suppress("DEPRECATION")
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode != REQUEST_CONFIGURE_APPWIDGET) return
-        val appWidgetId = data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+        val appWidgetId = pendingConfigureId ?: data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+        pendingConfigureId = null
         if (resultCode != RESULT_OK && appWidgetId != -1) viewModel.onWidgetConfigureCancelled(appWidgetId)
     }
 

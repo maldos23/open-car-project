@@ -24,6 +24,7 @@
     <string name="dock_remove">Quitar de la barra</string>
     <string name="edit_done">Terminar edición</string>
     <string name="grid_no_space">No hay espacio en la cuadrícula. Quita o achica algo primero.</string>
+    <string name="widget_unavailable">Ese widget ya no está disponible.</string>
 
     <string name="drawer_search">Buscar apps</string>
     <string name="drawer_clear_search">Borrar búsqueda</string>

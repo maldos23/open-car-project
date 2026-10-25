@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import org.opencarproject.launcher.core.model.Weather
 import org.opencarproject.launcher.core.pure.WeatherCodes
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -56,7 +57,7 @@ class WeatherSource(private val context: Context) {
                 isDay = current.optInt("is_day", 1) == 1,
                 city = city(location),
             )
-        }.getOrNull()
+        }.onFailure { if (it is CancellationException) throw it }.getOrNull()
     }
 
     private fun get(url: String): String {

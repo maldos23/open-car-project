@@ -103,21 +103,28 @@ object SpeedReader {
             return@callbackFlow
         }
         val linear = sensor.type == Sensor.TYPE_LINEAR_ACCELERATION
-        var gravity = floatArrayOf(0f, 0f, 0f)
+        // Seeded with the first reading: starting at 0 would count gravity (~9.8 m/s²) as motion.
+        var gravity: FloatArray? = null
         var sumSq = 0f
         var count = 0
         var windowStart = 0L
         var smoothed = 0f
         val listener = object : SensorEventListener {
             override fun onSensorChanged(e: SensorEvent) {
-                val (x, y, z) = if (linear) {
-                    Triple(e.values[0], e.values[1], e.values[2])
+                // ~50 events per second: no allocations here.
+                var magnitudeSq = 0f
+                if (linear) {
+                    for (i in 0..2) magnitudeSq += e.values[i] * e.values[i]
                 } else {
                     // No linear sensor: gravity is removed with a low-pass filter.
-                    gravity = FloatArray(3) { i -> 0.9f * gravity[i] + 0.1f * e.values[i] }
-                    Triple(e.values[0] - gravity[0], e.values[1] - gravity[1], e.values[2] - gravity[2])
+                    val g = gravity ?: e.values.copyOf(3).also { gravity = it }
+                    for (i in 0..2) {
+                        g[i] = 0.9f * g[i] + 0.1f * e.values[i]
+                        val d = e.values[i] - g[i]
+                        magnitudeSq += d * d
+                    }
                 }
-                sumSq += x * x + y * y + z * z
+                sumSq += magnitudeSq
                 count++
                 if (windowStart == 0L) windowStart = e.timestamp
                 if (e.timestamp - windowStart > 1_000_000_000L) {

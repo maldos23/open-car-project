@@ -24,6 +24,7 @@
     <string name="dock_remove">Remover da barra</string>
     <string name="edit_done">Concluir edição</string>
     <string name="grid_no_space">Não há espaço na grade. Remova ou reduza algo primeiro.</string>
+    <string name="widget_unavailable">Esse widget não está mais disponível.</string>
 
     <string name="drawer_search">Buscar apps</string>
     <string name="drawer_clear_search">Limpar busca</string>
