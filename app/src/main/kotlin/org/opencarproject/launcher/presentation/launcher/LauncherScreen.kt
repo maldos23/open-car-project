@@ -3,6 +3,7 @@ package org.opencarproject.launcher.presentation.launcher
 import org.opencarproject.launcher.R
 import androidx.compose.ui.res.stringResource
 import android.Manifest
+import android.app.Activity
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -302,7 +303,12 @@ fun LauncherScreen(
                         exit = fadeOut() + scaleOut(targetScale = 0.9f),
                         modifier = Modifier.align(Alignment.Center).onSizeChanged { assistantWidth = maxOf(assistantWidth, it.width) },
                     ) {
-                        GoogleAssistantButton(onClick = viewModel::onLaunchAssistant)
+                        GoogleAssistantButton(onClick = {
+                            // System assist session: an overlay like long-press Home, no activity launch,
+                            // so it opens fast and the launcher (and its widgets) stays started. The
+                            // intent is only the fallback when no default assistant is set.
+                            if ((context as? Activity)?.showAssist(null) != true) viewModel.onLaunchAssistant()
+                        })
                     }
                     Row(
                         Modifier.align(Alignment.CenterEnd).padding(end = 8.dp),
