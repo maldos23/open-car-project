@@ -6,11 +6,11 @@ The toolchain the project is verified with, and the non-obvious decisions behind
 
 | Component | Version |
 |---|---|
-| JDK | Temurin 21 (`openjdk 21.0.6`) |
-| Gradle | 8.13 (wrapper) |
-| Android Gradle Plugin | 8.13.2 |
-| Kotlin | 2.1.21 |
-| Compose BOM | 2024.12.01 |
+| JDK | 17+ (CI and local builds use Temurin 21) |
+| Gradle | 9.8.2 (wrapper) |
+| Android Gradle Plugin | 9.4.1 (built-in Kotlin support) |
+| Kotlin | 2.4.21 (Compose compiler and serialization plugins) |
+| Compose BOM | 2026.09.00 |
 | compileSdk / targetSdk | 37 (Android 17) |
 | minSdk | 26 |
 
@@ -23,28 +23,20 @@ export ANDROID_HOME=/opt/homebrew/share/android-commandlinetools
 
 Alternatively set `sdk.dir` in `local.properties` (not committed).
 
-## Android 17 = API 37 and the "minor version" scheme
+## Android 17 = API 37
 
-Android 17 ships as platform `android-37.0` (major **37**, minor **0**), not `android-37`.
-AGP 8.13 resolves `compileSdk = 37` to the old-style `android-37` directory, which doesn't
-exist, so the minor version is set explicitly:
+Android 17 ships as platform `android-37.0`. AGP 9.x resolves `compileSdk = 37` to it
+natively, so no `compileSdkMinor` or `android.suppressUnsupportedCompileSdk` workaround is
+needed (both were required with AGP 8.13 and were removed in the 9.x upgrade).
 
-```kotlin
-// app/build.gradle.kts
-android {
-    compileSdk = 37
-    compileSdkMinor = 0   // resolves to platforms/android-37.0
-}
-```
+## AGP 9 notes
 
-The "untested compile SDK" warning is silenced in `gradle.properties`:
-
-```properties
-android.suppressUnsupportedCompileSdk=37,37.0
-```
-
-> With AGP 9.x, `compileSdk = 37` resolves `android-37.0` natively and `compileSdkMinor` can
-> be dropped.
+- Kotlin is built into AGP 9: the `org.jetbrains.kotlin.android` plugin is **not** applied.
+  Only the Compose compiler and serialization plugins are, and they must share the Kotlin
+  version declared in the root `build.gradle.kts`.
+- Compose 1.12+ (BOM 2026.x) requires AGP 9.1 or newer.
+- Lint from Compose flags `Locale.getDefault()` inside composables (`NonObservableLocale`);
+  use `androidx.compose.ui.text.intl.Locale.current`.
 
 ## Verified commands
 

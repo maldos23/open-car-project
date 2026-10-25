@@ -12,7 +12,7 @@ jobs:
     name: Gitflow branch
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: scripts/check-branch.sh "$HEAD" "$BASE"
         env:
           HEAD: ${{ github.head_ref }}
@@ -22,7 +22,7 @@ jobs:
     name: Conventional commits
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: PR title

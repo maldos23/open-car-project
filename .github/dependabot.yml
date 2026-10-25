@@ -6,8 +6,22 @@ updates:
     schedule: { interval: monthly }
     commit-message: { prefix: "build", include: scope }
     open-pull-requests-limit: 5
+    # Versions that must move together get one PR (e.g. Kotlin plugins, AGP + Compose).
+    groups:
+      kotlin:
+        patterns: ["org.jetbrains.kotlin*", "org.jetbrains.kotlinx*"]
+      android-toolchain:
+        patterns: ["com.android.*", "androidx.compose*"]
+      androidx:
+        patterns: ["androidx.*"]
+        exclude-patterns: ["androidx.compose*"]
+      test:
+        patterns: ["junit*", "androidx.test*"]
   - package-ecosystem: github-actions
-    directory: /
+    directories: ["/", "/.github/actions/*"]
     target-branch: develop
     schedule: { interval: monthly }
     commit-message: { prefix: "ci", include: scope }
+    groups:
+      actions:
+        patterns: ["*"]
