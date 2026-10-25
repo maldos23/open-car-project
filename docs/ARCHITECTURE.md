@@ -94,5 +94,6 @@ To add a setting: field in `LauncherSettings` → key + read/write in `SettingsD
 | Notifications missing | `data/source/LauncherNotificationListener.kt` |
 | Weather missing | `data/source/WeatherSource.kt` |
 | Speed always 0 | `data/source/SpeedReader.kt` |
+| Motion glow ignores turns | `core/pure/turn/TurnDetector.kt` (gyroscope once alive, else GPS bearing), fed by `data/source/MotionReader.kt` |
 | Assistant slow or doesn't open | `LauncherScreen` calls `Activity.showAssist` (system overlay, needs a default digital assistant); fallback intent in `WidgetHostGatewayImpl.launchAssistant` |
 | Theme/colors | `core/ui/theme/Theme.kt`, `core/pure/AccentPalette.kt` |
