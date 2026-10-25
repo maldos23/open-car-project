@@ -6,6 +6,17 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Widget picker shows each widget's real preview (generated preview, `previewLayout` or
+  `previewImage`) instead of a generic icon.
+- Widgets added through the system permission dialog get their suggested size and land in free
+  cells (they were always 1×1 and could overlap another item when the grid was full).
+- Edit-mode delete and resize controls are smaller and sit on the card corners, so 1×1 icons
+  can still be dragged (touch targets stay 48 dp).
+- Weather keeps showing the city when a geocoder lookup fails, and retries it later.
+- Bottom bar measures the real assistant pill width, so free shortcut slots are no longer hidden.
+
 ## [0.1.1] - 2026-10-25
 
 ### Changed
