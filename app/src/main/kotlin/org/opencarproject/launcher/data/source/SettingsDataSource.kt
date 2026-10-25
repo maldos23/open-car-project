@@ -1,7 +1,9 @@
 package org.opencarproject.launcher.data.source
 
 import android.content.Context
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -28,7 +30,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /** Dedicated DataStore: settings are kept separate from the layout. */
-private val Context.settingsDataStore by preferencesDataStore(name = "launcher_settings")
+private val Context.settingsDataStore by preferencesDataStore(
+    name = "launcher_settings",
+    // A corrupt file falls back to defaults instead of crashing the home screen on every start.
+    corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+)
 
 /** Launcher settings in Preferences DataStore. */
 class SettingsDataSource(private val context: Context) {

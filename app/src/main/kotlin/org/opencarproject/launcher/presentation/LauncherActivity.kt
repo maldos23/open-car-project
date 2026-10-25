@@ -32,6 +32,7 @@ import org.opencarproject.launcher.presentation.launcher.LauncherViewModelFactor
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import org.opencarproject.launcher.core.model.AppLanguage
 import java.util.Locale
 
@@ -62,7 +63,10 @@ class LauncherActivity : ComponentActivity() {
         super.attachBaseContext(newBase)
         // ponytail: one blocking DataStore read at startup (a few ms); a mirror in SharedPreferences
         // would avoid it at the cost of a second source of truth.
-        appliedLanguage = runBlocking { container.observeSettings().first().appLanguage }
+        // Bounded and failure-proof: a slow or unreadable store must never keep Home from starting.
+        appliedLanguage = runBlocking {
+            withTimeoutOrNull(500) { runCatching { container.observeSettings().first() }.getOrNull() }
+        }?.appLanguage ?: AppLanguage.SYSTEM
         val system = Resources.getSystem().configuration.locales[0]
         val locale = if (appliedLanguage == AppLanguage.SYSTEM) {
             system
@@ -96,7 +100,6 @@ class LauncherActivity : ComponentActivity() {
                 )
             }
             LaunchedEffect(settings.fullscreen) { window.setSystemBarsHidden(settings.fullscreen) }
-            LaunchedEffect(settings.appLanguage) { if (settings.appLanguage != appliedLanguage) restart() }
 
             LauncherTheme(themeMode = settings.themeMode, accent = settings.accentColor) {
                 CompositionLocalProvider(LocalFullscreen provides settings.fullscreen) {
@@ -107,6 +110,13 @@ class LauncherActivity : ComponentActivity() {
                     )
                 }
             }
+        }
+
+        lifecycleScope.launch {
+            // Read from the store itself, not the ViewModel's StateFlow: that one starts from the
+            // defaults and would trigger a spurious restart.
+            container.observeSettings().first { it.appLanguage != appliedLanguage }
+            restart()
         }
 
         lifecycleScope.launch {
@@ -131,6 +141,9 @@ class LauncherActivity : ComponentActivity() {
      * gets inset and the wallpaper shows behind the status bar).
      */
     private fun restart() {
+        // The new instance's host shares the host ID; stopping here (not in onStop, which runs after
+        // the new one starts) keeps the old instance from cancelling its listening.
+        container.widgetHost.stopListening()
         finish()
         startActivity(Intent(this, LauncherActivity::class.java).putExtra(EXTRA_OPEN_SETTINGS, true))
         @Suppress("DEPRECATION")
@@ -144,7 +157,7 @@ class LauncherActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
-        container.widgetHost.stopListening()
+        if (!isFinishing) container.widgetHost.stopListening()
     }
 
     private var pendingBind: Pair<Int, String>? = null
