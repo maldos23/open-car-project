@@ -97,7 +97,6 @@ import org.opencarproject.launcher.core.ui.theme.Dimens
 import org.opencarproject.launcher.data.widget.LauncherAppWidgetHost
 import org.opencarproject.launcher.presentation.common.ClockText
 import org.opencarproject.launcher.presentation.common.GoogleAssistantButton
-import org.opencarproject.launcher.presentation.common.AssistantMaxWidth
 import org.opencarproject.launcher.presentation.common.DockFavorites
 import org.opencarproject.launcher.presentation.common.slotWidth
 import org.opencarproject.launcher.presentation.common.HotspotIndicator
@@ -251,9 +250,11 @@ fun LauncherScreen(
                 var dockWidth by remember { mutableIntStateOf(0) }
                 var leftFixed by remember { mutableIntStateOf(0) }
                 var rightFixed by remember { mutableIntStateOf(0) }
-                val centerReserve = if (shown(DockElement.ASSISTANT)) AssistantMaxWidth / 2 + 16.dp else 16.dp
+                // Measured pill width (widest seen, so rotating hints don't make slots jitter).
+                var assistantWidth by remember { mutableIntStateOf(0) }
                 fun capacity(fixedPx: Int): Int = with(density) {
-                    val free = dockWidth / 2f - centerReserve.toPx() - fixedPx - 16.dp.toPx()
+                    val centerReserve = (if (shown(DockElement.ASSISTANT)) assistantWidth / 2f else 0f) + 16.dp.toPx()
+                    val free = dockWidth / 2f - centerReserve - fixedPx - 16.dp.toPx()
                     (free / settings.dockIconSize.slotWidth().toPx()).toInt().coerceAtLeast(0)
                 }
                 val editing = state.layoutMode == LayoutMode.EDIT
@@ -290,7 +291,7 @@ fun LauncherScreen(
                         visible = shown(DockElement.ASSISTANT),
                         enter = fadeIn() + scaleIn(initialScale = 0.9f),
                         exit = fadeOut() + scaleOut(targetScale = 0.9f),
-                        modifier = Modifier.align(Alignment.Center),
+                        modifier = Modifier.align(Alignment.Center).onSizeChanged { assistantWidth = maxOf(assistantWidth, it.width) },
                     ) {
                         GoogleAssistantButton(onClick = viewModel::onLaunchAssistant)
                     }
