@@ -1,5 +1,6 @@
 package org.opencarproject.launcher.presentation.widget
 
+import org.opencarproject.launcher.R
 import android.content.Context
 import android.service.notification.StatusBarNotification
 import androidx.compose.animation.core.Animatable
@@ -256,7 +257,7 @@ private fun Context.toIslandItem(sbn: StatusBarNotification): IslandItem {
         key = sbn.key,
         id = "${sbn.key}@${sbn.postTime}",
         appName = c.appName,
-        label = "ahora",
+        label = getString(R.string.island_now),
         appIcon = c.appIcon,
         avatar = c.avatar,
         title = c.title,
@@ -274,7 +275,7 @@ private fun Context.toIslandItem(track: NowPlaying): IslandItem {
         key = "media:${track.packageName}",
         id = "media:${track.packageName}:${track.title}:${track.artist}",
         appName = appName,
-        label = "sonando",
+        label = getString(R.string.island_playing),
         appIcon = appIcon,
         // The cover art takes the avatar's place (rounded).
         avatar = track.art?.asImageBitmap() ?: appIcon,

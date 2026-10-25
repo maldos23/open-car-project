@@ -1,5 +1,8 @@
 package org.opencarproject.launcher.presentation.common
 
+import org.opencarproject.launcher.R
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -113,7 +116,7 @@ fun GoogleAssistantButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
             .clip(shape)
             .background(Color(0xFF111318))
             .border(2.dp, flow, shape)
-            .clickable(role = Role.Button, onClickLabel = "Abrir asistente", onClick = onClick)
+            .clickable(role = Role.Button, onClickLabel = stringResource(R.string.assistant_open), onClick = onClick)
             .widthIn(max = AssistantMaxWidth)
             .padding(horizontal = 24.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -122,7 +125,7 @@ fun GoogleAssistantButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
         VoiceBars(Modifier.size(width = 30.dp, height = 28.dp))
         Column {
             Text(
-                text = "Habla con Google",
+                text = stringResource(R.string.assistant_talk),
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.White.copy(alpha = 0.65f),
             )
@@ -183,34 +186,18 @@ private fun VoiceBars(modifier: Modifier = Modifier) {
     }
 }
 
-/** Ideas of what to ask the assistant, aimed at the car. */
-private val ASSISTANT_SUGGESTIONS = listOf(
-    "¿Cómo está el tráfico a casa?",
-    "Llévame a la gasolinera más cercana",
-    "Pon música para manejar",
-    "Llama a mamá",
-    "Lee mis mensajes",
-    "¿A qué hora llego al trabajo?",
-    "Dile a Ana que voy en camino",
-    "¿Va a llover hoy?",
-    "Busca un café cerca",
-    "Sube el volumen",
-    "Recuérdame comprar leche al llegar",
-    "¿Dónde puedo estacionarme?",
-    "Pon mi podcast favorito",
-    "¿Qué restaurantes hay cerca?",
-)
-
 /** How long each suggestion stays visible. */
 private const val SUGGESTION_MS = 4_500L
 
 /** Current suggestion: changes every [SUGGESTION_MS] to a random one, never repeating the previous. */
 @Composable
 private fun rememberRotatingSuggestion(): String {
-    val suggestion by produceState(ASSISTANT_SUGGESTIONS.random()) {
+    // Ideas of what to ask the assistant, aimed at the car.
+    val suggestions = stringArrayResource(R.array.assistant_suggestions).toList()
+    val suggestion by produceState(suggestions.random(), suggestions) {
         while (true) {
             delay(SUGGESTION_MS)
-            value = (ASSISTANT_SUGGESTIONS - value).random()
+            value = (suggestions - value).random()
         }
     }
     return suggestion

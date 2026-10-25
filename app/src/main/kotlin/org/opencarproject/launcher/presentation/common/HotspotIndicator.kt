@@ -1,5 +1,8 @@
 package org.opencarproject.launcher.presentation.common
 
+import androidx.compose.ui.res.pluralStringResource
+import org.opencarproject.launcher.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -60,7 +63,7 @@ fun HotspotIndicator(modifier: Modifier = Modifier) {
         BadgedBox(badge = { if (count != null) Badge { Text("$count") } }) {
             Icon(
                 imageVector = Icons.Rounded.WifiTethering,
-                contentDescription = if (count != null) "Hotspot activo, $count dispositivos" else "Hotspot activo",
+                contentDescription = if (count != null) pluralStringResource(R.plurals.hotspot_devices, count, count) else stringResource(R.string.hotspot_active),
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(30.dp),
             )
@@ -70,9 +73,9 @@ fun HotspotIndicator(modifier: Modifier = Modifier) {
     if (showList) {
         AlertDialog(
             onDismissRequest = { showList = false },
-            confirmButton = { TextButton(onClick = { showList = false }) { Text("Cerrar") } },
+            confirmButton = { TextButton(onClick = { showList = false }) { Text(stringResource(R.string.close)) } },
             icon = { Icon(Icons.Rounded.WifiTethering, contentDescription = null) },
-            title = { Text(if (count != null) "Hotspot · $count conectados" else "Hotspot activo") },
+            title = { Text(if (count != null) pluralStringResource(R.plurals.hotspot_connected, count, count) else stringResource(R.string.hotspot_active)) },
             text = { ClientList(clients) },
         )
     }
@@ -82,10 +85,9 @@ fun HotspotIndicator(modifier: Modifier = Modifier) {
 private fun ClientList(clients: List<HotspotClient>?) {
     when {
         clients == null -> Text(
-            "Android solo deja ver los dispositivos conectados a apps del sistema. " +
-                "Instala el launcher como app del sistema para ver la lista (docs/HOTSPOT.md).",
+            stringResource(R.string.hotspot_system_only),
         )
-        clients.isEmpty() -> Text("Ningún dispositivo conectado.")
+        clients.isEmpty() -> Text(stringResource(R.string.hotspot_none))
         else -> LazyColumn(
             Modifier.heightIn(max = 360.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -94,7 +96,7 @@ private fun ClientList(clients: List<HotspotClient>?) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Rounded.Devices, contentDescription = null, modifier = Modifier.size(28.dp))
                     Column(Modifier.padding(start = 12.dp)) {
-                        Text(client.name ?: "Dispositivo", style = MaterialTheme.typography.titleMedium)
+                        Text(client.name ?: stringResource(R.string.hotspot_device), style = MaterialTheme.typography.titleMedium)
                         Text(
                             listOfNotNull(client.ip, client.mac).joinToString(" · "),
                             style = MaterialTheme.typography.bodySmall,

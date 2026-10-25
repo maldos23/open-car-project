@@ -93,6 +93,7 @@ data class LauncherSettings(
     val dockRightApps: List<String> = emptyList(),
     /** Items hidden by the user (everything visible by default). */
     val hiddenElements: Set<DockElement> = emptySet(),
+    val appLanguage: AppLanguage = AppLanguage.SYSTEM,
 )
 
 /** Current weather for the dock. */

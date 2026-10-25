@@ -27,7 +27,8 @@ Check for:
 5. **Driving UI** — touch targets < 48 dp, hard-coded text colors on theme surfaces, poor
    contrast in light or dark theme, desktop/dock app icons rendered with a background.
 6. **Conventions** — comments, KDoc and identifiers in English; new settings default to the
-   current behavior; commits/PR title follow Conventional Commits and the branch follows
+   current behavior; user-visible text comes from `strings.xml` (no Kotlin literals) with the
+   key in all five locales (`values`, `-es`, `-zh-rCN`, `-pt`, `-fr`); commits/PR title follow Conventional Commits and the branch follows
    gitflow; user-visible changes noted in `CHANGELOG.md`; no secrets or APKs in the diff.
 
 You may run `./gradlew test assembleDebug` to confirm a suspicion. Do not edit files.

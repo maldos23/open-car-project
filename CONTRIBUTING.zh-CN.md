@@ -9,8 +9,8 @@
 - **报告错误**——提交 issue，附上复现步骤、设备/模拟器及 Android 版本；如果发生崩溃，请附上
   `adb logcat` 输出。
 - **建议功能**——描述它能改善的驾驶场景。
-- **翻译**——目前界面为西班牙语，并硬编码在 Compose 中。把字符串移到
-  `res/values/strings.xml`（并添加 `values-en`、`values-zh-rCN` 等）是非常好的第一个 PR。
+- **翻译**——界面字符串位于 `res/values*/strings.xml`（英语是 `values` 中的默认语言）。
+  要添加新语言，请新建 `values-xx` 文件夹并添加对应的 `AppLanguage` 条目。
   文档翻译与英文文件放在一起（`*.es.md`、`*.zh-CN.md`）。
 - **代码**——挑选一个未关闭的 issue；较大的改动请先提出 issue。
 
@@ -82,7 +82,7 @@ GitHub Releases。版本号遵循 [SemVer](https://semver.org/)；变更记录�
 
 ## 代码风格
 
-- **语言：** 所有代码注释、KDoc、提交信息、技能和代理均使用**英文**。界面字符串可以本地化。
+- **语言：** 所有代码注释、KDoc、提交信息、技能和代理均使用**英文**。所有可见文字都通过 `strings.xml`（Kotlin 中不写字面量），每个键都要出现在五种语言中：`values`、`values-es`、`values-zh-rCN`、`values-pt`、`values-fr`。
 - **Kotlin：** 官方代码风格（`kotlin.code.style=official`），4 空格缩进，使用尾随逗号。
 - **架构：** 遵守 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) 中的分层。`domain` 不得导入
   `android.*`。可测试的逻辑放在 `core/pure` 中，并在 `app/src/test` 中用 JVM 测试覆盖。

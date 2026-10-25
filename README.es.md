@@ -24,8 +24,8 @@ de Clean Architecture.
 | **Dock inferior** | Reloj, cajón de apps, botón de Google Assistant con sugerencias rotativas, accesos directos a apps, hotspot, señal (4G/5G, estándar Wi-Fi), volumen, notificaciones, ajustes. |
 | **Ajustes** | Tema (sistema/claro/oscuro), color de acento (incl. Material You), fondo (sólido / fondo de pantalla / degradado animado con partículas), unidades (°C/°F, km/h/mph), 12/24 h, qué mostrar en las barras, estilo del menú de apps y más. |
 
-> Por ahora, el texto de la interfaz está en español. Traducir la interfaz (mover los textos a
-> `strings.xml`) es una contribución bienvenida; consulta [CONTRIBUTING.es.md](CONTRIBUTING.es.md).
+> La interfaz está disponible en inglés, español, chino simplificado, portugués y francés
+> (Configuración → Idioma). Nuevos idiomas son bienvenidos; consulta [CONTRIBUTING.es.md](CONTRIBUTING.es.md).
 
 ## Inicio rápido
 

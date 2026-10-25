@@ -2,6 +2,9 @@ package org.opencarproject.launcher.presentation
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
+import android.content.Context
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -26,7 +29,12 @@ import org.opencarproject.launcher.di.AppContainer
 import org.opencarproject.launcher.presentation.launcher.LauncherScreen
 import org.opencarproject.launcher.presentation.launcher.LauncherViewModel
 import org.opencarproject.launcher.presentation.launcher.LauncherViewModelFactory
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
+import org.opencarproject.launcher.core.model.AppLanguage
+import java.util.Locale
 
 /**
  * Home screen (HOME) of the launcher.
@@ -44,9 +52,40 @@ class LauncherActivity : ComponentActivity() {
         LauncherViewModelFactory(container)
     }
 
+    /** Language the resources were loaded with; a different saved one restarts the Activity. */
+    private var appliedLanguage = AppLanguage.SYSTEM
+
+    /**
+     * Applies the in-app language before any resource is read. Done at the Activity level (not
+     * in Compose) so dialogs and bottom sheets, which have their own windows, get it too.
+     */
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(newBase)
+        // ponytail: one blocking DataStore read at startup (a few ms); a mirror in SharedPreferences
+        // would avoid it at the cost of a second source of truth.
+        // Bounded and failure-proof: a slow or unreadable store must never keep Home from starting.
+        appliedLanguage = runBlocking {
+            withTimeoutOrNull(500) { runCatching { container.observeSettings().first() }.getOrNull() }
+        }?.appLanguage ?: AppLanguage.SYSTEM
+        val system = Resources.getSystem().configuration.locales[0]
+        val locale = if (appliedLanguage == AppLanguage.SYSTEM) {
+            system
+        } else {
+            // Keep the device region: °F/mph and other regional defaults must not follow the language.
+            Locale.Builder().setLanguageTag(appliedLanguage.tag).setRegion(system.country).build().also {
+                applyOverrideConfiguration(Configuration().apply { setLocale(it) })
+            }
+        }
+        // Date and relative-time formatting reads the default locale, not the resources.
+        Locale.setDefault(locale)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // Consumed once so a later relaunch of this same intent doesn't reopen settings.
+        val openSettings = intent.getBooleanExtra(EXTRA_OPEN_SETTINGS, false)
+        intent.removeExtra(EXTRA_OPEN_SETTINGS)
         setContent {
             val ready by viewModel.ready.collectAsStateWithLifecycle()
             if (!ready) return@setContent
@@ -67,9 +106,17 @@ class LauncherActivity : ComponentActivity() {
                     LauncherScreen(
                         viewModel = viewModel,
                         widgetHost = container.widgetHost,
+                        initialSettingsOpen = openSettings,
                     )
                 }
             }
+        }
+
+        lifecycleScope.launch {
+            // Read from the store itself, not the ViewModel's StateFlow: that one starts from the
+            // defaults and would trigger a spurious restart.
+            container.observeSettings().first { it.appLanguage != appliedLanguage }
+            restart()
         }
 
         lifecycleScope.launch {
@@ -82,10 +129,25 @@ class LauncherActivity : ComponentActivity() {
                     viewModel.widgetConfigureRequest.collect { appWidgetId -> configureIfNeeded(appWidgetId) }
                 }
                 launch {
-                    viewModel.messages.collect { android.widget.Toast.makeText(this@LauncherActivity, it, android.widget.Toast.LENGTH_LONG).show() }
+                    viewModel.messages.collect { android.widget.Toast.makeText(this@LauncherActivity, getString(it), android.widget.Toast.LENGTH_LONG).show() }
                 }
             }
         }
+    }
+
+    /**
+     * Reloads the resources with a new language, back in settings where it was changed.
+     * Not recreate(): it reuses the window, which then keeps fitting the system bars (the content
+     * gets inset and the wallpaper shows behind the status bar).
+     */
+    private fun restart() {
+        // The new instance's host shares the host ID; stopping here (not in onStop, which runs after
+        // the new one starts) keeps the old instance from cancelling its listening.
+        container.widgetHost.stopListening()
+        finish()
+        startActivity(Intent(this, LauncherActivity::class.java).putExtra(EXTRA_OPEN_SETTINGS, true))
+        @Suppress("DEPRECATION")
+        overridePendingTransition(0, 0)
     }
 
     override fun onStart() {
@@ -95,7 +157,7 @@ class LauncherActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
-        container.widgetHost.stopListening()
+        if (!isFinishing) container.widgetHost.stopListening()
     }
 
     private var pendingBind: Pair<Int, String>? = null
@@ -146,5 +208,6 @@ class LauncherActivity : ComponentActivity() {
 
     companion object {
         private const val REQUEST_CONFIGURE_APPWIDGET = 1002
+        private const val EXTRA_OPEN_SETTINGS = "open_settings"
     }
 }

@@ -16,17 +16,4 @@ object WeatherCodes {
         in 95..99 -> WeatherCondition.THUNDERSTORM
         else -> WeatherCondition.UNKNOWN
     }
-
-    /** Short name to show when the city is unknown. */
-    fun label(condition: WeatherCondition): String = when (condition) {
-        WeatherCondition.CLEAR -> "Despejado"
-        WeatherCondition.PARTLY_CLOUDY -> "Parcialmente nublado"
-        WeatherCondition.CLOUDY -> "Nublado"
-        WeatherCondition.FOG -> "Niebla"
-        WeatherCondition.DRIZZLE -> "Llovizna"
-        WeatherCondition.RAIN -> "Lluvia"
-        WeatherCondition.SNOW -> "Nieve"
-        WeatherCondition.THUNDERSTORM -> "Tormenta"
-        WeatherCondition.UNKNOWN -> "Clima"
-    }
 }

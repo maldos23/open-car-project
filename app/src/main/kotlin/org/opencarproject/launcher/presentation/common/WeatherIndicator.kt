@@ -1,5 +1,7 @@
 package org.opencarproject.launcher.presentation.common
 
+import org.opencarproject.launcher.R
+import androidx.compose.ui.res.stringResource
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -54,7 +56,6 @@ import org.opencarproject.launcher.core.model.TemperatureUnit
 import org.opencarproject.launcher.core.model.Weather
 import org.opencarproject.launcher.core.model.WeatherCondition
 import org.opencarproject.launcher.core.pure.Temperature
-import org.opencarproject.launcher.core.pure.WeatherCodes
 import org.opencarproject.launcher.data.source.WeatherSource
 import org.opencarproject.launcher.presentation.widget.rememberOnResume
 import kotlinx.coroutines.delay
@@ -176,9 +177,9 @@ fun WeatherIndicator(unit: TemperatureUnit, modifier: Modifier = Modifier) {
         }
         Text(
             text = when {
-                !hasPermission -> "Activar clima"
-                current == null -> "Obteniendo…"
-                else -> current.city ?: WeatherCodes.label(current.condition)
+                !hasPermission -> stringResource(R.string.weather_enable)
+                current == null -> stringResource(R.string.weather_loading)
+                else -> current.city ?: stringResource(current.condition.labelRes())
             },
             style = MaterialTheme.typography.titleMedium,
             color = onColorDim,
@@ -199,4 +200,17 @@ private fun Weather.gradient(): Pair<Color, Color> = when (condition) {
     WeatherCondition.RAIN -> Color(0xFF0D47A1) to Color(0xFF01579B)
     WeatherCondition.SNOW -> Color(0xFF3F7CAC) to Color(0xFF6A9FC9)
     WeatherCondition.THUNDERSTORM -> Color(0xFF311B92) to Color(0xFF37474F)
+}
+
+/** Short name to show when the city is unknown. */
+private fun WeatherCondition.labelRes(): Int = when (this) {
+    WeatherCondition.CLEAR -> R.string.weather_clear
+    WeatherCondition.PARTLY_CLOUDY -> R.string.weather_partly_cloudy
+    WeatherCondition.CLOUDY -> R.string.weather_cloudy
+    WeatherCondition.FOG -> R.string.weather_fog
+    WeatherCondition.DRIZZLE -> R.string.weather_drizzle
+    WeatherCondition.RAIN -> R.string.weather_rain
+    WeatherCondition.SNOW -> R.string.weather_snow
+    WeatherCondition.THUNDERSTORM -> R.string.weather_thunderstorm
+    WeatherCondition.UNKNOWN -> R.string.weather_unknown
 }

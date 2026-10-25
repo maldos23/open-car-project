@@ -1,5 +1,7 @@
 package org.opencarproject.launcher.presentation.widget
 
+import org.opencarproject.launcher.R
+import androidx.compose.ui.res.stringResource
 import android.content.Context
 import android.graphics.Bitmap
 import android.media.session.MediaController
@@ -94,7 +96,7 @@ import kotlin.math.sin
 @Composable
 fun MediaPlayerCard(modifier: Modifier = Modifier) {
     if (!rememberNotificationAccess()) {
-        NotificationAccessPrompt("Permite el acceso a notificaciones para controlar la música", modifier)
+        NotificationAccessPrompt(stringResource(R.string.media_access_prompt), modifier)
         return
     }
     val context = LocalContext.current
@@ -146,7 +148,7 @@ private fun IdleState() {
             contentDescription = null,
             modifier = Modifier.size(44.dp).graphicsLayer { scaleX = breathe; scaleY = breathe; alpha = 0.5f + 0.4f * (breathe - 0.85f) / 0.25f },
         )
-        Text("Nada sonando", style = MaterialTheme.typography.titleMedium, color = LocalContentColor.current.copy(alpha = 0.75f))
+        Text(stringResource(R.string.media_nothing_playing), style = MaterialTheme.typography.titleMedium, color = LocalContentColor.current.copy(alpha = 0.75f))
     }
 }
 
@@ -227,7 +229,7 @@ private fun TrackText(current: NowPlaying, center: Boolean, titleStyle: TextStyl
     Column(modifier.fillMaxWidth()) {
         AnimatedContent(targetState = current.title, transitionSpec = { fadeIn() togetherWith fadeOut() }, label = "title") {
             Text(
-                text = it.ifBlank { "Desconocido" },
+                text = it.ifBlank { stringResource(R.string.media_unknown) },
                 style = titleStyle,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
@@ -300,11 +302,11 @@ private fun Controls(isPlaying: Boolean, controls: MediaController.TransportCont
     val side = if (compact) 48.dp else 56.dp
     Row(verticalAlignment = Alignment.CenterVertically) {
         IconButton(onClick = { controls?.skipToPrevious() }, modifier = Modifier.size(side)) {
-            Icon(Icons.Rounded.SkipPrevious, contentDescription = "Anterior", modifier = Modifier.size(side * 0.55f))
+            Icon(Icons.Rounded.SkipPrevious, contentDescription = stringResource(R.string.media_previous), modifier = Modifier.size(side * 0.55f))
         }
         PlayPause(isPlaying, controls, big = !compact, onBg)
         IconButton(onClick = { controls?.skipToNext() }, modifier = Modifier.size(side)) {
-            Icon(Icons.Rounded.SkipNext, contentDescription = "Siguiente", modifier = Modifier.size(side * 0.55f))
+            Icon(Icons.Rounded.SkipNext, contentDescription = stringResource(R.string.media_next), modifier = Modifier.size(side * 0.55f))
         }
     }
 }
@@ -324,7 +326,7 @@ private fun PlayPause(isPlaying: Boolean, controls: MediaController.TransportCon
         AnimatedContent(targetState = isPlaying, transitionSpec = { (fadeIn() + scaleIn(initialScale = 0.6f)) togetherWith fadeOut() }, label = "pp") { playing ->
             Icon(
                 imageVector = if (playing) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
-                contentDescription = if (playing) "Pausar" else "Reproducir",
+                contentDescription = if (playing) stringResource(R.string.media_pause) else stringResource(R.string.media_play),
                 modifier = Modifier.size(size * 0.56f),
             )
         }

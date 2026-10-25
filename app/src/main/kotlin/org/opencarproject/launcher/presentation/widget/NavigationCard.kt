@@ -1,5 +1,7 @@
 package org.opencarproject.launcher.presentation.widget
 
+import org.opencarproject.launcher.R
+import androidx.compose.ui.res.stringResource
 import android.app.Notification
 import android.content.Context
 import android.content.Intent
@@ -183,14 +185,14 @@ private fun GuidanceContent(sbn: StatusBarNotification) {
                         Image(arrow, contentDescription = null, modifier = Modifier.size((h * 0.7f).coerceIn(56.dp, 180.dp)))
                     }
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        if (h > 220.dp) AppHeader(app, "Navegando")
+                        if (h > 220.dp) AppHeader(app, stringResource(R.string.nav_navigating))
                         distanceText()
                         instructionText(2, TextAlign.Start)
                         arrivalText()
                     }
                 }
                 else -> Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    if (h > 300.dp) AppHeader(app, "Navegando")
+                    if (h > 300.dp) AppHeader(app, stringResource(R.string.nav_navigating))
                     Column(
                         Modifier.weight(1f).fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -266,7 +268,7 @@ private fun NavigateButton() {
         }
         val label: @Composable () -> Unit = {
             Text(
-                text = "Navegar",
+                text = stringResource(R.string.nav_navigate),
                 style = if (h < 260.dp) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -375,7 +377,7 @@ private fun AppHeader(app: NavApp?, status: String?) {
     ) {
         if (app.icon != null) Image(app.icon, contentDescription = null, modifier = Modifier.size(22.dp))
         Text(
-            text = listOfNotNull(if (status == null) "con ${app.label}" else app.label, status).joinToString(" · "),
+            text = listOfNotNull(if (status == null) stringResource(R.string.nav_with_app, app.label) else app.label, status).joinToString(" · "),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
