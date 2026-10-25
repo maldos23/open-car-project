@@ -6,7 +6,7 @@ import org.opencarproject.launcher.domain.usecase.ChangeGridSize
 import org.opencarproject.launcher.domain.repository.SettingsRepository
 import org.opencarproject.launcher.core.model.LauncherSettings
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
@@ -15,6 +15,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.rule.GrantPermissionRule
+import android.Manifest
 import org.opencarproject.launcher.core.model.CatalogItem
 import org.opencarproject.launcher.core.model.CatalogItemKind
 import org.opencarproject.launcher.core.model.GridSpec
@@ -85,7 +87,16 @@ private class FakeSettingsRepository : SettingsRepository {
 @RunWith(AndroidJUnit4::class)
 class DragGestureTest {
 
-    @get:Rule
+    // Pre-grant what LauncherScreen asks for at startup; otherwise the system permission dialog
+    // covers the test activity and no Compose hierarchy is found.
+    @get:Rule(order = 0)
+    val permissions: GrantPermissionRule = GrantPermissionRule.grant(
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+    )
+
+    @get:Rule(order = 1)
     val rule = createComposeRule()
 
     @Test
@@ -98,35 +109,47 @@ class DragGestureTest {
         )
         val viewModel = buildViewModel(catalog = listOf(app), items = emptyList())
 
+        // The launcher runs infinite animations (particles, speed scene, clock), so Compose never
+        // goes idle on its own: drive the clock manually instead.
+        rule.mainClock.autoAdvance = false
         rule.setContent {
             LauncherTheme { LauncherScreen(viewModel = viewModel, widgetHost = null) }
         }
+        rule.mainClock.advanceTimeBy(500) // first composition + layout
 
         // 1) Long press on the desktop: enters edit mode and the top bar appears.
         rule.onNodeWithTag("widget-grid").performTouchInput { longClick() }
-        rule.waitUntil(timeoutMillis = 5_000) {
-            viewModel.uiState.value.layoutMode == LayoutMode.EDIT
-        }
+        advanceUntil { viewModel.uiState.value.layoutMode == LayoutMode.EDIT }
 
         // 2) Open the panel and select an item.
         rule.onNodeWithContentDescription("Agregar").performClick()
+        rule.mainClock.advanceTimeBy(1_000) // let the panel finish opening
         rule.onNodeWithText("Mapas").performClick()
-        rule.waitUntil(timeoutMillis = 5_000) { viewModel.uiState.value.items.size == 1 }
+        advanceUntil { viewModel.uiState.value.items.size == 1 }
 
         val itemId = viewModel.uiState.value.items.first().id
         val before = viewModel.uiState.value.items.first().cell
+
+        rule.mainClock.advanceTimeBy(1_500) // let the panel finish closing
 
         // 3) Drag the item to move it.
         rule.onNodeWithTag("placed-$itemId").performTouchInput {
             swipe(start = center, end = center + Offset(300f, 200f), durationMillis = 400)
         }
-        rule.waitUntil(timeoutMillis = 5_000) {
-            viewModel.uiState.value.items.firstOrNull()?.cell != before
-        }
+        advanceUntil { viewModel.uiState.value.items.firstOrNull()?.cell != before }
 
         val after = viewModel.uiState.value.items.first().cell
         assertNotEquals("El elemento debió cambiar de celda tras el arrastre", before, after)
         assertTrue(viewModel.uiState.value.items.size == 1)
+    }
+
+    /** Advances the virtual clock in 100 ms steps until [condition] holds (max 5 s). */
+    private fun advanceUntil(condition: () -> Boolean) {
+        repeat(50) {
+            if (condition()) return
+            rule.mainClock.advanceTimeBy(100)
+        }
+        assertTrue("Condition not met within 5 s of virtual time", condition())
     }
 
     private fun buildViewModel(catalog: List<CatalogItem>, items: List<PlacedItem>): LauncherViewModel {
