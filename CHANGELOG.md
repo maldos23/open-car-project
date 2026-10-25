@@ -22,6 +22,7 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- New app icon: an open steering wheel with a neon arc (also shown at the top of the READMEs).
 - The notification island stays at the top center as a bubble with the newest notification's
   icon and a one-line summary; it hides when there are none, or until a newer one arrives after
   a swipe up.
