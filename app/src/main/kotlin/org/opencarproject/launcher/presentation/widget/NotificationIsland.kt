@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -48,6 +49,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -74,9 +76,10 @@ private const val EXPANDED_MS = 4_500L
 
 /**
  * Notification "island" (Dynamic Island style): each new notification appears at the top
- * as a black pill, springs open showing its preview and then collapses
- * again. Tapping opens it; swiping up dismisses it. Notifications arriving back to back
- * wait in a queue. Only listens while the launcher is visible.
+ * as a black pill, springs open showing its preview and then collapses back to a bubble that
+ * stays with the newest active notification (icon + one line) until none are left. Tapping
+ * opens it; swiping up dismisses it until a newer one arrives. Notifications arriving back to
+ * back wait in a queue. Only listens while the launcher is visible.
  */
 @Composable
 fun NotificationIsland(modifier: Modifier = Modifier) {
@@ -88,6 +91,14 @@ fun NotificationIsland(modifier: Modifier = Modifier) {
     // Completes when the user taps or dismisses: cuts short the expanded-phase wait.
     var dismissed by remember { mutableStateOf(CompletableDeferred<Unit>()) }
     val scope = rememberCoroutineScope()
+
+    // Resting bubble: the newest active notification, unless the user swiped it away.
+    val active by LauncherNotificationListener.notifications.collectAsStateWithLifecycle()
+    val newest = active.firstOrNull()
+    var swipedAwayId by remember { mutableStateOf<String?>(null) }
+    val resting = remember(newest?.key, newest?.postTime) { newest?.let { context.toIslandItem(it) } }
+        ?.takeIf { it.id != swipedAwayId }
+    val restingNow by rememberUpdatedState(resting)
 
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -115,18 +126,22 @@ fun NotificationIsland(modifier: Modifier = Modifier) {
             withTimeoutOrNull(EXPANDED_MS) { dismissed.await() }
             phase = IslandPhase.COMPACT
             delay(260)
-            phase = IslandPhase.HIDDEN
-            delay(320)
+            // Hides only when there is no bubble to rest on.
+            if (restingNow == null) {
+                phase = IslandPhase.HIDDEN
+                delay(320)
+            }
             current = null
         }
     }
 
-    val content = current ?: return
-    val expanded = phase == IslandPhase.EXPANDED
+    val content = current ?: resting ?: return
+    val shownPhase = if (current != null) phase else IslandPhase.COMPACT
+    val expanded = shownPhase == IslandPhase.EXPANDED
 
-    val width by animateDpAsState(if (expanded) 560.dp else 150.dp, IslandSpring, label = "w")
-    val height by animateDpAsState(if (expanded) 104.dp else 40.dp, IslandSpring, label = "h")
-    val corner by animateDpAsState(if (expanded) 34.dp else 20.dp, IslandSpring, label = "r")
+    val width by animateDpAsState(if (expanded) 560.dp else 340.dp, IslandSpring, label = "w")
+    val height by animateDpAsState(if (expanded) 104.dp else 48.dp, IslandSpring, label = "h")
+    val corner by animateDpAsState(if (expanded) 34.dp else 24.dp, IslandSpring, label = "r")
     // Content appears once the island has grown and leaves before it shrinks.
     val contentAlpha by animateFloatAsState(
         targetValue = if (expanded) 1f else 0f,
@@ -134,8 +149,9 @@ fun NotificationIsland(modifier: Modifier = Modifier) {
         label = "content",
     )
     val presence = remember(content.id) { Animatable(0f) }
-    LaunchedEffect(phase) {
-        presence.animateTo(if (phase == IslandPhase.HIDDEN) 0f else 1f, spring(dampingRatio = 0.65f, stiffness = 420f))
+    // Also keyed on presence: an alert replacing the resting bubble starts a new one at 0.
+    LaunchedEffect(shownPhase, presence) {
+        presence.animateTo(if (shownPhase == IslandPhase.HIDDEN) 0f else 1f, spring(dampingRatio = 0.65f, stiffness = 420f))
     }
     var dragY by remember(content.id) { mutableStateOf(0f) }
 
@@ -156,7 +172,10 @@ fun NotificationIsland(modifier: Modifier = Modifier) {
             .pointerInput(content.id) {
                 detectVerticalDragGestures(
                     onDragEnd = {
-                        if (dragY < -24.dp.toPx()) dismissed.complete(Unit)
+                        if (dragY < -24.dp.toPx()) {
+                            swipedAwayId = content.id
+                            dismissed.complete(Unit)
+                        }
                         dragY = 0f
                     },
                     onVerticalDrag = { _, amount -> dragY += amount },
@@ -168,16 +187,24 @@ fun NotificationIsland(modifier: Modifier = Modifier) {
             },
     ) {
         Box(Modifier.size(width, height)) {
-            // Compact: app icon on the left and an alert dot on the right.
+            // Compact: app icon, a one-line summary and an alert dot.
             Row(
                 Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 12.dp)
+                    .padding(horizontal = 14.dp)
                     .graphicsLayer { alpha = 1f - contentAlpha },
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                if (content.appIcon != null) Image(content.appIcon, contentDescription = null, modifier = Modifier.size(22.dp))
+                if (content.appIcon != null) Image(content.appIcon, contentDescription = null, modifier = Modifier.size(24.dp))
+                Text(
+                    text = listOf(content.title, content.text).filter { it.isNotBlank() }.joinToString(" · ").ifBlank { content.appName },
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
                 Box(Modifier.size(10.dp).background(MaterialTheme.colorScheme.primary, CircleShape))
             }
 

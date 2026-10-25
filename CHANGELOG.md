@@ -14,6 +14,12 @@ All notable changes to this project are documented here. The format follows
 - Settings → Zoom slider (80–130 %) scales the whole interface, settings and dialogs included.
 - Settings → App menu icon size slider (75–150 %) for the app menu and its full-page variant.
 
+### Changed
+
+- The notification island stays at the top center as a bubble with the newest notification's
+  icon and a one-line summary; it hides when there are none, or until a newer one arrives after
+  a swipe up.
+
 ## [0.1.2] - 2026-10-25
 
 ### Fixed
