@@ -1,5 +1,7 @@
 package org.opencarproject.launcher.presentation.launcher
 
+import org.opencarproject.launcher.R
+import androidx.compose.ui.res.stringResource
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -35,6 +37,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.navigationBarsPadding
+import org.opencarproject.launcher.presentation.common.MotionGlowOverlay
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -126,10 +131,14 @@ import kotlinx.coroutines.launch
 fun LauncherScreen(
     viewModel: LauncherViewModel,
     widgetHost: LauncherAppWidgetHost?,
+    initialSettingsOpen: Boolean = false,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var drawerOpen by rememberSaveable { mutableStateOf(false) }
-    var settingsOpen by rememberSaveable { mutableStateOf(false) }
+    var settingsOpen by rememberSaveable { mutableStateOf(initialSettingsOpen) }
+    // "Test" in settings: the sheet steps aside while the glow plays its demo, then comes back.
+    var glowDemo by remember { mutableStateOf(false) }
+    val settingsScroll = rememberScrollState()
     var notificationsOpen by rememberSaveable { mutableStateOf(false) }
     // Side of the bar a shortcut is being added to (null = picker closed).
     var dockPickerSide by remember { mutableStateOf<DockSide?>(null) }
@@ -233,6 +242,7 @@ fun LauncherScreen(
                             AppsPage(
                                 apps = apps,
                                 onLaunch = launchFromMenu,
+                                iconScale = settings.menuIconScale,
                                 onBack = { scope.launch { pagerState.animateScrollToPage(HOME_PAGE) } },
                             )
                         }
@@ -270,7 +280,7 @@ fun LauncherScreen(
                         }
                         DockItem(shown(DockElement.APPS)) {
                             IconButton(onClick = openApps, modifier = Modifier.size(settings.dockIconSize.slotDp.dp)) {
-                                Icon(Icons.Rounded.Apps, contentDescription = "Aplicaciones", modifier = Modifier.size((settings.dockIconSize.iconDp * 0.8f).dp))
+                                Icon(Icons.Rounded.Apps, contentDescription = stringResource(R.string.apps_title), modifier = Modifier.size((settings.dockIconSize.iconDp * 0.8f).dp))
                             }
                         }
                         }
@@ -331,7 +341,7 @@ fun LauncherScreen(
                             Spacer(Modifier.width(8.dp))
                         }
                         IconButton(onClick = { settingsOpen = true }, modifier = Modifier.size(56.dp)) {
-                            Icon(Icons.Rounded.Settings, contentDescription = "Configuración", modifier = Modifier.size(30.dp))
+                            Icon(Icons.Rounded.Settings, contentDescription = stringResource(R.string.settings_title), modifier = Modifier.size(30.dp))
                         }
                         }
                     }
@@ -364,11 +374,22 @@ fun LauncherScreen(
                     onVehicleColorChange = viewModel::onVehicleColorChange,
                     onAppMenuStyleChange = viewModel::onAppMenuStyleChange,
                     onDockIconSizeChange = viewModel::onDockIconSizeChange,
+                    onAppLanguageChange = viewModel::onAppLanguageChange,
+                    onUiScaleChange = viewModel::onUiScaleChange,
+                    onMenuIconScaleChange = viewModel::onMenuIconScaleChange,
+                    onMotionGlowChange = viewModel::onMotionGlowChange,
+                    onMotionGlowSensitivityChange = viewModel::onMotionGlowSensitivityChange,
+                    onMotionGlowColorChange = viewModel::onMotionGlowColorChange,
+                    onMotionGlowTest = {
+                        settingsOpen = false
+                        glowDemo = true
+                    },
                     onShowAppLabelsChange = viewModel::onShowAppLabelsChange,
                     onAccentColorChange = viewModel::onAccentColorChange,
                     onElementVisibilityChange = viewModel::onElementVisibilityChange,
                     onGridChange = { viewModel.onGridChange(it.copy(columns = it.columns * LayoutDefinition.COLUMN_SCALE)) },
                     onDismiss = { settingsOpen = false },
+                    scrollState = settingsScroll,
                 )
             }
 
@@ -379,7 +400,8 @@ fun LauncherScreen(
             dockPickerSide?.let { side ->
                 AppDrawerSheet(
                     apps = apps,
-                    title = if (side == DockSide.LEFT) "Agregar a la barra (izquierda)" else "Agregar a la barra (derecha)",
+                    iconScale = settings.menuIconScale,
+                    title = if (side == DockSide.LEFT) stringResource(R.string.dock_add_left) else stringResource(R.string.dock_add_right),
                     onLaunch = {
                         viewModel.onDockAppAdd(side, it.key)
                         dockPickerSide = null
@@ -389,7 +411,7 @@ fun LauncherScreen(
             }
 
             if (!swipeMenu && drawerOpen) {
-                AppDrawerSheet(apps = apps, onLaunch = launchFromMenu, onDismiss = { drawerOpen = false })
+                AppDrawerSheet(apps = apps, onLaunch = launchFromMenu, onDismiss = { drawerOpen = false }, iconScale = settings.menuIconScale)
             }
 
             AnimatedVisibility(
@@ -405,6 +427,20 @@ fun LauncherScreen(
                 )
             }
         }
+    }
+    // Over everything (true screen edges, not the Scaffold's inset box) but above an opaque
+    // navigation bar/taskbar, which would hide the braking glow; draw-only.
+    if (settings.motionGlow || glowDemo) {
+        MotionGlowOverlay(
+            sensitivity = settings.motionGlowSensitivity,
+            color = settings.motionGlowColor.argb?.let(::Color) ?: MaterialTheme.colorScheme.primary,
+            demo = glowDemo,
+            onDemoEnd = {
+                glowDemo = false
+                settingsOpen = true
+            },
+            modifier = Modifier.fillMaxSize().navigationBarsPadding(),
+        )
     }
 }
 
@@ -504,11 +540,11 @@ private fun TopBar(
         ) {
             Row {
                 FilledTonalIconButton(onClick = onToggleEdit) {
-                    Icon(imageVector = Icons.Rounded.Check, contentDescription = "Terminar edición")
+                    Icon(imageVector = Icons.Rounded.Check, contentDescription = stringResource(R.string.edit_done))
                 }
                 Spacer(Modifier.width(8.dp))
                 FilledTonalIconButton(onClick = onAdd) {
-                    Icon(imageVector = Icons.Rounded.Add, contentDescription = "Agregar")
+                    Icon(imageVector = Icons.Rounded.Add, contentDescription = stringResource(R.string.add))
                 }
             }
         }
@@ -543,7 +579,7 @@ private fun NotificationsButton(count: Int, onClick: () -> Unit) {
         ) {
             Icon(
                 imageVector = Icons.Rounded.Notifications,
-                contentDescription = if (count > 0) "Notificaciones: $count" else "Notificaciones",
+                contentDescription = if (count > 0) stringResource(R.string.notifications_count, count) else stringResource(R.string.notifications),
                 modifier = Modifier.size(30.dp),
             )
         }

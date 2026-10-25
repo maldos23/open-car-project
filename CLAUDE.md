@@ -5,8 +5,12 @@ Architecture, manual DI in `di/AppContainer`. Root package `org.opencarproject.l
 
 ## Must follow
 
-- **English only** for code comments, KDoc, commit messages, skills and agents. UI strings are
-  currently Spanish (hard-coded in Compose); don't translate them unless asked.
+- **English only** for code comments, KDoc, commit messages, skills and agents.
+- **i18n (mandatory):** every user-visible text (Compose `Text`, `contentDescription`, toasts,
+  widgets) comes from `res/values*/strings.xml` via `stringResource` / `getString` — never a
+  literal. Add each new key to all five locales: `values` (English, fallback), `values-es`,
+  `values-zh-rCN`, `values-pt`, `values-fr`. Use `<plurals>` for counts and `%1$s` args, not
+  string concatenation.
 - Respect the layers in `docs/ARCHITECTURE.md`. `domain` never imports `android.*`.
 - Put non-UI logic in `core/pure` and add a JVM test under `app/src/test`.
 - Driving UI: touch targets ≥ 48 dp; use `MaterialTheme.colorScheme` (no hard-coded text

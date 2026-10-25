@@ -19,7 +19,7 @@ Rules:
 - Keep the language switcher line at the top, bolding the current language:
   `[English](X.md) · **Español** · [简体中文](X.zh-CN.md)`.
 - Links to other docs point to the same-language version when it exists, otherwise to English.
-- UI labels quoted from the app (currently Spanish, e.g. "Nada sonando") stay as they are.
+- UI labels quoted from the app use the wording from that language's `res/values-*/strings.xml`.
 - Use standard Android terminology in each language (zh-CN: 启动器, 小部件, 通知, 模拟器).
 
 Finish by listing which files you changed.

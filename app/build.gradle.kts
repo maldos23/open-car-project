@@ -16,8 +16,8 @@ android {
         // Keep a low floor (Android 8.0) for compatibility with tablet fleets.
         minSdk = 26
         targetSdk = 37
-        versionCode = 3
-        versionName = "0.1.2"
+        versionCode = 4
+        versionName = "0.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
@@ -53,6 +53,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
+    // The in-app language picker needs every locale in the install: no per-language splits.
+    bundle { language { enableSplit = false } }
 
     buildFeatures {
         compose = true

@@ -17,7 +17,7 @@ class SampleGlassMediaWidget : AppWidgetProvider() {
 
     override fun onUpdate(context: Context, manager: AppWidgetManager, appWidgetIds: IntArray) {
         appWidgetIds.forEach { id ->
-            manager.updateAppWidget(id, buildViews(context, "Open Car Project"))
+            manager.updateAppWidget(id, buildViews(context, context.getString(R.string.app_name)))
         }
     }
 
@@ -27,7 +27,7 @@ class SampleGlassMediaWidget : AppWidgetProvider() {
             ACTION_PLAY, ACTION_NEXT -> {
                 val manager = AppWidgetManager.getInstance(context)
                 val ids = manager.getAppWidgetIds(ComponentName(context, SampleGlassMediaWidget::class.java))
-                val subtitle = if (intent.action == ACTION_PLAY) "Reproduciendo…" else "Siguiente pista"
+                val subtitle = context.getString(if (intent.action == ACTION_PLAY) R.string.widget_media_playing else R.string.widget_media_next_track)
                 ids.forEach { id -> manager.updateAppWidget(id, buildViews(context, subtitle)) }
             }
         }
@@ -35,7 +35,7 @@ class SampleGlassMediaWidget : AppWidgetProvider() {
 
     private fun buildViews(context: Context, subtitle: String): RemoteViews {
         return RemoteViews(context.packageName, R.layout.widget_media).apply {
-            setTextViewText(R.id.widget_media_title, "Ahora sonando")
+            setTextViewText(R.id.widget_media_title, context.getString(R.string.widget_media_now_playing))
             setTextViewText(R.id.widget_media_subtitle, subtitle)
             setOnClickPendingIntent(R.id.widget_media_play, broadcast(context, ACTION_PLAY))
             setOnClickPendingIntent(R.id.widget_media_next, broadcast(context, ACTION_NEXT))

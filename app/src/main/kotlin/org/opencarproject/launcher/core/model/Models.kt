@@ -93,6 +93,16 @@ data class LauncherSettings(
     val dockRightApps: List<String> = emptyList(),
     /** Items hidden by the user (everything visible by default). */
     val hiddenElements: Set<DockElement> = emptySet(),
+    val appLanguage: AppLanguage = AppLanguage.SYSTEM,
+    /** Zoom of the whole UI (1 = device density). */
+    val uiScale: Float = 1f,
+    /** Size of the app menu icons relative to the default. */
+    val menuIconScale: Float = 1f,
+    /** Neon glow on the screen edges following turns, acceleration and braking. */
+    val motionGlow: Boolean = false,
+    /** Multiplies the measured motion before thresholds (calibration for each car/sensor). */
+    val motionGlowSensitivity: Float = 1f,
+    val motionGlowColor: GlowColor = GlowColor.ACCENT,
 )
 
 /** Current weather for the dock. */

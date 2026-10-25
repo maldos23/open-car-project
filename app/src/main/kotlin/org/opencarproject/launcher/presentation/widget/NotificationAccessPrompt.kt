@@ -1,5 +1,7 @@
 package org.opencarproject.launcher.presentation.widget
 
+import org.opencarproject.launcher.R
+import androidx.compose.ui.res.stringResource
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
@@ -68,7 +70,7 @@ fun NotificationAccessPrompt(message: String, modifier: Modifier = Modifier) {
             context.startActivity(
                 Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
             )
-        }) { Text("Conceder acceso", maxLines = 1) }
+        }) { Text(stringResource(R.string.notification_access_grant), maxLines = 1) }
     }
     }
 }

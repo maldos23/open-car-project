@@ -1,5 +1,7 @@
 package org.opencarproject.launcher.presentation.drawer
 
+import org.opencarproject.launcher.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,6 +33,7 @@ fun AppsPage(
     onLaunch: (CatalogItem) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    iconScale: Float = 1f,
 ) {
     // Card with the same background, corners and margin as the home screen ones: separates the
     // list from the fixed bars and stays aligned with the cards while swiping.
@@ -43,15 +46,15 @@ fun AppsPage(
         Column(Modifier.fillMaxSize().padding(start = 20.dp, end = 20.dp, top = 16.dp)) {
             Row(Modifier.padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack, modifier = Modifier.size(56.dp)) {
-                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Volver al inicio")
+                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.apps_back_home))
                 }
                 Text(
-                    "Aplicaciones",
+                    stringResource(R.string.apps_title),
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.padding(start = 16.dp),
                 )
             }
-            AppDrawerContent(apps = apps, onLaunch = onLaunch, iconSize = 76.dp)
+            AppDrawerContent(apps = apps, onLaunch = onLaunch, iconSize = 76.dp * iconScale)
         }
     }
 }

@@ -1,5 +1,7 @@
 package org.opencarproject.launcher.presentation.common
 
+import org.opencarproject.launcher.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
@@ -96,7 +98,7 @@ private fun EmptySlot(iconSize: DockIconSize, onAdd: () -> Unit) {
             },
         contentAlignment = Alignment.Center,
     ) {
-        Icon(Icons.Rounded.Add, contentDescription = "Agregar acceso directo", tint = color)
+        Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.dock_add_shortcut), tint = color)
     }
 }
 
@@ -140,7 +142,7 @@ private fun FavoriteIcon(
             ) {
                 Icon(
                     Icons.Rounded.Close,
-                    contentDescription = "Quitar de la barra",
+                    contentDescription = stringResource(R.string.dock_remove),
                     tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(16.dp),
                 )

@@ -9,8 +9,8 @@ Thanks for helping! Bug reports, translations, docs, new modules and fixes are a
 - **Report a bug** — open an issue with steps to reproduce, device/emulator + Android version,
   and `adb logcat` output if it crashed.
 - **Suggest a feature** — describe the driving scenario it improves.
-- **Translate** — the UI is currently Spanish and hard-coded in Compose. Moving strings to
-  `res/values/strings.xml` (and adding `values-en`, `values-zh-rCN`, …) is a great first PR.
+- **Translate** — UI strings live in `res/values*/strings.xml` (English is the `values`
+  fallback). Add a `values-xx` folder and a matching `AppLanguage` entry for a new language.
   Docs translations live next to the English file (`*.es.md`, `*.zh-CN.md`).
 - **Code** — pick an open issue or propose one first for larger changes.
 
@@ -86,7 +86,8 @@ If you touched gestures or the grid, also run `./gradlew connectedAndroidTest` o
 ## Code style
 
 - **Language:** all code comments, KDoc, commit messages, skills and agents are in **English**.
-  UI strings may be localized.
+  Every user-visible text goes through `strings.xml` (no literals in Kotlin), with each key in
+  all five locales: `values`, `values-es`, `values-zh-rCN`, `values-pt`, `values-fr`.
 - **Kotlin:** official code style (`kotlin.code.style=official`), 4-space indent, trailing commas.
 - **Architecture:** respect the layers in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
   `domain` must not import `android.*`. Put testable logic in `core/pure` and cover it with a

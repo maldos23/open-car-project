@@ -1,0 +1,196 @@
+<resources>
+    <string name="close">Fermer</string>
+    <string name="add">Ajouter</string>
+    <string name="delete">Supprimer</string>
+    <string name="option_system">Système</string>
+    <string name="option_auto">Automatique</string>
+    <string name="notifications">Notifications</string>
+    <string name="notifications_count">Notifications : %1$d</string>
+    <string name="apps">Apps</string>
+
+    <string name="widget_clock_label">Horloge en verre</string>
+    <string name="widget_media_label">Média en verre</string>
+    <string name="widget_media_now_playing">En cours de lecture</string>
+    <string name="widget_media_playing">Lecture…</string>
+    <string name="widget_media_next_track">Piste suivante</string>
+
+    <string name="module_navigation">Navigation</string>
+    <string name="module_media">Lecteur</string>
+
+    <string name="settings_title">Paramètres</string>
+    <string name="dock_add_left">Ajouter à la barre (gauche)</string>
+    <string name="dock_add_right">Ajouter à la barre (droite)</string>
+    <string name="dock_add_shortcut">Ajouter un raccourci</string>
+    <string name="dock_remove">Retirer de la barre</string>
+    <string name="edit_done">Terminer la modification</string>
+    <string name="grid_no_space">Plus de place sur la grille. Retirez ou réduisez un élément d\'abord.</string>
+
+    <string name="drawer_search">Rechercher des apps</string>
+    <string name="drawer_clear_search">Effacer la recherche</string>
+    <string name="drawer_no_results">Aucun résultat</string>
+    <string name="apps_back_home">Retour à l\'accueil</string>
+    <string name="apps_title">Applications</string>
+
+    <string name="picker_title">Ajouter au bureau</string>
+    <string name="picker_empty">Aucun élément disponible</string>
+
+    <string name="settings_language">Langue</string>
+    <string name="settings_ui_scale">Zoom</string>
+    <string name="percent">%1$d %%</string>
+    <string name="settings_fullscreen">Plein écran</string>
+    <string name="settings_fullscreen_desc">Masque les barres système. Balayez depuis le bord pour les afficher.</string>
+    <string name="settings_theme">Thème</string>
+    <string name="theme_light">Clair</string>
+    <string name="theme_dark">Sombre</string>
+    <string name="settings_accent">Couleur d\'accent</string>
+    <string name="accent_blue">Bleu</string>
+    <string name="accent_teal">Turquoise</string>
+    <string name="accent_green">Vert</string>
+    <string name="accent_purple">Violet</string>
+    <string name="accent_pink">Rose</string>
+    <string name="accent_orange">Orange</string>
+    <string name="accent_red">Rouge</string>
+    <string name="accent_dynamic">Dynamique</string>
+    <string name="settings_background">Fond</string>
+    <string name="background_solid">Uni</string>
+    <string name="background_wallpaper">Fond d\'écran du système</string>
+    <string name="background_gradient">Dégradé</string>
+    <string name="settings_particles">Particules</string>
+    <string name="settings_particles_desc">Points lumineux qui flottent sur le dégradé.</string>
+    <string name="settings_speed_unit">Vitesse</string>
+    <string name="settings_temperature">Température</string>
+    <string name="temperature_celsius">Celsius (°C)</string>
+    <string name="temperature_fahrenheit">Fahrenheit (°F)</string>
+    <string name="settings_weather_position">Position de la météo</string>
+    <string name="position_left">Gauche</string>
+    <string name="position_center">Centre</string>
+    <string name="position_right">Droite</string>
+    <string name="settings_weather_center_unavailable">Le centre n\'est pas disponible quand la scène de vitesse est active.</string>
+    <string name="settings_speed_source">Source de la vitesse</string>
+    <string name="speed_source_gps">GPS (précis)</string>
+    <string name="speed_source_sensors">Capteurs (approximatif)</string>
+    <string name="settings_speed_dial">Compteur de vitesse</string>
+    <string name="settings_speed_dial_desc_scene">Dans la barre du haut, dans la scène de vitesse.</string>
+    <string name="settings_speed_dial_desc">Dans la barre du haut, du côté opposé à la météo.</string>
+    <string name="settings_speed_dial_style">Style du compteur</string>
+    <string name="speed_dial_circle">Cercle</string>
+    <string name="speed_dial_inline">Chiffres</string>
+    <string name="settings_motion_glow">Lueur de mouvement</string>
+    <string name="settings_motion_glow_desc">Les bords de l\'écran s\'illuminent dans la direction de la voiture : virages, accélération et freinage.</string>
+    <string name="settings_motion_glow_sensitivity">Sensibilité de la lueur</string>
+    <string name="settings_motion_glow_color">Couleur de la lueur</string>
+    <string name="settings_motion_glow_test">Tester</string>
+    <string name="settings_speed_scene">Scène de vitesse</string>
+    <string name="settings_speed_scene_desc">Une voiture en ville qui se transforme en fusée quand vous roulez vite, du côté opposé à la météo.</string>
+    <string name="settings_rocket_from">Fusée à partir de (%1$s)</string>
+    <string name="settings_vehicle_shape">Silhouette</string>
+    <string name="vehicle_car">Voiture</string>
+    <string name="vehicle_suv">SUV</string>
+    <string name="vehicle_pickup">Pick-up</string>
+    <string name="vehicle_cat">Chat</string>
+    <string name="vehicle_dog">Chien</string>
+    <string name="settings_color">Couleur</string>
+    <string name="settings_time_format">Format de l\'heure</string>
+    <string name="time_12h">12 h</string>
+    <string name="time_24h">24 h</string>
+    <string name="settings_app_menu">Menu des applications</string>
+    <string name="app_menu_bottom_sheet">Depuis le bas</string>
+    <string name="app_menu_swipe_page">Page à droite (balayez ←)</string>
+    <string name="settings_menu_icon_size">Taille des icônes du menu</string>
+    <string name="settings_app_labels">Noms des apps</string>
+    <string name="settings_app_labels_desc">Affiche le nom sous l\'icône des apps du bureau.</string>
+    <string name="settings_dock_icon_size">Taille des icônes de la barre</string>
+    <string name="size_small">Petite</string>
+    <string name="size_medium">Moyenne</string>
+    <string name="size_large">Grande</string>
+    <string name="settings_show">Afficher</string>
+    <string name="settings_show_desc">Choisissez ce qui apparaît dans les barres. Paramètres reste toujours visible.</string>
+    <string name="element_weather">Météo</string>
+    <string name="element_clock">Heure</string>
+    <string name="element_assistant">Assistant</string>
+    <string name="element_hotspot">Point d\'accès</string>
+    <string name="element_signal">Signal</string>
+    <string name="element_volume">Volume</string>
+    <string name="settings_grid">Grille</string>
+    <string name="settings_columns">Colonnes</string>
+    <string name="settings_rows">Lignes</string>
+    <string name="settings_grid_error">Tous les éléments ne tiennent pas en %1$d × %2$d. Retirez-en un d\'abord.</string>
+    <string name="settings_weather_attribution">Données météo : Open-Meteo.com (CC BY 4.0)</string>
+    <string name="stepper_decrease">Moins de %1$s</string>
+    <string name="stepper_increase">Plus de %1$s</string>
+
+    <string name="media_access_prompt">Autorisez l\'accès aux notifications pour contrôler la musique</string>
+    <string name="media_nothing_playing">Aucune lecture</string>
+    <string name="media_unknown">Inconnu</string>
+    <string name="media_previous">Précédent</string>
+    <string name="media_next">Suivant</string>
+    <string name="media_pause">Pause</string>
+    <string name="media_play">Lecture</string>
+
+    <string name="nav_navigating">Navigation en cours</string>
+    <string name="nav_navigate">Naviguer</string>
+    <string name="nav_with_app">avec %1$s</string>
+
+    <string name="notification_access_grant">Autoriser l\'accès</string>
+    <string name="notifications_access_prompt">Autorisez l\'accès aux notifications pour les voir ici</string>
+    <string name="notifications_empty">Aucune notification</string>
+    <string name="collapse">Réduire</string>
+    <string name="expand">Développer</string>
+    <string name="island_now">maintenant</string>
+    <string name="island_playing">en lecture</string>
+
+    <string name="signal_none">Pas de connexion</string>
+    <string name="signal_wifi">%1$s, niveau %2$d sur 4</string>
+    <string name="signal_mobile">Données mobiles %1$s, niveau %2$d sur 4</string>
+    <string name="volume_level">Volume %1$d %%</string>
+    <string name="volume_mute">Couper le son</string>
+    <string name="volume_unmute">Réactiver le son</string>
+    <string name="volume_down">Baisser le volume</string>
+    <string name="volume_up">Monter le volume</string>
+
+    <string name="weather_enable">Activer la météo</string>
+    <string name="weather_loading">Chargement…</string>
+    <string name="weather_clear">Dégagé</string>
+    <string name="weather_partly_cloudy">Partiellement nuageux</string>
+    <string name="weather_cloudy">Nuageux</string>
+    <string name="weather_fog">Brouillard</string>
+    <string name="weather_drizzle">Bruine</string>
+    <string name="weather_rain">Pluie</string>
+    <string name="weather_snow">Neige</string>
+    <string name="weather_thunderstorm">Orage</string>
+    <string name="weather_unknown">Météo</string>
+
+    <string name="hotspot_active">Point d\'accès actif</string>
+    <plurals name="hotspot_devices">
+        <item quantity="one">Point d\'accès actif, %d appareil</item>
+        <item quantity="many">Point d\'accès actif, %d appareils</item>
+        <item quantity="other">Point d\'accès actif, %d appareils</item>
+    </plurals>
+    <plurals name="hotspot_connected">
+        <item quantity="one">Point d\'accès · %d connecté</item>
+        <item quantity="many">Point d\'accès · %d connectés</item>
+        <item quantity="other">Point d\'accès · %d connectés</item>
+    </plurals>
+    <string name="hotspot_system_only">Android ne permet qu\'aux apps système de voir les appareils connectés. Installez le launcher comme app système pour voir la liste (docs/HOTSPOT.md).</string>
+    <string name="hotspot_none">Aucun appareil connecté.</string>
+    <string name="hotspot_device">Appareil</string>
+
+    <string name="assistant_open">Ouvrir l\'assistant</string>
+    <string name="assistant_talk">Parlez à Google</string>
+    <string-array name="assistant_suggestions">
+        <item>Comment est la circulation jusqu\'à la maison ?</item>
+        <item>Emmène-moi à la station-service la plus proche</item>
+        <item>Mets de la musique pour conduire</item>
+        <item>Appelle maman</item>
+        <item>Lis mes messages</item>
+        <item>À quelle heure j\'arrive au travail ?</item>
+        <item>Dis à Ana que je suis en route</item>
+        <item>Va-t-il pleuvoir aujourd\'hui ?</item>
+        <item>Trouve un café à proximité</item>
+        <item>Monte le volume</item>
+        <item>Rappelle-moi d\'acheter du lait en arrivant</item>
+        <item>Où puis-je me garer ?</item>
+        <item>Mets mon podcast préféré</item>
+        <item>Quels restaurants y a-t-il à proximité ?</item>
+    </string-array>
+</resources>

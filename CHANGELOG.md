@@ -6,6 +6,35 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-25
+
+### Added
+
+- UI translations: English, Spanish, Simplified Chinese, Portuguese and French. Settings →
+  Language picks one or follows the system (default); units and regional formats keep
+  following the device region.
+- Settings → Zoom slider (80–130 %) scales the whole interface, settings and dialogs included.
+- Settings → App menu icon size slider (75–150 %) for the app menu and its full-page variant.
+- Motion glow (off by default): a neon light travels along the screen border towards where the
+  car is going, brightest at that point and fading along the edge. Left/right in turns
+  (gyroscope, GPS bearing as fallback), up when speeding up, down and red when braking (GPS),
+  corners when combined. Adjustable sensitivity and color, and a Test button that sweeps it
+  around the border.
+
+### Changed
+
+- New app icon: an open steering wheel with a neon arc (also shown at the top of the READMEs).
+- The notification island stays at the top center as a bubble with the newest notification's
+  icon and a one-line summary; it hides when there are none, or until a newer one arrives after
+  a swipe up.
+
+### Fixed
+
+- No crash on Android 8–10 when the GPS provider changes state (location listeners now
+  implement every callback).
+- Home starts even if the settings file is slow to read or corrupted.
+- Home-screen widgets keep updating after the language or zoom changes.
+
 ## [0.1.2] - 2026-10-25
 
 ### Fixed
@@ -60,7 +89,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.1.2...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.2.0...develop
+[0.2.0]: https://github.com/maldos23/open-car-project/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/maldos23/open-car-project/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/maldos23/open-car-project/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/maldos23/open-car-project/releases/tag/v0.1.0

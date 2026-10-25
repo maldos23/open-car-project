@@ -10,9 +10,9 @@ correcciones son bienvenidos.
 - **Reportar un error**: abre un issue con los pasos para reproducirlo, el dispositivo/emulador
   y la versión de Android, y la salida de `adb logcat` si la app se cerró inesperadamente.
 - **Sugerir una función**: describe el escenario de conducción que mejora.
-- **Traducir**: por ahora la interfaz está en español y escrita directamente en Compose. Mover
-  los textos a `res/values/strings.xml` (y agregar `values-en`, `values-zh-rCN`, …) es un
-  excelente primer PR. Las traducciones de la documentación van junto al archivo en inglés
+- **Traducir**: los textos de la interfaz están en `res/values*/strings.xml` (el inglés es el
+  respaldo en `values`). Para un idioma nuevo, agrega una carpeta `values-xx` y su entrada en
+  `AppLanguage`. Las traducciones de la documentación van junto al archivo en inglés
   (`*.es.md`, `*.zh-CN.md`).
 - **Código**: elige un issue abierto o, para cambios más grandes, propón uno primero.
 
@@ -92,7 +92,8 @@ un emulador.
 ## Estilo de código
 
 - **Idioma:** todos los comentarios de código, KDoc, mensajes de commit, skills y agentes van
-  en **inglés**. Los textos de la interfaz pueden localizarse.
+  en **inglés**. Todo texto visible pasa por `strings.xml` (sin literales en Kotlin), con cada
+  llave en los cinco idiomas: `values`, `values-es`, `values-zh-rCN`, `values-pt`, `values-fr`.
 - **Kotlin:** estilo de código oficial (`kotlin.code.style=official`), sangría de 4 espacios,
   comas finales.
 - **Arquitectura:** respeta las capas de [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (en

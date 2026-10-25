@@ -1,0 +1,196 @@
+<resources>
+    <string name="close">Fechar</string>
+    <string name="add">Adicionar</string>
+    <string name="delete">Excluir</string>
+    <string name="option_system">Sistema</string>
+    <string name="option_auto">Automático</string>
+    <string name="notifications">Notificações</string>
+    <string name="notifications_count">Notificações: %1$d</string>
+    <string name="apps">Apps</string>
+
+    <string name="widget_clock_label">Relógio de vidro</string>
+    <string name="widget_media_label">Mídia de vidro</string>
+    <string name="widget_media_now_playing">Tocando agora</string>
+    <string name="widget_media_playing">Reproduzindo…</string>
+    <string name="widget_media_next_track">Próxima faixa</string>
+
+    <string name="module_navigation">Navegação</string>
+    <string name="module_media">Player</string>
+
+    <string name="settings_title">Configurações</string>
+    <string name="dock_add_left">Adicionar à barra (esquerda)</string>
+    <string name="dock_add_right">Adicionar à barra (direita)</string>
+    <string name="dock_add_shortcut">Adicionar atalho</string>
+    <string name="dock_remove">Remover da barra</string>
+    <string name="edit_done">Concluir edição</string>
+    <string name="grid_no_space">Não há espaço na grade. Remova ou reduza algo primeiro.</string>
+
+    <string name="drawer_search">Buscar apps</string>
+    <string name="drawer_clear_search">Limpar busca</string>
+    <string name="drawer_no_results">Nenhum resultado</string>
+    <string name="apps_back_home">Voltar ao início</string>
+    <string name="apps_title">Aplicativos</string>
+
+    <string name="picker_title">Adicionar à área de trabalho</string>
+    <string name="picker_empty">Nenhum item disponível</string>
+
+    <string name="settings_language">Idioma</string>
+    <string name="settings_ui_scale">Zoom</string>
+    <string name="percent">%1$d %%</string>
+    <string name="settings_fullscreen">Tela cheia</string>
+    <string name="settings_fullscreen_desc">Oculta as barras do sistema. Deslize a partir da borda para vê-las.</string>
+    <string name="settings_theme">Tema</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Escuro</string>
+    <string name="settings_accent">Cor de destaque</string>
+    <string name="accent_blue">Azul</string>
+    <string name="accent_teal">Turquesa</string>
+    <string name="accent_green">Verde</string>
+    <string name="accent_purple">Roxo</string>
+    <string name="accent_pink">Rosa</string>
+    <string name="accent_orange">Laranja</string>
+    <string name="accent_red">Vermelho</string>
+    <string name="accent_dynamic">Dinâmico</string>
+    <string name="settings_background">Fundo</string>
+    <string name="background_solid">Liso</string>
+    <string name="background_wallpaper">Papel de parede do sistema</string>
+    <string name="background_gradient">Degradê</string>
+    <string name="settings_particles">Partículas</string>
+    <string name="settings_particles_desc">Pontos de luz que flutuam sobre o degradê.</string>
+    <string name="settings_speed_unit">Velocidade</string>
+    <string name="settings_temperature">Temperatura</string>
+    <string name="temperature_celsius">Celsius (°C)</string>
+    <string name="temperature_fahrenheit">Fahrenheit (°F)</string>
+    <string name="settings_weather_position">Posição do clima</string>
+    <string name="position_left">Esquerda</string>
+    <string name="position_center">Centro</string>
+    <string name="position_right">Direita</string>
+    <string name="settings_weather_center_unavailable">O centro não está disponível com a cena de velocidade ativa.</string>
+    <string name="settings_speed_source">Fonte de velocidade</string>
+    <string name="speed_source_gps">GPS (preciso)</string>
+    <string name="speed_source_sensors">Sensores (aproximado)</string>
+    <string name="settings_speed_dial">Velocímetro</string>
+    <string name="settings_speed_dial_desc_scene">Na barra superior, dentro da cena de velocidade.</string>
+    <string name="settings_speed_dial_desc">Na barra superior, do lado oposto ao clima.</string>
+    <string name="settings_speed_dial_style">Estilo do velocímetro</string>
+    <string name="speed_dial_circle">Círculo</string>
+    <string name="speed_dial_inline">Números</string>
+    <string name="settings_motion_glow">Brilho de movimento</string>
+    <string name="settings_motion_glow_desc">As bordas da tela se iluminam na direção em que o carro vai: curvas, aceleração e frenagem.</string>
+    <string name="settings_motion_glow_sensitivity">Sensibilidade do brilho</string>
+    <string name="settings_motion_glow_color">Cor do brilho</string>
+    <string name="settings_motion_glow_test">Testar</string>
+    <string name="settings_speed_scene">Cena de velocidade</string>
+    <string name="settings_speed_scene_desc">Um carro na cidade que vira foguete quando você anda rápido, do lado oposto ao clima.</string>
+    <string name="settings_rocket_from">Foguete a partir de (%1$s)</string>
+    <string name="settings_vehicle_shape">Silhueta</string>
+    <string name="vehicle_car">Carro</string>
+    <string name="vehicle_suv">SUV</string>
+    <string name="vehicle_pickup">Picape</string>
+    <string name="vehicle_cat">Gato</string>
+    <string name="vehicle_dog">Cachorro</string>
+    <string name="settings_color">Cor</string>
+    <string name="settings_time_format">Formato de hora</string>
+    <string name="time_12h">12 h</string>
+    <string name="time_24h">24 h</string>
+    <string name="settings_app_menu">Menu de aplicativos</string>
+    <string name="app_menu_bottom_sheet">De baixo</string>
+    <string name="app_menu_swipe_page">Página à direita (deslize ←)</string>
+    <string name="settings_menu_icon_size">Tamanho dos ícones do menu</string>
+    <string name="settings_app_labels">Nomes dos apps</string>
+    <string name="settings_app_labels_desc">Mostra o nome abaixo do ícone dos apps da área de trabalho.</string>
+    <string name="settings_dock_icon_size">Tamanho dos ícones da barra</string>
+    <string name="size_small">Pequeno</string>
+    <string name="size_medium">Médio</string>
+    <string name="size_large">Grande</string>
+    <string name="settings_show">Mostrar</string>
+    <string name="settings_show_desc">Escolha o que aparece nas barras. Configurações sempre fica visível.</string>
+    <string name="element_weather">Clima</string>
+    <string name="element_clock">Hora</string>
+    <string name="element_assistant">Assistente</string>
+    <string name="element_hotspot">Hotspot</string>
+    <string name="element_signal">Sinal</string>
+    <string name="element_volume">Volume</string>
+    <string name="settings_grid">Grade</string>
+    <string name="settings_columns">Colunas</string>
+    <string name="settings_rows">Linhas</string>
+    <string name="settings_grid_error">Nem todos os itens cabem em %1$d × %2$d. Remova algum primeiro.</string>
+    <string name="settings_weather_attribution">Dados do clima: Open-Meteo.com (CC BY 4.0)</string>
+    <string name="stepper_decrease">Menos %1$s</string>
+    <string name="stepper_increase">Mais %1$s</string>
+
+    <string name="media_access_prompt">Permita o acesso às notificações para controlar a música</string>
+    <string name="media_nothing_playing">Nada tocando</string>
+    <string name="media_unknown">Desconhecido</string>
+    <string name="media_previous">Anterior</string>
+    <string name="media_next">Próxima</string>
+    <string name="media_pause">Pausar</string>
+    <string name="media_play">Reproduzir</string>
+
+    <string name="nav_navigating">Navegando</string>
+    <string name="nav_navigate">Navegar</string>
+    <string name="nav_with_app">com %1$s</string>
+
+    <string name="notification_access_grant">Conceder acesso</string>
+    <string name="notifications_access_prompt">Permita o acesso às notificações para vê-las aqui</string>
+    <string name="notifications_empty">Sem notificações</string>
+    <string name="collapse">Recolher</string>
+    <string name="expand">Expandir</string>
+    <string name="island_now">agora</string>
+    <string name="island_playing">tocando</string>
+
+    <string name="signal_none">Sem conexão</string>
+    <string name="signal_wifi">%1$s, nível %2$d de 4</string>
+    <string name="signal_mobile">Dados móveis %1$s, nível %2$d de 4</string>
+    <string name="volume_level">Volume %1$d %%</string>
+    <string name="volume_mute">Silenciar</string>
+    <string name="volume_unmute">Ativar som</string>
+    <string name="volume_down">Diminuir volume</string>
+    <string name="volume_up">Aumentar volume</string>
+
+    <string name="weather_enable">Ativar clima</string>
+    <string name="weather_loading">Obtendo…</string>
+    <string name="weather_clear">Céu limpo</string>
+    <string name="weather_partly_cloudy">Parcialmente nublado</string>
+    <string name="weather_cloudy">Nublado</string>
+    <string name="weather_fog">Neblina</string>
+    <string name="weather_drizzle">Garoa</string>
+    <string name="weather_rain">Chuva</string>
+    <string name="weather_snow">Neve</string>
+    <string name="weather_thunderstorm">Tempestade</string>
+    <string name="weather_unknown">Clima</string>
+
+    <string name="hotspot_active">Hotspot ativo</string>
+    <plurals name="hotspot_devices">
+        <item quantity="one">Hotspot ativo, %d dispositivo</item>
+        <item quantity="many">Hotspot ativo, %d dispositivos</item>
+        <item quantity="other">Hotspot ativo, %d dispositivos</item>
+    </plurals>
+    <plurals name="hotspot_connected">
+        <item quantity="one">Hotspot · %d conectado</item>
+        <item quantity="many">Hotspot · %d conectados</item>
+        <item quantity="other">Hotspot · %d conectados</item>
+    </plurals>
+    <string name="hotspot_system_only">O Android só permite que apps do sistema vejam os dispositivos conectados. Instale o launcher como app do sistema para ver a lista (docs/HOTSPOT.md).</string>
+    <string name="hotspot_none">Nenhum dispositivo conectado.</string>
+    <string name="hotspot_device">Dispositivo</string>
+
+    <string name="assistant_open">Abrir assistente</string>
+    <string name="assistant_talk">Fale com o Google</string>
+    <string-array name="assistant_suggestions">
+        <item>Como está o trânsito para casa?</item>
+        <item>Me leve ao posto de gasolina mais próximo</item>
+        <item>Toque música para dirigir</item>
+        <item>Ligue para a mamãe</item>
+        <item>Leia minhas mensagens</item>
+        <item>A que horas chego ao trabalho?</item>
+        <item>Diga à Ana que estou a caminho</item>
+        <item>Vai chover hoje?</item>
+        <item>Procure um café por perto</item>
+        <item>Aumente o volume</item>
+        <item>Me lembre de comprar leite quando chegar</item>
+        <item>Onde posso estacionar?</item>
+        <item>Toque meu podcast favorito</item>
+        <item>Que restaurantes há por perto?</item>
+    </string-array>
+</resources>

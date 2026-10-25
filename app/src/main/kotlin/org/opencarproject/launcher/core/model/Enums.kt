@@ -216,3 +216,27 @@ enum class GlassTone {
     DARK,
     ACCENT,
 }
+
+/**
+ * UI language: [SYSTEM] follows the device; the others force a BCP 47 language (+ script) tag.
+ * No region on purpose: the device region keeps driving the automatic units.
+ */
+enum class AppLanguage(val tag: String) {
+    SYSTEM(""),
+    ES("es"),
+    EN("en"),
+    ZH("zh-Hans"),
+    PT("pt"),
+    FR("fr"),
+}
+
+/** Color of the motion glow: [ACCENT] follows the theme; braking is always brake-light red. */
+enum class GlowColor(val argb: Long?) {
+    ACCENT(null),
+    CYAN(0xFF00E5FF),
+    GREEN(0xFF00E676),
+    PURPLE(0xFFD500F9),
+    PINK(0xFFFF4081),
+    ORANGE(0xFFFF9100),
+    WHITE(0xFFFFFFFF),
+}

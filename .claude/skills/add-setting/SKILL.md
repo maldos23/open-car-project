@@ -23,4 +23,5 @@ Paths are under `app/src/main/kotlin/org/opencarproject/launcher/`.
 6. **Verify** — `./gradlew test assembleDebug`, install, toggle it on the emulator, restart
    the app (`adb shell am force-stop org.opencarproject.launcher`) and check it persisted.
 
-UI labels are Spanish today; comments are English.
+Labels go in `res/values*/strings.xml` (all five locales: `values`, `-es`, `-zh-rCN`, `-pt`,
+`-fr`) and are read with `stringResource`; comments are English.

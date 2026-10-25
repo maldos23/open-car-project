@@ -11,6 +11,7 @@ import android.hardware.SensorManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Bundle
 import android.os.Looper
 import android.os.SystemClock
 import org.opencarproject.launcher.core.model.SpeedSource
@@ -21,6 +22,19 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlin.math.sqrt
+
+/**
+ * Location listener for any API level. A Kotlin lambda only implements onLocationChanged; before
+ * API 30 the other callbacks are abstract and the system calling them crashes the app.
+ */
+internal fun locationListener(onFix: (Location) -> Unit): LocationListener = object : LocationListener {
+    override fun onLocationChanged(location: Location) = onFix(location)
+    override fun onProviderEnabled(provider: String) = Unit
+    override fun onProviderDisabled(provider: String) = Unit
+
+    @Deprecated("Deprecated in API 29")
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) = Unit
+}
 
 /** Vehicle speed in km/h from the source chosen in settings. */
 object SpeedReader {
@@ -60,7 +74,7 @@ object SpeedReader {
                 }
             }
         }
-        val listener = LocationListener { fix ->
+        val listener = locationListener { fix ->
             lastFixAt = SystemClock.elapsedRealtime()
             val raw = when {
                 fix.hasSpeed() -> fix.speed * 3.6f

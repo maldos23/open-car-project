@@ -1,5 +1,7 @@
 package org.opencarproject.launcher.presentation.drawer
 
+import org.opencarproject.launcher.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -62,6 +64,7 @@ fun AppDrawerSheet(
     onLaunch: (CatalogItem) -> Unit,
     onDismiss: () -> Unit,
     title: String? = null,
+    iconScale: Float = 1f,
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -75,7 +78,7 @@ fun AppDrawerSheet(
         AppDrawerContent(
             apps = apps,
             onLaunch = onLaunch,
-            iconSize = 56.dp,
+            iconSize = 56.dp * iconScale,
             modifier = Modifier.fillMaxWidth().fillMaxHeight(0.85f).padding(horizontal = 24.dp),
         )
     }
@@ -101,12 +104,12 @@ fun AppDrawerContent(
             value = query,
             onValueChange = { query = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Buscar apps") },
+            placeholder = { Text(stringResource(R.string.drawer_search)) },
             leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
             trailingIcon = {
                 if (query.isNotEmpty()) {
                     IconButton(onClick = { query = "" }) {
-                        Icon(Icons.Rounded.Close, contentDescription = "Borrar búsqueda")
+                        Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.drawer_clear_search))
                     }
                 }
             },
@@ -130,7 +133,7 @@ fun AppDrawerContent(
 
         if (filtered.isEmpty()) {
             Box(Modifier.fillMaxWidth().padding(top = 48.dp), contentAlignment = Alignment.Center) {
-                Text("Sin resultados", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.drawer_no_results), color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } else {
             LazyVerticalGrid(

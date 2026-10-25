@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Glass drop for the app icon. The inner stroke simulates the
-  reflection/highlight characteristic of the glass material.
+  "Open wheel": a steering wheel whose rim is open at the top (an open system the driver can
+  reach into) with a neon arc, the same light as the motion glow. Everything sits inside the
+  66 dp safe zone of the adaptive icon; docs/images/icon.svg is the same drawing for the docs.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
@@ -9,13 +10,29 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Main drop -->
+    <!-- Rim, open at the top -->
     <path
-        android:fillColor="#9FE3FF"
-        android:pathData="M54,20 C44,34 36,44 36,55 C36,66 44,74 54,74 C64,74 72,66 72,55 C72,44 64,34 54,20 Z" />
+        android:pathData="M66,33.215 A24,24 0 1,1 42,33.215"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="6"
+        android:strokeLineCap="round" />
 
-    <!-- Highlight / reflection -->
+    <!-- Neon arc: the motion glow travelling along the rim -->
     <path
-        android:fillColor="#66FFFFFF"
-        android:pathData="M46,38 C44,42 43,46 43,50 C43,51 43.4,52 44,52.6 L52,42 C50.4,40.2 48.4,38.8 46,38 Z" />
+        android:pathData="M66,33.215 A24,24 0 0,1 76.553,62.208"
+        android:strokeColor="#00E5FF"
+        android:strokeWidth="6"
+        android:strokeLineCap="round" />
+
+    <!-- Spokes -->
+    <path
+        android:pathData="M31,54 L47,54 M61,54 L77,54 M54,61 L54,77"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="5"
+        android:strokeLineCap="round" />
+
+    <!-- Hub -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M46,54 A8,8 0 1,0 62,54 A8,8 0 1,0 46,54 Z" />
 </vector>

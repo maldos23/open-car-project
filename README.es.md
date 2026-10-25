@@ -1,6 +1,18 @@
+<p align="center"><img src="docs/images/icon.svg" width="120" alt="Ícono de Open Car Project"></p>
+
 # Open Car Project
 
 [English](README.md) · **Español** · [简体中文](README.zh-CN.md)
+
+> **Abre el auto que ya tienes.** Las unidades principales de hoy tienen hardware lo
+> suficientemente potente para funciones que los fabricantes bloquean o cobran como
+> suscripción. Open Car Project existe para democratizar el sistema de entretenimiento del
+> auto: software abierto, construido en abierto, para que cada conductor decida qué puede hacer
+> su propia pantalla.
+>
+> Creemos que debería ser un derecho elegir cómo se ve tu auto y modernizarlo a tu gusto sin
+> tener que comprar uno nuevo, porque no todos tenemos esa capacidad económica. Las horas en el
+> tráfico se viven mejor en un lugar que se siente tuyo, porque tú mismo lo construiste.
 
 Un **launcher de Android de código abierto para unidades principales de auto**. Convierte la
 pantalla de la unidad principal en un tablero personalizable: navegación, música,
@@ -13,6 +25,12 @@ de Clean Architecture.
 
 ![Pantalla de inicio](docs/screenshots/home.png)
 
+<p align="center">
+  <img src="docs/screenshots/motion-glow-turn.png" width="32%" alt="Brillo de movimiento en una vuelta a la izquierda">
+  <img src="docs/screenshots/notification-bubble.png" width="32%" alt="Burbuja de notificaciones">
+  <img src="docs/screenshots/settings.png" width="32%" alt="Configuración: idioma y zoom">
+</p>
+
 ## Funciones
 
 | Área | Qué obtienes |
@@ -20,12 +38,13 @@ de Clean Architecture.
 | **Inicio personalizable** | Mantén presionado en cualquier lugar para editar: arrastrar, redimensionar (con desplazamiento en vivo de los elementos vecinos), eliminar. Íconos de apps de media celda, widgets del sistema (p. ej., Google Calendar), tamaño de cuadrícula configurable. |
 | **Módulos integrados** | **Navegación** (indicaciones del siguiente giro desde Google Maps / Waze, o un botón animado *Navegar*), **Reproductor multimedia** (portada, progreso, fondo animado vibrante), **Notificaciones** (tarjetas con vista previa, acciones, renderizado nativo para estilos no mapeados). |
 | **Barra superior** | Píldora de **clima** animada (degradado según la condición) y una **escena de velocidad**: un auto / SUV / pickup / gato / perro en una ciudad que cambia según la hora del día y el clima, y que se convierte en un cohete por encima de una velocidad configurable. Velocímetro independiente opcional (circular o en línea). |
-| **Isla de notificaciones** | Ventana emergente al estilo Dynamic Island para notificaciones nuevas y cambios de canción. |
+| **Isla de notificaciones** | Ventana emergente al estilo Dynamic Island para notificaciones nuevas y cambios de canción, que queda como burbuja arriba al centro con la última notificación. |
+| **Brillo de movimiento** | Luz neón opcional que recorre el borde de la pantalla hacia donde va el auto, más intensa en ese punto: izquierda/derecha en las vueltas (giroscopio, o rumbo GPS), arriba al acelerar, abajo en rojo al frenar (GPS) y las esquinas entre ambos. Sensibilidad y color ajustables, con botón Probar. |
 | **Dock inferior** | Reloj, cajón de apps, botón de Google Assistant con sugerencias rotativas, accesos directos a apps, hotspot, señal (4G/5G, estándar Wi-Fi), volumen, notificaciones, ajustes. |
-| **Ajustes** | Tema (sistema/claro/oscuro), color de acento (incl. Material You), fondo (sólido / fondo de pantalla / degradado animado con partículas), unidades (°C/°F, km/h/mph), 12/24 h, qué mostrar en las barras, estilo del menú de apps y más. |
+| **Ajustes** | Tema (sistema/claro/oscuro), color de acento (incl. Material You), fondo (sólido / fondo de pantalla / degradado animado con partículas), unidades (°C/°F, km/h/mph), 12/24 h, idioma (5), zoom de la interfaz, estilo y tamaño de iconos del menú de apps, qué mostrar en las barras y más. |
 
-> Por ahora, el texto de la interfaz está en español. Traducir la interfaz (mover los textos a
-> `strings.xml`) es una contribución bienvenida; consulta [CONTRIBUTING.es.md](CONTRIBUTING.es.md).
+> La interfaz está disponible en inglés, español, chino simplificado, portugués y francés
+> (Configuración → Idioma). Nuevos idiomas son bienvenidos; consulta [CONTRIBUTING.es.md](CONTRIBUTING.es.md).
 
 ## Inicio rápido
 

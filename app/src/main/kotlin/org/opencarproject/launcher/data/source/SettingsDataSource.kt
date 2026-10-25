@@ -1,18 +1,23 @@
 package org.opencarproject.launcher.data.source
 
 import android.content.Context
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import org.opencarproject.launcher.core.model.AccentColor
+import org.opencarproject.launcher.core.model.AppLanguage
 import org.opencarproject.launcher.core.model.BackgroundStyle
 import org.opencarproject.launcher.core.model.AppMenuStyle
 import org.opencarproject.launcher.core.model.DockElement
 import org.opencarproject.launcher.core.model.DockIconSize
+import org.opencarproject.launcher.core.model.GlowColor
 import org.opencarproject.launcher.core.model.LauncherSettings
 import org.opencarproject.launcher.core.model.SpeedDialStyle
 import org.opencarproject.launcher.core.model.SpeedSource
@@ -27,7 +32,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /** Dedicated DataStore: settings are kept separate from the layout. */
-private val Context.settingsDataStore by preferencesDataStore(name = "launcher_settings")
+private val Context.settingsDataStore by preferencesDataStore(
+    name = "launcher_settings",
+    // A corrupt file falls back to defaults instead of crashing the home screen on every start.
+    corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+)
 
 /** Launcher settings in Preferences DataStore. */
 class SettingsDataSource(private val context: Context) {
@@ -53,6 +62,12 @@ class SettingsDataSource(private val context: Context) {
     private val dockIconSizeKey = stringPreferencesKey("dock_icon_size")
     private val appLabelsKey = booleanPreferencesKey("show_app_labels")
     private val dockRightKey = stringPreferencesKey("dock_right_apps")
+    private val appLanguageKey = stringPreferencesKey("app_language")
+    private val uiScaleKey = floatPreferencesKey("ui_scale")
+    private val menuIconScaleKey = floatPreferencesKey("menu_icon_scale")
+    private val motionGlowKey = booleanPreferencesKey("motion_glow")
+    private val motionGlowSensitivityKey = floatPreferencesKey("motion_glow_sensitivity")
+    private val motionGlowColorKey = stringPreferencesKey("motion_glow_color")
 
     val settingsFlow: Flow<LauncherSettings> = context.settingsDataStore.data.map { it.toSettings() }
 
@@ -83,6 +98,12 @@ class SettingsDataSource(private val context: Context) {
             prefs[dockIconSizeKey] = next.dockIconSize.name
             prefs[appLabelsKey] = next.showAppLabels
             prefs[dockRightKey] = next.dockRightApps.joinToString("\n")
+            prefs[appLanguageKey] = next.appLanguage.name
+            prefs[uiScaleKey] = next.uiScale
+            prefs[menuIconScaleKey] = next.menuIconScale
+            prefs[motionGlowKey] = next.motionGlow
+            prefs[motionGlowSensitivityKey] = next.motionGlowSensitivity
+            prefs[motionGlowColorKey] = next.motionGlowColor.name
         }
     }
 
@@ -111,6 +132,12 @@ class SettingsDataSource(private val context: Context) {
         hiddenElements = this[hiddenElementsKey].orEmpty()
             .mapNotNull { runCatching { DockElement.valueOf(it) }.getOrNull() }
             .toSet(),
+        appLanguage = enumOr(this[appLanguageKey], AppLanguage.SYSTEM),
+        uiScale = this[uiScaleKey] ?: 1f,
+        menuIconScale = this[menuIconScaleKey] ?: 1f,
+        motionGlow = this[motionGlowKey] ?: false,
+        motionGlowSensitivity = this[motionGlowSensitivityKey] ?: 1f,
+        motionGlowColor = enumOr(this[motionGlowColorKey], GlowColor.ACCENT),
     )
 
     /** Stored value, or the default if missing or from a version that no longer exists. */

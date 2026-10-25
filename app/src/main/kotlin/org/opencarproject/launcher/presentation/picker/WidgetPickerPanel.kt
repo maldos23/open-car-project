@@ -1,5 +1,7 @@
 package org.opencarproject.launcher.presentation.picker
 
+import org.opencarproject.launcher.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -60,13 +62,13 @@ fun WidgetPickerPanel(
         Column(Modifier.fillMaxSize().padding(18.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "Agregar al escritorio",
+                    text = stringResource(R.string.picker_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(Modifier.weight(1f))
                 IconButton(onClick = onClose) {
-                    Icon(imageVector = Icons.Rounded.Close, contentDescription = "Cerrar")
+                    Icon(imageVector = Icons.Rounded.Close, contentDescription = stringResource(R.string.close))
                 }
             }
             Spacer(Modifier.height(12.dp))
@@ -74,7 +76,7 @@ fun WidgetPickerPanel(
             if (catalog.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        text = "No hay elementos disponibles",
+                        text = stringResource(R.string.picker_empty),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
@@ -97,6 +99,13 @@ fun WidgetPickerPanel(
 /** Tile for a catalog item (native Card with ripple). */
 @Composable
 private fun CatalogTile(item: CatalogItem, onClick: () -> Unit) {
+    // Built-in modules are named in the UI language; the stored title is only a fallback.
+    val title = when (item.kind) {
+        CatalogItemKind.MAP -> stringResource(R.string.module_navigation)
+        CatalogItemKind.MEDIA -> stringResource(R.string.module_media)
+        CatalogItemKind.NOTIFICATIONS -> stringResource(R.string.notifications)
+        else -> item.title
+    }
     val appIcon = if (item.kind == CatalogItemKind.APP) rememberAppIcon(item.key) else null
     val widgetPreview = if (item.kind == CatalogItemKind.WIDGET) rememberWidgetPreview(item.key) else null
 
@@ -109,13 +118,13 @@ private fun CatalogTile(item: CatalogItem, onClick: () -> Unit) {
             when {
                 widgetPreview != null -> Image(
                     bitmap = widgetPreview,
-                    contentDescription = item.title,
+                    contentDescription = title,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                 )
                 appIcon != null -> Image(
                     bitmap = appIcon,
-                    contentDescription = item.title,
+                    contentDescription = title,
                     modifier = Modifier.size(34.dp),
                 )
                 else -> Icon(
@@ -133,7 +142,7 @@ private fun CatalogTile(item: CatalogItem, onClick: () -> Unit) {
             }
             Spacer(Modifier.height(6.dp))
             Text(
-                text = item.title,
+                text = title,
                 style = MaterialTheme.typography.labelSmall,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,

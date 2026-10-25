@@ -18,7 +18,7 @@
             android:id="@+id/widget_media_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ahora sonando"
+            android:text="@string/widget_media_now_playing"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -27,7 +27,7 @@
             android:id="@+id/widget_media_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Open Car Project"
+            android:text="@string/app_name"
             android:textColor="#B3FFFFFF"
             android:textSize="13sp" />
 

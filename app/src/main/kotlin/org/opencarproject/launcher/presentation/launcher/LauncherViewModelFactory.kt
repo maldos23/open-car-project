@@ -32,6 +32,6 @@ class LauncherViewModelFactory(
                 changeGridSize = container.changeGridSize,
             ) as T
         }
-        throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
+        throw IllegalArgumentException("Unknown ViewModel: ${modelClass.name}")
     }
 }
