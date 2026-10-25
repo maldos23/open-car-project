@@ -28,4 +28,25 @@ class MotionMathTest {
         assertEquals(0.5f, MotionMath.intensity(0.2f, 0.05f, 0.35f), 1e-4f)
         assertEquals(-1f, MotionMath.intensity(-2f, 0.05f, 0.35f), 0f)
     }
+
+    @Test fun borderPositionFollowsTheDirection() {
+        val w = 200f
+        val h = 100f
+        assertEquals(100f, MotionMath.borderPosition(0f, -1f, w, h), 1e-3f) // up: middle of the top
+        assertEquals(250f, MotionMath.borderPosition(1f, 0f, w, h), 1e-3f) // right: middle of the right
+        assertEquals(400f, MotionMath.borderPosition(0f, 1f, w, h), 1e-3f) // down: middle of the bottom
+        assertEquals(550f, MotionMath.borderPosition(-1f, 0f, w, h), 1e-3f) // left: middle of the left
+        assertEquals(0f, MotionMath.borderPosition(-2f, -1f, w, h) % MotionMath.perimeter(w, h), 1e-3f) // top-left corner
+    }
+
+    @Test fun borderPointIsTheInverse() {
+        val (x, y) = MotionMath.borderPoint(MotionMath.borderPosition(-1f, -0.2f, 200f, 100f), 200f, 100f)
+        assertEquals(0f, x, 1e-3f)
+        assertEquals(30f, y, 1e-3f)
+    }
+
+    @Test fun borderDistanceWrapsAround() {
+        assertEquals(20f, MotionMath.borderDistance(590f, 10f, 600f), 1e-3f)
+        assertEquals(100f, MotionMath.borderDistance(100f, 200f, 600f), 1e-3f)
+    }
 }
