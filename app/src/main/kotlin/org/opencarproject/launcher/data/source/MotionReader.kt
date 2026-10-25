@@ -1,14 +1,11 @@
 package org.opencarproject.launcher.data.source
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.location.Location
-import android.location.LocationManager
-import android.os.Looper
 import android.os.SystemClock
 import org.opencarproject.launcher.core.pure.MotionMath
 import org.opencarproject.launcher.core.pure.SpeedMath
@@ -29,7 +26,6 @@ data class VehicleMotion(val yawRate: Float = 0f, val acceleration: Float = 0f)
  */
 object MotionReader {
 
-    @SuppressLint("MissingPermission") // checked with SpeedReader.hasGpsPermission
     fun motion(context: Context): Flow<VehicleMotion> = callbackFlow {
         var current = VehicleMotion()
         val sm = context.getSystemService(SensorManager::class.java)
@@ -56,16 +52,15 @@ object MotionReader {
             sm.registerListener(sensorListener, gyro, SensorManager.SENSOR_DELAY_UI)
         }
 
-        val manager = context.getSystemService(LocationManager::class.java)
         var last: Location? = null
         var lastSpeed: Float? = null
-        val locationListener = locationListener { fix ->
+        fun onFix(fix: Location) {
             val prev = last
             last = fix
             val dt = prev?.let { (fix.elapsedRealtimeNanos - it.elapsedRealtimeNanos) / 1e9f } ?: 0f
             if (prev == null || dt <= 0f || dt > 5f) {
                 lastSpeed = null
-                return@locationListener
+                return
             }
             // Some receivers (and mock locations) report no speed: derived from distance/time.
             val speed = if (fix.hasSpeed()) fix.speed else prev.distanceTo(fix) / dt
@@ -97,13 +92,8 @@ object MotionReader {
                 }
             }
         }
-        if (manager != null && SpeedReader.hasGpsPermission(context)) {
-            runCatching { manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 0f, locationListener, Looper.getMainLooper()) }
-        }
+        launch { GpsFixes.get(context).collect(::onFix) }
 
-        awaitClose {
-            sm?.unregisterListener(sensorListener)
-            manager?.removeUpdates(locationListener)
-        }
+        awaitClose { sm?.unregisterListener(sensorListener) }
     }
 }

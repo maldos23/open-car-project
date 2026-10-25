@@ -8,6 +8,7 @@ import android.util.TypedValue
 import androidx.core.app.NotificationManagerCompat
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.graphics.drawable.toBitmap
 
 /**
  * Utilities and extensions reused across the app.
@@ -47,6 +48,17 @@ fun Drawable.toImageBitmapAspect(widthPx: Int, heightPx: Int): ImageBitmap {
     setBounds(left, top, left + w, top + h)
     draw(canvas)
     return bitmap.asImageBitmap()
+}
+
+/**
+ * Renders a [Drawable] no larger than [maxPx] on its longest side, preserving its aspect ratio.
+ * Notification icons can be full-size photos: decoding them as is wastes megabytes per card.
+ */
+fun Drawable.toBoundedImageBitmap(maxPx: Int): ImageBitmap {
+    val w = intrinsicWidth.takeIf { it > 0 } ?: maxPx
+    val h = intrinsicHeight.takeIf { it > 0 } ?: maxPx
+    val scale = minOf(1f, maxPx.toFloat() / maxOf(w, h))
+    return toBitmap((w * scale).toInt().coerceAtLeast(1), (h * scale).toInt().coerceAtLeast(1)).asImageBitmap()
 }
 
 /** `true` if the user granted notification access (also required to read MediaSessions). */

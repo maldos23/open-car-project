@@ -13,7 +13,9 @@ import android.os.Process
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.RemoteViews
+import android.util.LruCache
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -22,23 +24,37 @@ import androidx.core.graphics.createBitmap
 import org.opencarproject.launcher.core.util.dpInt
 import org.opencarproject.launcher.core.util.toImageBitmap
 import org.opencarproject.launcher.core.util.toImageBitmapAspect
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Resolves an app's icon (by "package/activity" component) as an [ImageBitmap].
- * Shared between the grid and the panel (DRY).
+ * Shared between the grid, the dock and the menus (DRY). Decoded off the main thread and kept
+ * in a process-wide cache, so scrolling the menu or reopening it doesn't decode again.
  */
 @Composable
 fun rememberAppIcon(componentKey: String, sizePx: Int = 96, withoutBackground: Boolean = false): ImageBitmap? {
     val context = LocalContext.current
-    return remember(componentKey, sizePx, withoutBackground) {
-        runCatching {
-            val cn = ComponentName.unflattenFromString(componentKey) ?: return@runCatching null
-            val info = context.packageManager.getActivityInfo(cn, 0)
-            val drawable = info.loadIcon(context.packageManager)
-            if (withoutBackground) drawable.foregroundBitmap(sizePx) ?: drawable.toImageBitmap(sizePx) else drawable.toImageBitmap(sizePx)
-        }.getOrNull()
-    }
+    val key = "$componentKey/$sizePx/$withoutBackground"
+    return produceState(AppIconCache.get(key), key) {
+        value = AppIconCache.get(key) ?: withContext(Dispatchers.IO) {
+            loadAppIcon(context, componentKey, sizePx, withoutBackground)
+        }?.also { AppIconCache.put(key, it) }
+    }.value
 }
+
+// ponytail: never invalidated, so an app that changes its icon shows the new one after a restart.
+private object AppIconCache : LruCache<String, ImageBitmap>(16 * 1024 * 1024) {
+    override fun sizeOf(key: String, value: ImageBitmap) = value.width * value.height * 4
+}
+
+private fun loadAppIcon(context: Context, componentKey: String, sizePx: Int, withoutBackground: Boolean): ImageBitmap? =
+    runCatching {
+        val cn = ComponentName.unflattenFromString(componentKey) ?: return@runCatching null
+        val drawable = context.packageManager.getActivityInfo(cn, 0).loadIcon(context.packageManager)
+        val logo = if (withoutBackground) drawable.foregroundBitmap(sizePx) else null
+        logo ?: drawable.toImageBitmap(sizePx)
+    }.getOrNull()
 
 /**
  * Resolves an App Widget's preview (by "package/class" component), in this order:

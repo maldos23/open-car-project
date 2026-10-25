@@ -72,9 +72,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.opencarproject.launcher.core.util.dpInt
+import org.opencarproject.launcher.core.util.toBoundedImageBitmap
 import org.opencarproject.launcher.core.util.toImageBitmap
 import org.opencarproject.launcher.data.source.LauncherNotificationListener
 
@@ -349,7 +349,7 @@ internal fun Context.readContent(sbn: StatusBarNotification): NotificationConten
     val appName = runCatching { pm.getApplicationLabel(pm.getApplicationInfo(sbn.packageName, 0)).toString() }
         .getOrDefault(sbn.packageName)
     val appIcon = runCatching { pm.getApplicationIcon(sbn.packageName).toImageBitmap(dpInt(18f)) }.getOrNull()
-    val avatar = runCatching { sbn.notification.getLargeIcon()?.loadDrawable(this)?.toBitmap()?.asImageBitmap() }.getOrNull()
+    val avatar = runCatching { sbn.notification.getLargeIcon()?.loadDrawable(this)?.toBoundedImageBitmap(dpInt(96f)) }.getOrNull()
 
     val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString().orEmpty()
     val bigText = extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString().orEmpty()
@@ -368,10 +368,10 @@ internal fun Context.readContent(sbn: StatusBarNotification): NotificationConten
         ""
     }
 
-    val picture = (extras.getParcelable<Parcelable>(Notification.EXTRA_PICTURE) as? Bitmap)
+    val picture = (extras.getParcelable<Parcelable>(Notification.EXTRA_PICTURE) as? Bitmap)?.asImageBitmap()
         ?: if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             (extras.getParcelable<Parcelable>(Notification.EXTRA_PICTURE_ICON) as? Icon)
-                ?.let { runCatching { it.loadDrawable(this)?.toBitmap() }.getOrNull() }
+                ?.let { runCatching { it.loadDrawable(this)?.toBoundedImageBitmap(dpInt(480f)) }.getOrNull() }
         } else {
             null
         }
@@ -385,7 +385,7 @@ internal fun Context.readContent(sbn: StatusBarNotification): NotificationConten
         text = text,
         detail = listOf(bigText, lines, messages).firstOrNull { it.isNotBlank() }
             ?: text.takeIf { it.length > LONG_TEXT_CHARS || '\n' in it }.orEmpty(),
-        picture = picture?.asImageBitmap(),
+        picture = picture,
         progress = extras.progress(),
         actions = sbn.notification.actions.orEmpty().take(3).mapNotNull { a ->
             a.title?.toString()?.takeIf { it.isNotBlank() }?.let { NotificationAction(it, a.actionIntent) }

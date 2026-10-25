@@ -63,9 +63,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.opencarproject.launcher.core.util.dpInt
+import org.opencarproject.launcher.core.util.toBoundedImageBitmap
 import org.opencarproject.launcher.core.util.toImageBitmap
 import org.opencarproject.launcher.data.source.LauncherNotificationListener
 
@@ -98,7 +98,7 @@ private fun GuidanceContent(sbn: StatusBarNotification) {
     val instruction = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString().orEmpty()
     val arrival = extras.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString().orEmpty()
     val arrow = remember(sbn.key, sbn.postTime) {
-        runCatching { sbn.notification.getLargeIcon()?.loadDrawable(context)?.toBitmap()?.asImageBitmap() }.getOrNull()
+        runCatching { sbn.notification.getLargeIcon()?.loadDrawable(context)?.toBoundedImageBitmap(context.dpInt(96f)) }.getOrNull()
     }
     val app = remember(sbn.packageName) { context.appLabelAndIcon(sbn.packageName) }
 
