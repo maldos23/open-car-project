@@ -209,7 +209,7 @@ fun SettingsSheet(
             AnimatedVisibility(settings.speedScene) {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     // The threshold is stored in km/h and shown in the chosen unit.
-                    val mph = SpeedUnits.usesMph(settings.speedUnit, java.util.Locale.getDefault().country)
+                    val mph = SpeedUnits.usesMph(settings.speedUnit, androidx.compose.ui.text.intl.Locale.current.region)
                     Stepper(
                         "Cohete desde (${SpeedUnits.label(mph)})",
                         SpeedUnits.display(settings.rocketKmh.toFloat(), mph).roundToInt(),

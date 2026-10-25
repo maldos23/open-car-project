@@ -19,12 +19,12 @@ How to build, run, debug and test Open Car Project.
 |---|---|
 | JDK | 17 or newer (tested with Temurin 21) |
 | Android SDK | `platforms;android-37.0`, `build-tools;37.0.0`, `platform-tools`, `emulator` |
-| Gradle | 8.13 via the wrapper (`./gradlew`) — no global install needed |
-| Android Gradle Plugin | 8.13.x |
-| Kotlin | 2.1.x |
+| Gradle | 9.8 via the wrapper (`./gradlew`) — no global install needed |
+| Android Gradle Plugin | 9.4.x |
+| Kotlin | 2.4.x |
 
-The app targets **API 37 (Android 17)** and runs on **API 26+**. See
-[BUILD_NOTES.md](BUILD_NOTES.md) for why `compileSdkMinor = 0` is set.
+The app targets **API 37 (Android 17)** and runs on **API 26+**. Toolchain
+details are in [BUILD_NOTES.md](BUILD_NOTES.md).
 
 Point Gradle at your SDK with either:
 

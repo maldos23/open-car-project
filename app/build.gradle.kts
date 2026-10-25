@@ -2,16 +2,14 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
     namespace = "org.opencarproject.launcher"
-    // Android 17 = API 37 (platform "android-37.0": major 37, minor 0).
+    // Android 17 = API 37 (platform "android-37.0").
     compileSdk = 37
-    compileSdkMinor = 0
 
     defaultConfig {
         applicationId = "org.opencarproject.launcher"
@@ -75,7 +73,7 @@ kotlin {
 
 dependencies {
     // Compose BOM: centralizes UI library versions (DRY).
-    val composeBom = platform("androidx.compose:compose-bom:2024.12.01")
+    val composeBom = platform("androidx.compose:compose-bom:2026.09.00")
 
     implementation(composeBom)
     implementation("androidx.core:core-ktx:1.15.0")
@@ -85,7 +83,7 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 
     // JSON serialization of the layout (no annotation processors).
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
 
     // Compose UI.
     implementation("androidx.compose.ui:ui")
@@ -104,6 +102,7 @@ dependencies {
     // without arguments was removed; androidx.test >= 1.7 fixes it).
     androidTestImplementation("androidx.test:core:1.7.0")
     androidTestImplementation("androidx.test:runner:1.7.0")
+    androidTestImplementation("androidx.test:rules:1.7.0")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")

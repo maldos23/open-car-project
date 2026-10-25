@@ -6,6 +6,19 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Build toolchain upgraded: Gradle 9.8.2, Android Gradle Plugin 9.4.1 (built-in Kotlin),
+  Kotlin 2.4.21, Compose BOM 2026.09.00, kotlinx-serialization 1.12.0. The API 37
+  `compileSdkMinor` / `suppressUnsupportedCompileSdk` workarounds are gone.
+- Dependabot groups related dependencies so coupled upgrades arrive in a single PR.
+
+### Fixed
+
+- Speed units follow locale changes (observable locale in Compose).
+- Instrumented drag test: pre-grants startup permissions and drives the Compose clock
+  manually so infinite animations don't block idling.
+
 ## [0.1.0] - 2026-10-24
 
 First public release.

@@ -19,12 +19,12 @@
 |---|---|
 | JDK | 17 或更高（已用 Temurin 21 测试） |
 | Android SDK | `platforms;android-37.0`、`build-tools;37.0.0`、`platform-tools`、`emulator` |
-| Gradle | 通过 wrapper 使用 8.13（`./gradlew`）——无需全局安装 |
-| Android Gradle Plugin | 8.13.x |
-| Kotlin | 2.1.x |
+| Gradle | 通过 wrapper 使用 9.8（`./gradlew`）——无需全局安装 |
+| Android Gradle Plugin | 9.4.x |
+| Kotlin | 2.4.x |
 
-应用的目标版本为 **API 37 (Android 17)**，可在 **API 26+** 上运行。关于为什么设置
-`compileSdkMinor = 0`，请参见 [BUILD_NOTES.md](BUILD_NOTES.md)。
+应用的目标版本为 **API 37 (Android 17)**，可在 **API 26+** 上运行。工具链详情请参见
+[BUILD_NOTES.md](BUILD_NOTES.md)。
 
 用以下任一方式让 Gradle 找到你的 SDK：
 

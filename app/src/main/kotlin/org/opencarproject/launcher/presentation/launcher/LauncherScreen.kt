@@ -473,7 +473,7 @@ private fun TopBar(
                 style = settings.speedDialStyle,
                 source = settings.speedSource,
                 rocketKmh = settings.rocketKmh,
-                mph = SpeedUnits.usesMph(settings.speedUnit, java.util.Locale.getDefault().country),
+                mph = SpeedUnits.usesMph(settings.speedUnit, androidx.compose.ui.text.intl.Locale.current.region),
             )
         }
         AnimatedVisibility(
@@ -492,7 +492,7 @@ private fun TopBar(
                 color = Color(settings.vehicleColor.argb),
                 showDial = settings.showSpeedDial,
                 dialStyle = settings.speedDialStyle,
-                mph = SpeedUnits.usesMph(settings.speedUnit, java.util.Locale.getDefault().country),
+                mph = SpeedUnits.usesMph(settings.speedUnit, androidx.compose.ui.text.intl.Locale.current.region),
             )
         }
         AnimatedVisibility(
