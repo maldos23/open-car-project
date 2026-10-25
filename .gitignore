@@ -1,0 +1,48 @@
+# --- Gradle / build outputs ---
+.gradle/
+build/
+.kotlin/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+output-metadata.json
+
+# --- Local configuration (machine-specific) ---
+local.properties
+
+# --- Secrets: never commit keys, keystores or credentials ---
+*.jks
+*.keystore
+*.p12
+*.pem
+*.pk8
+keystore.properties
+release.env
+secrets.properties
+google-services.json
+.env
+.env.*
+
+# --- IDEs ---
+.idea/
+*.iml
+.vscode/
+.fleet/
+*.swp
+*~
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Logs / temp ---
+*.log
+*.hprof
+*.tmp
+
+# --- AI assistants (personal settings only; shared skills/agents are versioned) ---
+.claude/settings.local.json
