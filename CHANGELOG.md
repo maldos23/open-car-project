@@ -15,7 +15,8 @@ All notable changes to this project are documented here. The format follows
 - Settings → App menu icon size slider (75–150 %) for the app menu and its full-page variant.
 - Motion glow (off by default): neon screen edges follow the car — left/right in turns
   (gyroscope, GPS bearing as fallback), top when speeding up, red bottom when braking (GPS),
-  with an adjustable sensitivity.
+  with an adjustable sensitivity, a choice of glow color and a Test button that plays the
+  four cues on the home screen.
 
 ### Changed
 

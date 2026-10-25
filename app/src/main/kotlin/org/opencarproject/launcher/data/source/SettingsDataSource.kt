@@ -17,6 +17,7 @@ import org.opencarproject.launcher.core.model.BackgroundStyle
 import org.opencarproject.launcher.core.model.AppMenuStyle
 import org.opencarproject.launcher.core.model.DockElement
 import org.opencarproject.launcher.core.model.DockIconSize
+import org.opencarproject.launcher.core.model.GlowColor
 import org.opencarproject.launcher.core.model.LauncherSettings
 import org.opencarproject.launcher.core.model.SpeedDialStyle
 import org.opencarproject.launcher.core.model.SpeedSource
@@ -66,6 +67,7 @@ class SettingsDataSource(private val context: Context) {
     private val menuIconScaleKey = floatPreferencesKey("menu_icon_scale")
     private val motionGlowKey = booleanPreferencesKey("motion_glow")
     private val motionGlowSensitivityKey = floatPreferencesKey("motion_glow_sensitivity")
+    private val motionGlowColorKey = stringPreferencesKey("motion_glow_color")
 
     val settingsFlow: Flow<LauncherSettings> = context.settingsDataStore.data.map { it.toSettings() }
 
@@ -101,6 +103,7 @@ class SettingsDataSource(private val context: Context) {
             prefs[menuIconScaleKey] = next.menuIconScale
             prefs[motionGlowKey] = next.motionGlow
             prefs[motionGlowSensitivityKey] = next.motionGlowSensitivity
+            prefs[motionGlowColorKey] = next.motionGlowColor.name
         }
     }
 
@@ -134,6 +137,7 @@ class SettingsDataSource(private val context: Context) {
         menuIconScale = this[menuIconScaleKey] ?: 1f,
         motionGlow = this[motionGlowKey] ?: false,
         motionGlowSensitivity = this[motionGlowSensitivityKey] ?: 1f,
+        motionGlowColor = enumOr(this[motionGlowColorKey], GlowColor.ACCENT),
     )
 
     /** Stored value, or the default if missing or from a version that no longer exists. */

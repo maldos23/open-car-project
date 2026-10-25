@@ -229,3 +229,14 @@ enum class AppLanguage(val tag: String) {
     PT("pt"),
     FR("fr"),
 }
+
+/** Color of the motion glow: [ACCENT] follows the theme; braking is always brake-light red. */
+enum class GlowColor(val argb: Long?) {
+    ACCENT(null),
+    CYAN(0xFF00E5FF),
+    GREEN(0xFF00E676),
+    PURPLE(0xFFD500F9),
+    PINK(0xFFFF4081),
+    ORANGE(0xFFFF9100),
+    WHITE(0xFFFFFFFF),
+}

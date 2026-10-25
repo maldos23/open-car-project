@@ -102,6 +102,7 @@ data class LauncherSettings(
     val motionGlow: Boolean = false,
     /** Multiplies the measured motion before thresholds (calibration for each car/sensor). */
     val motionGlowSensitivity: Float = 1f,
+    val motionGlowColor: GlowColor = GlowColor.ACCENT,
 )
 
 /** Current weather for the dock. */

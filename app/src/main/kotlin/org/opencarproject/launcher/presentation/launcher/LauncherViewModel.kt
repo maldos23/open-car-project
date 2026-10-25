@@ -18,6 +18,7 @@ import org.opencarproject.launcher.presentation.settings.MenuIconScaleRange
 import org.opencarproject.launcher.presentation.settings.MotionGlowSensitivityRange
 import org.opencarproject.launcher.presentation.settings.UiScaleRange
 import kotlin.math.roundToInt
+import org.opencarproject.launcher.core.model.GlowColor
 import org.opencarproject.launcher.core.model.GridSpec
 import org.opencarproject.launcher.core.model.LayoutDefinition
 import org.opencarproject.launcher.core.model.LayoutMode
@@ -411,6 +412,10 @@ class LauncherViewModel(
 
     fun onMotionGlowChange(enabled: Boolean) {
         viewModelScope.launch { updateSettings { it.copy(motionGlow = enabled) } }
+    }
+
+    fun onMotionGlowColorChange(color: GlowColor) {
+        viewModelScope.launch { updateSettings { it.copy(motionGlowColor = color) } }
     }
 
     fun onMotionGlowSensitivityChange(sensitivity: Float) {

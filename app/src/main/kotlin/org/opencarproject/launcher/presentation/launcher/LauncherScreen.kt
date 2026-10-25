@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.navigationBarsPadding
 import org.opencarproject.launcher.presentation.common.MotionGlowOverlay
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -135,6 +136,9 @@ fun LauncherScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var drawerOpen by rememberSaveable { mutableStateOf(false) }
     var settingsOpen by rememberSaveable { mutableStateOf(initialSettingsOpen) }
+    // "Test" in settings: the sheet steps aside while the glow plays its demo, then comes back.
+    var glowDemo by remember { mutableStateOf(false) }
+    val settingsScroll = rememberScrollState()
     var notificationsOpen by rememberSaveable { mutableStateOf(false) }
     // Side of the bar a shortcut is being added to (null = picker closed).
     var dockPickerSide by remember { mutableStateOf<DockSide?>(null) }
@@ -375,11 +379,17 @@ fun LauncherScreen(
                     onMenuIconScaleChange = viewModel::onMenuIconScaleChange,
                     onMotionGlowChange = viewModel::onMotionGlowChange,
                     onMotionGlowSensitivityChange = viewModel::onMotionGlowSensitivityChange,
+                    onMotionGlowColorChange = viewModel::onMotionGlowColorChange,
+                    onMotionGlowTest = {
+                        settingsOpen = false
+                        glowDemo = true
+                    },
                     onShowAppLabelsChange = viewModel::onShowAppLabelsChange,
                     onAccentColorChange = viewModel::onAccentColorChange,
                     onElementVisibilityChange = viewModel::onElementVisibilityChange,
                     onGridChange = { viewModel.onGridChange(it.copy(columns = it.columns * LayoutDefinition.COLUMN_SCALE)) },
                     onDismiss = { settingsOpen = false },
+                    scrollState = settingsScroll,
                 )
             }
 
@@ -420,7 +430,18 @@ fun LauncherScreen(
     }
     // Over everything (true screen edges, not the Scaffold's inset box) but above an opaque
     // navigation bar/taskbar, which would hide the braking glow; draw-only.
-    if (settings.motionGlow) MotionGlowOverlay(settings.motionGlowSensitivity, Modifier.fillMaxSize().navigationBarsPadding())
+    if (settings.motionGlow || glowDemo) {
+        MotionGlowOverlay(
+            sensitivity = settings.motionGlowSensitivity,
+            color = settings.motionGlowColor.argb?.let(::Color) ?: MaterialTheme.colorScheme.primary,
+            demo = glowDemo,
+            onDemoEnd = {
+                glowDemo = false
+                settingsOpen = true
+            },
+            modifier = Modifier.fillMaxSize().navigationBarsPadding(),
+        )
+    }
 }
 
 /**
