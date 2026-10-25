@@ -1,6 +1,18 @@
+<p align="center"><img src="docs/images/icon.svg" width="120" alt="Ícono de Open Car Project"></p>
+
 # Open Car Project
 
 [English](README.md) · **Español** · [简体中文](README.zh-CN.md)
+
+> **Abre el auto que ya tienes.** Las unidades principales de hoy tienen hardware lo
+> suficientemente potente para funciones que los fabricantes bloquean o cobran como
+> suscripción. Open Car Project existe para democratizar el sistema de entretenimiento del
+> auto: software abierto, construido en abierto, para que cada conductor decida qué puede hacer
+> su propia pantalla.
+>
+> Creemos que debería ser un derecho elegir cómo se ve tu auto y modernizarlo a tu gusto sin
+> tener que comprar uno nuevo, porque no todos tenemos esa capacidad económica. Las horas en el
+> tráfico se viven mejor en un lugar que se siente tuyo, porque tú mismo lo construiste.
 
 Un **launcher de Android de código abierto para unidades principales de auto**. Convierte la
 pantalla de la unidad principal en un tablero personalizable: navegación, música,
@@ -12,6 +24,12 @@ Construido con **Kotlin + Jetpack Compose (Material 3)**, APIs nativas de Androi
 de Clean Architecture.
 
 ![Pantalla de inicio](docs/screenshots/home.png)
+
+<p align="center">
+  <img src="docs/screenshots/motion-glow-turn.png" width="32%" alt="Brillo de movimiento en una vuelta a la izquierda">
+  <img src="docs/screenshots/notification-bubble.png" width="32%" alt="Burbuja de notificaciones">
+  <img src="docs/screenshots/settings.png" width="32%" alt="Configuración: idioma y zoom">
+</p>
 
 ## Funciones
 

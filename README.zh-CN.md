@@ -1,6 +1,12 @@
+<p align="center"><img src="docs/images/icon.svg" width="120" alt="Open Car Project 图标"></p>
+
 # Open Car Project
 
 [English](README.md) · [Español](README.es.md) · **简体中文**
+
+> **解锁你已经拥有的汽车。** 如今的车机硬件已经足够强大，足以运行那些被汽车厂商锁定或按订阅收费的功能。Open Car Project 的目标是让车载信息娱乐系统走向开放与普及：开放的软件、公开的开发，让每位车主自己决定屏幕能做什么。
+>
+> 我们相信，选择爱车的样子、按自己的心意让它焕然一新，而不必为此购买新车，应当是每个人的权利——并不是每个人都有这样的经济能力。堵在路上的时光，在一个由自己亲手打造、让人自在的空间里度过，会好得多。
 
 一款开源的**车机 Android 启动器**。它把车机屏幕变成可自定义的仪表盘：导航、音乐、通知、天气和速度场景都放在可拖放的网格上，并配有专为驾驶时使用而设计的大尺寸触控目标。
 
@@ -8,6 +14,12 @@
 `MediaSession`、`NotificationListenerService`、`DataStore`）以及 Clean Architecture 分层构建。
 
 ![主屏幕](docs/screenshots/home.png)
+
+<p align="center">
+  <img src="docs/screenshots/motion-glow-turn.png" width="32%" alt="左转时的运动光效">
+  <img src="docs/screenshots/notification-bubble.png" width="32%" alt="通知气泡">
+  <img src="docs/screenshots/settings.png" width="32%" alt="设置：语言与缩放">
+</p>
 
 ## 功能
 

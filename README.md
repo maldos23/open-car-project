@@ -1,6 +1,17 @@
+<p align="center"><img src="docs/images/icon.svg" width="120" alt="Open Car Project icon"></p>
+
 # Open Car Project
 
 **English** · [Español](README.es.md) · [简体中文](README.zh-CN.md)
+
+> **Open the car you already own.** Today's head units carry hardware powerful enough to run
+> features that carmakers lock away or sell as subscriptions. Open Car Project exists to
+> democratize the car's infotainment system: open software, built in the open, so drivers decide
+> what their own screen can do.
+>
+> We believe it should be a right to choose how your car looks and to modernize it your way,
+> without having to buy a new one — not everyone can afford that. Hours stuck in traffic are
+> better spent in a place that feels like yours, because you built it yourself.
 
 An open-source **Android launcher for car head units**. It turns the head-unit screen into a
 customizable dashboard: navigation, music, notifications, weather and a speed scene live on a
@@ -10,6 +21,12 @@ Built with **Kotlin + Jetpack Compose (Material 3)**, native Android APIs (`AppW
 `MediaSession`, `NotificationListenerService`, `DataStore`) and a Clean Architecture layout.
 
 ![Home screen](docs/screenshots/home.png)
+
+<p align="center">
+  <img src="docs/screenshots/motion-glow-turn.png" width="32%" alt="Motion glow in a left turn">
+  <img src="docs/screenshots/notification-bubble.png" width="32%" alt="Notification bubble">
+  <img src="docs/screenshots/settings.png" width="32%" alt="Settings: language and zoom">
+</p>
 
 ## Features
 
