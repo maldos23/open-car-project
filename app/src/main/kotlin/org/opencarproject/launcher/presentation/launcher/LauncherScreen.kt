@@ -144,7 +144,6 @@ fun LauncherScreen(
     var dockPickerSide by remember { mutableStateOf<DockSide?>(null) }
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val gridError by viewModel.gridError.collectAsStateWithLifecycle()
-    val notificationCount by LauncherNotificationListener.notifications.collectAsStateWithLifecycle()
     // The media session is always observed: the island announces song changes even if the
     // player card is not on the home screen.
     val appContext = LocalContext.current
@@ -182,7 +181,7 @@ fun LauncherScreen(
         val swipeMenu = settings.appMenuStyle == AppMenuStyle.SWIPE_PAGE
         val pagerState = rememberPagerState(initialPage = HOME_PAGE) { 2 }
         val scope = rememberCoroutineScope()
-        val apps = state.catalog.filter { it.kind == CatalogItemKind.APP }
+        val apps = remember(state.catalog) { state.catalog.filter { it.kind == CatalogItemKind.APP } }
         val launchFromMenu = { app: CatalogItem ->
             viewModel.onLaunchApp(app.key)
             drawerOpen = false
@@ -334,10 +333,7 @@ fun LauncherScreen(
                             Spacer(Modifier.width(8.dp))
                         }
                         DockItem(shown(DockElement.NOTIFICATIONS)) {
-                            NotificationsButton(
-                                count = notificationCount.size,
-                                onClick = { notificationsOpen = true },
-                            )
+                            NotificationsButton(onClick = { notificationsOpen = true })
                             Spacer(Modifier.width(8.dp))
                         }
                         IconButton(onClick = { settingsOpen = true }, modifier = Modifier.size(56.dp)) {
@@ -401,7 +397,7 @@ fun LauncherScreen(
                 AppDrawerSheet(
                     apps = apps,
                     iconScale = settings.menuIconScale,
-                    title = if (side == DockSide.LEFT) stringResource(R.string.dock_add_left) else stringResource(R.string.dock_add_right),
+                    title = stringResource(if (side == DockSide.LEFT) R.string.dock_add_left else R.string.dock_add_right),
                     onLaunch = {
                         viewModel.onDockAppAdd(side, it.key)
                         dockPickerSide = null
@@ -570,11 +566,13 @@ private fun DockItem(visible: Boolean, content: @Composable () -> Unit) {
 
 /** Dock bell with the total notification count in a badge. */
 @Composable
-private fun NotificationsButton(count: Int, onClick: () -> Unit) {
+private fun NotificationsButton(onClick: () -> Unit) {
+    // Collected here so a new notification only recomposes the bell, not the whole screen.
+    val count = LauncherNotificationListener.notifications.collectAsStateWithLifecycle().value.size
     IconButton(onClick = onClick, modifier = Modifier.size(56.dp)) {
         BadgedBox(
             badge = {
-                if (count > 0) Badge { Text(if (count > 99) "99+" else "$count") }
+                if (count > 0) Badge { Text(if (count > 99) stringResource(R.string.badge_overflow) else "$count") }
             },
         ) {
             Icon(

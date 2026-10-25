@@ -60,6 +60,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -113,7 +114,7 @@ fun MediaPlayerCard(modifier: Modifier = Modifier) {
     val accent by animateColorAsState(vibrant?.let { Color(it) } ?: fallback, tween(900), label = "accent")
     val surface = MaterialTheme.colorScheme.surfaceContainerHighest
     val transition = rememberInfiniteTransition(label = "bg")
-    val drift by transition.animateFloat(0f, 1f, infiniteRepeatable(tween(9000, easing = LinearEasing), RepeatMode.Reverse), label = "drift")
+    val drift = transition.animateFloat(0f, 1f, infiniteRepeatable(tween(9000, easing = LinearEasing), RepeatMode.Reverse), label = "drift")
     val playingAlpha by animateFloatAsState(if (current?.isPlaying == true) 1f else 0.55f, tween(600), label = "alpha")
     val top = lerp(surface, accent, 0.85f * playingAlpha)
     val bottom = lerp(surface, accent.darker(), 0.6f * playingAlpha)
@@ -122,7 +123,11 @@ fun MediaPlayerCard(modifier: Modifier = Modifier) {
     Box(
         modifier
             .fillMaxSize()
-            .background(Brush.linearGradient(listOf(top, bottom), start = Offset(0f, 600f * drift), end = Offset(900f, 900f - 300f * drift)))
+            // The drift is read while drawing: the card redraws, it doesn't recompose 60 times a second.
+            .drawBehind {
+                val d = drift.value
+                drawRect(Brush.linearGradient(listOf(top, bottom), start = Offset(0f, 600f * d), end = Offset(900f, 900f - 300f * d)))
+            }
             .clickable { openPlayer(context, current) },
     ) {
         CompositionLocalProvider(LocalContentColor provides onBg) {

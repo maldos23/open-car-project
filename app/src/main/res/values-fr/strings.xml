@@ -25,6 +25,13 @@
     <string name="edit_done">Terminer la modification</string>
     <string name="grid_no_space">Plus de place sur la grille. Retirez ou réduisez un élément d\'abord.</string>
     <string name="widget_unavailable">Ce widget n\'est plus disponible.</string>
+    <!-- Shown in the speedometer when location permission is missing; tap to grant it. -->
+    <string name="speed_needs_gps">GPS</string>
+    <string name="temperature_value_c">%1$d°C</string>
+    <string name="temperature_value_f">%1$d°F</string>
+    <string name="temperature_value_unknown">--°</string>
+    <!-- Badge text when there are more than 99 notifications. -->
+    <string name="badge_overflow">99+</string>
 
     <string name="drawer_search">Rechercher des apps</string>
     <string name="drawer_clear_search">Effacer la recherche</string>

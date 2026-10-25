@@ -4,7 +4,6 @@ import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -24,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.produceState
@@ -41,19 +41,21 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.opencarproject.launcher.R
 import org.opencarproject.launcher.core.model.SpeedDialStyle
 import org.opencarproject.launcher.core.model.SpeedSource
 import org.opencarproject.launcher.core.model.VehicleShape
 import org.opencarproject.launcher.core.pure.SpeedUnits
-import org.opencarproject.launcher.data.source.SpeedReader
-import org.opencarproject.launcher.presentation.widget.rememberOnResume
 import kotlin.math.PI
 import kotlin.math.roundToInt
 import kotlin.math.sin
@@ -77,9 +79,8 @@ fun SpeedScene(
     val vehicleSpeed = rememberVehicleSpeed(source)
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
     val needsGps = vehicleSpeed.needsGps
-    val speed = vehicleSpeed.rawKmh
-    val visual = vehicleSpeed.kmh
-    val rocket = speed >= rocketKmh
+    // Only the switch recomposes; the speed itself is read while drawing.
+    val rocket by remember(vehicleSpeed, rocketKmh) { derivedStateOf { vehicleSpeed.rawKmh >= rocketKmh } }
     // Sky based on local time and current weather (recomputed every minute).
     val weather by CurrentWeather.collectAsStateWithLifecycle()
     val hour by produceState(currentHour()) {
@@ -93,15 +94,14 @@ fun SpeedScene(
     // Distance traveled in "scene units": the city/stars scroll with it.
     var travel by remember { mutableFloatStateOf(0f) }
     var time by remember { mutableFloatStateOf(0f) }
-    val currentVisual by androidx.compose.runtime.rememberUpdatedState(visual)
-    LaunchedEffect(Unit) {
+    LaunchedEffect(vehicleSpeed) {
         var last = 0L
         while (true) {
             withFrameNanos { now ->
                 if (last != 0L) {
                     val dt = (now - last) / 1e9f
                     time += dt
-                    travel += dt * currentVisual
+                    travel += dt * vehicleSpeed.kmh
                 }
                 last = now
             }
@@ -120,17 +120,18 @@ fun SpeedScene(
             label = "mode",
         ) { isRocket ->
             Canvas(Modifier.fillMaxSize()) {
-                if (isRocket) space(travel, time, visual) else city(travel, time, visual, vehicle, color, sky)
+                val kmh = vehicleSpeed.kmh
+                if (isRocket) space(travel, time, kmh) else city(travel, time, kmh, vehicle, color, sky)
             }
         }
         // Speedometer inside a circle; in rocket mode its outline burns.
         if (showDial) SpeedReadout(
             style = dialStyle,
-            kmh = visual,
+            kmh = { vehicleSpeed.kmh },
             mph = mph,
             rocketKmh = rocketKmh,
             onFire = rocket,
-            time = time,
+            time = { time },
             needsGps = needsGps,
             modifier = Modifier.align(Alignment.CenterEnd).padding(end = 4.dp),
         )
@@ -563,11 +564,11 @@ val SceneHeight = 64.dp
  * flickering tongues and glow.
  */
 @Composable
-internal fun SpeedDial(kmh: Float, mph: Boolean, rocketKmh: Int, onFire: Boolean, time: Float, needsGps: Boolean, modifier: Modifier) {
-    val fire by animateFloatAsState(if (onFire) 1f else 0f, tween(500), label = "fire")
-    val shadow = androidx.compose.ui.text.TextStyle(shadow = androidx.compose.ui.graphics.Shadow(Color(0x99000000), Offset(0f, 2f), 6f))
+private fun SpeedDial(kmh: () -> Float, mph: Boolean, rocketKmh: Int, fire: () -> Float, time: () -> Float, needsGps: Boolean, modifier: Modifier) {
     Box(modifier.size(SceneHeight - 4.dp), contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
+            val fire = fire()
+            val time = time()
             val r = size.minDimension / 2
             val c = center
             val ring = 3.dp.toPx()
@@ -586,7 +587,7 @@ internal fun SpeedDial(kmh: Float, mph: Boolean, rocketKmh: Int, onFire: Boolean
                 drawArc(
                     Color.White.copy(alpha = 1f - fire),
                     startAngle = -90f,
-                    sweepAngle = 360f * (kmh / rocketKmh).coerceIn(0f, 1f),
+                    sweepAngle = 360f * (kmh() / rocketKmh).coerceIn(0f, 1f),
                     useCenter = false,
                     topLeft = Offset(c.x - r + ring, c.y - r + ring),
                     size = Size((r - ring) * 2, (r - ring) * 2),
@@ -623,15 +624,24 @@ internal fun SpeedDial(kmh: Float, mph: Boolean, rocketKmh: Int, onFire: Boolean
             }
         }
         androidx.compose.foundation.layout.Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            if (needsGps) {
-                Text("GPS", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp, style = shadow)
-            } else {
-                Text("${SpeedUnits.display(kmh, mph).roundToInt()}", color = Color.White, fontWeight = FontWeight.Black, fontSize = 22.sp, lineHeight = 22.sp, style = shadow)
-                Text(SpeedUnits.label(mph), color = Color.White.copy(alpha = 0.85f), fontWeight = FontWeight.Bold, fontSize = 9.sp, lineHeight = 9.sp, style = shadow)
-            }
+            SpeedText(kmh, mph, needsGps, numberSize = 22.sp, unitSize = 9.sp, gpsSize = 14.sp, unitModifier = Modifier)
         }
     }
 }
+
+/** The number and unit (or "GPS" when the permission is missing); recomposes only when the shown number changes. */
+@Composable
+private fun SpeedText(kmh: () -> Float, mph: Boolean, needsGps: Boolean, numberSize: TextUnit, unitSize: TextUnit, gpsSize: TextUnit, unitModifier: Modifier) {
+    if (needsGps) {
+        Text(stringResource(R.string.speed_needs_gps), color = Color.White, fontWeight = FontWeight.Bold, fontSize = gpsSize, style = ReadoutShadow)
+        return
+    }
+    val shown by remember(kmh, mph) { derivedStateOf { SpeedUnits.display(kmh(), mph).roundToInt() } }
+    Text("$shown", color = Color.White, fontWeight = FontWeight.Black, fontSize = numberSize, lineHeight = numberSize, style = ReadoutShadow)
+    Text(SpeedUnits.label(mph), color = Color.White.copy(alpha = 0.85f), fontWeight = FontWeight.Bold, fontSize = unitSize, lineHeight = unitSize, style = ReadoutShadow, modifier = unitModifier)
+}
+
+private val ReadoutShadow = TextStyle(shadow = Shadow(Color(0x99000000), Offset(0f, 2f), 6f))
 
 /**
  * Standalone speedometer (without the car scene) for the top bar: the same circle, with its
@@ -640,6 +650,7 @@ internal fun SpeedDial(kmh: Float, mph: Boolean, rocketKmh: Int, onFire: Boolean
 @Composable
 fun StandaloneSpeedometer(style: SpeedDialStyle, source: SpeedSource, rocketKmh: Int, mph: Boolean, modifier: Modifier = Modifier) {
     val speed = rememberVehicleSpeed(source)
+    val onFire by remember(speed, rocketKmh) { derivedStateOf { speed.rawKmh >= rocketKmh } }
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
     var time by remember { mutableFloatStateOf(0f) }
     LaunchedEffect(Unit) {
@@ -652,11 +663,11 @@ fun StandaloneSpeedometer(style: SpeedDialStyle, source: SpeedSource, rocketKmh:
     Box(modifier.clickable(enabled = speed.needsGps) { permission.launch(Manifest.permission.ACCESS_FINE_LOCATION) }) {
         SpeedReadout(
             style = style,
-            kmh = speed.kmh,
+            kmh = { speed.kmh },
             mph = mph,
             rocketKmh = rocketKmh,
-            onFire = speed.rawKmh >= rocketKmh,
-            time = time,
+            onFire = onFire,
+            time = { time },
             needsGps = speed.needsGps,
             modifier = Modifier,
             standalone = true,
@@ -668,17 +679,20 @@ fun StandaloneSpeedometer(style: SpeedDialStyle, source: SpeedSource, rocketKmh:
 @Composable
 private fun SpeedReadout(
     style: SpeedDialStyle,
-    kmh: Float,
+    kmh: () -> Float,
     mph: Boolean,
     rocketKmh: Int,
     onFire: Boolean,
-    time: Float,
+    time: () -> Float,
     needsGps: Boolean,
     modifier: Modifier,
     standalone: Boolean = false,
-) = when (style) {
-    SpeedDialStyle.CIRCLE -> SpeedDial(kmh, mph, rocketKmh, onFire, time, needsGps, if (standalone) modifier.size(SceneHeight) else modifier)
-    SpeedDialStyle.INLINE -> SpeedInline(kmh, mph, onFire, time, needsGps, modifier, standalone)
+) {
+    val fire = animateFloatAsState(if (onFire) 1f else 0f, tween(500), label = "fire")
+    when (style) {
+        SpeedDialStyle.CIRCLE -> SpeedDial(kmh, mph, rocketKmh, { fire.value }, time, needsGps, if (standalone) modifier.size(SceneHeight) else modifier)
+        SpeedDialStyle.INLINE -> SpeedInline(kmh, mph, { fire.value }, time, needsGps, modifier, standalone)
+    }
 }
 
 /**
@@ -687,14 +701,14 @@ private fun SpeedReadout(
  * Inside the scene it is more compact; standalone, it takes the bar's full height.
  */
 @Composable
-private fun SpeedInline(kmh: Float, mph: Boolean, onFire: Boolean, time: Float, needsGps: Boolean, modifier: Modifier, standalone: Boolean) {
-    val fire by animateFloatAsState(if (onFire) 1f else 0f, tween(500), label = "fireInline")
-    val shadow = androidx.compose.ui.text.TextStyle(shadow = androidx.compose.ui.graphics.Shadow(Color(0x99000000), Offset(0f, 2f), 6f))
+private fun SpeedInline(kmh: () -> Float, mph: Boolean, fire: () -> Float, time: () -> Float, needsGps: Boolean, modifier: Modifier, standalone: Boolean) {
     val height = if (standalone) SceneHeight else SceneHeight - 14.dp
     Row(
         modifier
             .height(height)
             .drawBehind {
+                val fire = fire()
+                val time = time()
                 val r = CornerRadius(size.height / 2)
                 val stroke = 3.dp.toPx()
                 if (fire > 0f) {
@@ -726,24 +740,14 @@ private fun SpeedInline(kmh: Float, mph: Boolean, onFire: Boolean, time: Float, 
             .padding(horizontal = if (standalone) 20.dp else 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (needsGps) {
-            Text("GPS", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp, style = shadow)
-        } else {
-            Text(
-                "${SpeedUnits.display(kmh, mph).roundToInt()}",
-                color = Color.White,
-                fontWeight = FontWeight.Black,
-                fontSize = if (standalone) 34.sp else 26.sp,
-                style = shadow,
-            )
-            Text(
-                SpeedUnits.label(mph),
-                color = Color.White.copy(alpha = 0.85f),
-                fontWeight = FontWeight.Bold,
-                fontSize = if (standalone) 15.sp else 12.sp,
-                style = shadow,
-                modifier = Modifier.padding(start = 6.dp, top = 6.dp),
-            )
-        }
+        SpeedText(
+            kmh,
+            mph,
+            needsGps,
+            numberSize = if (standalone) 34.sp else 26.sp,
+            unitSize = if (standalone) 15.sp else 12.sp,
+            gpsSize = 16.sp,
+            unitModifier = Modifier.padding(start = 6.dp, top = 6.dp),
+        )
     }
 }

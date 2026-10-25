@@ -17,6 +17,14 @@ All notable changes to this project are documented here. The format follows
 - The sensor speedometer no longer jumps to ~50 km/h for a moment on start.
 - With both Waze and Google Maps navigating, the navigation card prefers Waze, as intended.
 - Newly installed or removed apps show up in the app menu without restarting the launcher.
+- The speed scene no longer keeps the GPS or accelerometer running while another app is in
+  front, saving battery.
+
+### Changed
+
+- Smoother home screen with less battery use: the speed scene, weather pill, assistant button,
+  player and navigation cards and card dragging now animate by redrawing instead of rebuilding
+  the screen on every frame.
 
 ## [0.2.0] - 2026-10-25
 

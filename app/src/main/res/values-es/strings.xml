@@ -25,6 +25,13 @@
     <string name="edit_done">Terminar edición</string>
     <string name="grid_no_space">No hay espacio en la cuadrícula. Quita o achica algo primero.</string>
     <string name="widget_unavailable">Ese widget ya no está disponible.</string>
+    <!-- Shown in the speedometer when location permission is missing; tap to grant it. -->
+    <string name="speed_needs_gps">GPS</string>
+    <string name="temperature_value_c">%1$d°C</string>
+    <string name="temperature_value_f">%1$d°F</string>
+    <string name="temperature_value_unknown">--°</string>
+    <!-- Badge text when there are more than 99 notifications. -->
+    <string name="badge_overflow">99+</string>
 
     <string name="drawer_search">Buscar apps</string>
     <string name="drawer_clear_search">Borrar búsqueda</string>

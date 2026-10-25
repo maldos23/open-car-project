@@ -8,6 +8,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -26,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -99,7 +101,7 @@ fun WidgetGrid(
         LaunchedEffect(state.dragPhase) { if (state.dragPhase == DragPhase.IDLE) dragOffset = Offset.Zero }
 
         val active = state.items.find { it.id == state.activeItemId }
-        val preview: List<PlacedItem>? = remember(state.items, state.dragPhase, state.previewCell, state.previewSpan) {
+        val preview: List<PlacedItem>? = remember(state.items, state.grid, active, state.dragPhase, state.previewCell, state.previewSpan) {
             when {
                 active == null -> state.items
                 state.dragPhase == DragPhase.MOVING && state.previewCell != null ->
@@ -111,7 +113,7 @@ fun WidgetGrid(
         }
         // No room for the displaced items: the gesture will be rejected on release.
         val invalid = preview == null
-        val shown = (preview ?: state.items).associateBy { it.id }
+        val shown = remember(preview, state.items) { (preview ?: state.items).associateBy { it.id } }
 
         AnimatedVisibility(state.layoutMode == LayoutMode.EDIT, enter = fadeIn(), exit = fadeOut()) {
             GridDots(state.grid, cellWidthDp, cellHeightDp)
@@ -129,14 +131,18 @@ fun WidgetGrid(
             val cell = if (moving) item.cell else placed.cell
             val span = if (resizing) state.previewSpan ?: item.span else placed.span
 
-            val target = Offset(cellWidthPx * cell.column, cellHeightPx * cell.row) +
-                if (moving) dragOffset else Offset.Zero
+            val target = Offset(cellWidthPx * cell.column, cellHeightPx * cell.row)
 
             // All animated state inside key(): it follows the card even if the order changes.
             key(item.id) {
                 val position = remember { Animatable(target, Offset.VectorConverter) }
                 LaunchedEffect(target, moving) {
-                    if (moving) position.snapTo(target) else position.animateTo(target, PlacementSpring)
+                    // The finger is followed from here, not by recomposing the whole grid on every move.
+                    if (moving) {
+                        snapshotFlow { target + dragOffset }.collect { position.snapTo(it) }
+                    } else {
+                        position.animateTo(target, PlacementSpring)
+                    }
                 }
                 val width by animateDpAsState(cellWidthDp * span.column - gapDp, SizeSpring, label = "w")
                 val height by animateDpAsState(cellHeightDp * span.row - gapDp, SizeSpring, label = "h")
@@ -167,13 +173,13 @@ fun WidgetGrid(
 /** Target slot under the dragged card (red if the rearrangement doesn't fit). */
 @Composable
 private fun DropSlot(cell: Cell, span: Cell, invalid: Boolean, cellWidthDp: Dp, cellHeightDp: Dp, gapDp: Dp) {
-    val x by animateDpAsState(cellWidthDp * cell.column, SizeSpring, label = "slotX")
-    val y by animateDpAsState(cellHeightDp * cell.row, SizeSpring, label = "slotY")
+    val x = animateDpAsState(cellWidthDp * cell.column, SizeSpring, label = "slotX")
+    val y = animateDpAsState(cellHeightDp * cell.row, SizeSpring, label = "slotY")
     val color = if (invalid) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
     val shape = RoundedCornerShape(Dimens.ItemCorner)
     Box(
         Modifier
-            .offset(x, y)
+            .offset { IntOffset(x.value.roundToPx(), y.value.roundToPx()) }
             .size(cellWidthDp * span.column - gapDp, cellHeightDp * span.row - gapDp)
             .background(color.copy(alpha = 0.12f), shape)
             .border(2.dp, color.copy(alpha = 0.7f), shape),
@@ -183,18 +189,14 @@ private fun DropSlot(cell: Cell, span: Cell, invalid: Boolean, cellWidthDp: Dp, 
 /** Dots hinting at the grid in edit mode. */
 @Composable
 private fun GridDots(grid: GridSpec, cellWidthDp: Dp, cellHeightDp: Dp) {
-    Box(Modifier.fillMaxSize()) {
+    // One Canvas instead of a Box per dot (up to ~100 nodes).
+    val color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+    Canvas(Modifier.fillMaxSize()) {
+        val cellWidth = cellWidthDp.toPx()
+        val cellHeight = cellHeightDp.toPx()
         for (row in 0 until grid.rows) {
             for (column in 0 until grid.columns) {
-                Box(
-                    Modifier
-                        .offset(
-                            x = cellWidthDp * column + cellWidthDp / 2 - 3.dp,
-                            y = cellHeightDp * row + cellHeightDp / 2 - 3.dp,
-                        )
-                        .size(6.dp)
-                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f), CircleShape),
-                )
+                drawCircle(color, radius = 3.dp.toPx(), center = Offset(cellWidth * (column + 0.5f), cellHeight * (row + 0.5f)))
             }
         }
     }
