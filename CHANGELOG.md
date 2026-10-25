@@ -6,6 +6,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- The motion glow lights the side edges in turns again when the gyroscope is idle or missing
+  (emulator, some head units) or the GPS gives no bearing: turns then come from the GPS track.
+
 ## [0.3.1] - 2026-10-25
 
 ### Changed
