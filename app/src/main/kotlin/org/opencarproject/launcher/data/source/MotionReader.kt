@@ -7,7 +7,6 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Looper
 import android.os.SystemClock
@@ -60,13 +59,13 @@ object MotionReader {
         val manager = context.getSystemService(LocationManager::class.java)
         var last: Location? = null
         var lastSpeed: Float? = null
-        val locationListener = LocationListener { fix ->
+        val locationListener = locationListener { fix ->
             val prev = last
             last = fix
             val dt = prev?.let { (fix.elapsedRealtimeNanos - it.elapsedRealtimeNanos) / 1e9f } ?: 0f
             if (prev == null || dt <= 0f || dt > 5f) {
                 lastSpeed = null
-                return@LocationListener
+                return@locationListener
             }
             // Some receivers (and mock locations) report no speed: derived from distance/time.
             val speed = if (fix.hasSpeed()) fix.speed else prev.distanceTo(fix) / dt
@@ -88,9 +87,13 @@ object MotionReader {
             while (true) {
                 delay(1000)
                 val lastFix = last ?: continue
-                if (SystemClock.elapsedRealtimeNanos() - lastFix.elapsedRealtimeNanos > 2_500_000_000L && current.acceleration != 0f) {
-                    current = current.copy(acceleration = 0f)
-                    trySend(current)
+                if (SystemClock.elapsedRealtimeNanos() - lastFix.elapsedRealtimeNanos > 2_500_000_000L) {
+                    // Without a gyroscope the turn also comes from GPS: it goes dark too.
+                    val stale = current.copy(acceleration = 0f, yawRate = if (gyro == null) 0f else current.yawRate)
+                    if (stale != current) {
+                        current = stale
+                        trySend(current)
+                    }
                 }
             }
         }
