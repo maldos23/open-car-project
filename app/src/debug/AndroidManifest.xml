@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug only: fake player to test the music module and the island without other apps. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Debug only: set a test wallpaper. -->
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <application>
+        <receiver
+            android:name=".debug.FakeMediaSessionReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="org.opencarproject.launcher.DEBUG_MEDIA" />
+                <action android:name="org.opencarproject.launcher.DEBUG_WALLPAPER" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

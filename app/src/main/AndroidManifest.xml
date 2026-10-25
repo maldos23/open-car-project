@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Permission to host system App Widgets as the home screen. -->
+    <uses-permission
+        android:name="android.permission.BIND_APPWIDGET"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- Dock weather: Open-Meteo over the internet at the approximate location. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Speed scene: GPS (precise location) provides the vehicle's actual speed. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- Signal indicator (Wi-Fi / cellular) in the bottom dock. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- Mobile network technology (E/3G/4G/5G) in the signal indicator. -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!-- Hotspot device list: only granted if the launcher is a priv-app
+         (docs/HOTSPOT.md). As a regular app it is ignored and the icon only shows on/off. -->
+    <uses-permission
+        android:name="android.permission.TETHER_PRIVILEGED"
+        tools:ignore="ProtectedPermissions" />
+
+
+    <!-- Package visibility (API 30+): allows listing launchable apps for the panel. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <!-- Navigation module: apps opened by "Navegar" and the one chosen to open addresses. -->
+        <package android:name="com.waze" />
+        <package android:name="com.google.android.apps.maps" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="geo" />
+        </intent>
+    </queries>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.OpenCarProject">
+
+        <!--
+          Home screen (HOME). `singleTask` + `stateNotNeeded` + `excludeFromRecents`
+          is the standard launcher contract so the system treats it as Home.
+        -->
+        <activity
+            android:name=".presentation.LauncherActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:stateNotNeeded="true"
+            android:excludeFromRecents="true"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|screenSize|screenLayout|keyboard|keyboardHidden|smallestScreenSize|density|uiMode"
+            android:theme="@style/Theme.OpenCarProject">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- Notifications and media player modules: accessing other apps' MediaSessions
+             requires a NotificationListenerService enabled by the user. -->
+        <service
+            android:name=".data.source.LauncherNotificationListener"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <!--
+          Sample widgets bundled with the APK: they ensure the test environment
+          always has widgets to add, even without third-party apps.
+        -->
+        <receiver
+            android:name=".presentation.sample.SampleGlassClockWidget"
+            android:exported="false"
+            android:label="@string/widget_clock_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/sample_clock_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".presentation.sample.SampleGlassMediaWidget"
+            android:exported="false"
+            android:label="@string/widget_media_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/sample_media_widget_info" />
+        </receiver>
+
+    </application>
+
+</manifest>
