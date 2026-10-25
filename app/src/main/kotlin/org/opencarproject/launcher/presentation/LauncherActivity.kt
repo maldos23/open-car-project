@@ -34,6 +34,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import org.opencarproject.launcher.core.model.AppLanguage
+import org.opencarproject.launcher.core.model.LauncherSettings
+import kotlin.math.roundToInt
 import java.util.Locale
 
 /**
@@ -52,30 +54,38 @@ class LauncherActivity : ComponentActivity() {
         LauncherViewModelFactory(container)
     }
 
-    /** Language the resources were loaded with; a different saved one restarts the Activity. */
-    private var appliedLanguage = AppLanguage.SYSTEM
+    /** Settings the resources were loaded with; a different saved language or zoom recreates the Activity. */
+    private var applied = LauncherSettings()
 
     /**
-     * Applies the in-app language before any resource is read. Done at the Activity level (not
-     * in Compose) so dialogs and bottom sheets, which have their own windows, get it too.
+     * Applies the in-app language and zoom before any resource is read. Done at the Activity level
+     * (not in Compose) so dialogs and bottom sheets, which have their own windows, get them too.
      */
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(newBase)
         // ponytail: one blocking DataStore read at startup (a few ms); a mirror in SharedPreferences
         // would avoid it at the cost of a second source of truth.
         // Bounded and failure-proof: a slow or unreadable store must never keep Home from starting.
-        appliedLanguage = runBlocking {
+        applied = runBlocking {
             withTimeoutOrNull(500) { runCatching { container.observeSettings().first() }.getOrNull() }
-        }?.appLanguage ?: AppLanguage.SYSTEM
+        } ?: LauncherSettings()
+        val override = Configuration()
+        var overridden = false
         val system = Resources.getSystem().configuration.locales[0]
-        val locale = if (appliedLanguage == AppLanguage.SYSTEM) {
+        val locale = if (applied.appLanguage == AppLanguage.SYSTEM) {
             system
         } else {
+            overridden = true
             // Keep the device region: °F/mph and other regional defaults must not follow the language.
-            Locale.Builder().setLanguageTag(appliedLanguage.tag).setRegion(system.country).build().also {
-                applyOverrideConfiguration(Configuration().apply { setLocale(it) })
-            }
+            Locale.Builder().setLanguageTag(applied.appLanguage.tag).setRegion(system.country).build()
+                .also { override.setLocale(it) }
         }
+        // Zoom: a scaled density resizes everything drawn in dp and sp.
+        if (applied.uiScale != 1f) {
+            overridden = true
+            override.densityDpi = (newBase.resources.configuration.densityDpi * applied.uiScale).roundToInt()
+        }
+        if (overridden) applyOverrideConfiguration(override)
         // Date and relative-time formatting reads the default locale, not the resources.
         Locale.setDefault(locale)
     }
@@ -115,7 +125,7 @@ class LauncherActivity : ComponentActivity() {
         lifecycleScope.launch {
             // Read from the store itself, not the ViewModel's StateFlow: that one starts from the
             // defaults and would trigger a spurious restart.
-            container.observeSettings().first { it.appLanguage != appliedLanguage }
+            container.observeSettings().first { it.appLanguage != applied.appLanguage || it.uiScale != applied.uiScale }
             restart()
         }
 
@@ -136,7 +146,7 @@ class LauncherActivity : ComponentActivity() {
     }
 
     /**
-     * Reloads the resources with a new language, back in settings where it was changed.
+     * Reloads the resources with a new language or zoom, back in settings where it was changed.
      * Not recreate(): it reuses the window, which then keeps fitting the system bars (the content
      * gets inset and the wallpaper shows behind the status bar).
      */

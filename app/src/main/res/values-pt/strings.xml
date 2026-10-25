@@ -35,6 +35,8 @@
     <string name="picker_empty">Nenhum item disponível</string>
 
     <string name="settings_language">Idioma</string>
+    <string name="settings_ui_scale">Zoom</string>
+    <string name="percent">%1$d %%</string>
     <string name="settings_fullscreen">Tela cheia</string>
     <string name="settings_fullscreen_desc">Oculta as barras do sistema. Deslize a partir da borda para vê-las.</string>
     <string name="settings_theme">Tema</string>

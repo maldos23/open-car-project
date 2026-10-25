@@ -94,6 +94,8 @@ data class LauncherSettings(
     /** Items hidden by the user (everything visible by default). */
     val hiddenElements: Set<DockElement> = emptySet(),
     val appLanguage: AppLanguage = AppLanguage.SYSTEM,
+    /** Zoom of the whole UI (1 = device density). */
+    val uiScale: Float = 1f,
 )
 
 /** Current weather for the dock. */

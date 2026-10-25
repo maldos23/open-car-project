@@ -35,6 +35,8 @@
     <string name="picker_empty">Aucun élément disponible</string>
 
     <string name="settings_language">Langue</string>
+    <string name="settings_ui_scale">Zoom</string>
+    <string name="percent">%1$d %%</string>
     <string name="settings_fullscreen">Plein écran</string>
     <string name="settings_fullscreen_desc">Masque les barres système. Balayez depuis le bord pour les afficher.</string>
     <string name="settings_theme">Thème</string>

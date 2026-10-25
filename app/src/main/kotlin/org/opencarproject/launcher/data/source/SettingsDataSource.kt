@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
@@ -61,6 +62,7 @@ class SettingsDataSource(private val context: Context) {
     private val appLabelsKey = booleanPreferencesKey("show_app_labels")
     private val dockRightKey = stringPreferencesKey("dock_right_apps")
     private val appLanguageKey = stringPreferencesKey("app_language")
+    private val uiScaleKey = floatPreferencesKey("ui_scale")
 
     val settingsFlow: Flow<LauncherSettings> = context.settingsDataStore.data.map { it.toSettings() }
 
@@ -92,6 +94,7 @@ class SettingsDataSource(private val context: Context) {
             prefs[appLabelsKey] = next.showAppLabels
             prefs[dockRightKey] = next.dockRightApps.joinToString("\n")
             prefs[appLanguageKey] = next.appLanguage.name
+            prefs[uiScaleKey] = next.uiScale
         }
     }
 
@@ -121,6 +124,7 @@ class SettingsDataSource(private val context: Context) {
             .mapNotNull { runCatching { DockElement.valueOf(it) }.getOrNull() }
             .toSet(),
         appLanguage = enumOr(this[appLanguageKey], AppLanguage.SYSTEM),
+        uiScale = this[uiScaleKey] ?: 1f,
     )
 
     /** Stored value, or the default if missing or from a version that no longer exists. */

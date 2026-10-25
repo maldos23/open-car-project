@@ -35,10 +35,15 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -75,6 +80,9 @@ import org.opencarproject.launcher.presentation.common.MatchSystemBarsInDialog
 val GridColumnsRange = 3..8
 val GridRowsRange = 2..6
 
+/** Zoom limits: below 80 % touch targets get too small for driving; above 130 % little fits. */
+val UiScaleRange = 0.8f..1.3f
+
 /** Settings sheet: fullscreen, theme and grid size. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,6 +108,7 @@ fun SettingsSheet(
     onAppMenuStyleChange: (AppMenuStyle) -> Unit,
     onDockIconSizeChange: (DockIconSize) -> Unit,
     onAppLanguageChange: (AppLanguage) -> Unit,
+    onUiScaleChange: (Float) -> Unit,
     onShowAppLabelsChange: (Boolean) -> Unit,
     onAccentColorChange: (AccentColor) -> Unit,
     onElementVisibilityChange: (DockElement, Boolean) -> Unit,
@@ -135,6 +144,15 @@ fun SettingsSheet(
                 ),
                 selected = settings.appLanguage,
                 onSelect = onAppLanguageChange,
+            )
+
+            // Commits on release only: each change recreates the screen at the new density.
+            SliderRow(
+                title = stringResource(R.string.settings_ui_scale),
+                value = settings.uiScale,
+                range = UiScaleRange,
+                steps = 9,
+                onChange = onUiScaleChange,
             )
 
             Section(stringResource(R.string.settings_fullscreen), stringResource(R.string.settings_fullscreen_desc)) {
@@ -456,6 +474,25 @@ private fun Section(title: String, subtitle: String, trailing: @Composable () ->
             Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         trailing()
+    }
+}
+
+/** Title, percentage and a slider that reports the value when released (not while dragging). */
+@Composable
+private fun SliderRow(title: String, value: Float, range: ClosedFloatingPointRange<Float>, steps: Int, onChange: (Float) -> Unit) {
+    var dragged by remember(value) { mutableFloatStateOf(value) }
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+            Text(stringResource(R.string.percent, (dragged * 100).roundToInt()), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        }
+        Slider(
+            value = dragged,
+            onValueChange = { dragged = it },
+            onValueChangeFinished = { if (dragged != value) onChange(dragged) },
+            valueRange = range,
+            steps = steps,
+        )
     }
 }
 

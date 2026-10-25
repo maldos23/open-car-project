@@ -14,6 +14,8 @@ import org.opencarproject.launcher.core.model.DragPhase
 import org.opencarproject.launcher.core.model.DockIconSize
 import org.opencarproject.launcher.core.model.DockSide
 import org.opencarproject.launcher.core.model.AppLanguage
+import org.opencarproject.launcher.presentation.settings.UiScaleRange
+import kotlin.math.roundToInt
 import org.opencarproject.launcher.core.model.GridSpec
 import org.opencarproject.launcher.core.model.LayoutDefinition
 import org.opencarproject.launcher.core.model.LayoutMode
@@ -395,6 +397,10 @@ class LauncherViewModel(
 
     fun onShowAppLabelsChange(show: Boolean) {
         viewModelScope.launch { updateSettings { it.copy(showAppLabels = show) } }
+    }
+
+    fun onUiScaleChange(scale: Float) {
+        viewModelScope.launch { updateSettings { it.copy(uiScale = ((scale * 20).roundToInt() / 20f).coerceIn(UiScaleRange)) } }
     }
 
     fun onAppLanguageChange(language: AppLanguage) {
