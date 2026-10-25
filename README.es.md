@@ -20,7 +20,7 @@ de Clean Architecture.
 | **Inicio personalizable** | Mantén presionado en cualquier lugar para editar: arrastrar, redimensionar (con desplazamiento en vivo de los elementos vecinos), eliminar. Íconos de apps de media celda, widgets del sistema (p. ej., Google Calendar), tamaño de cuadrícula configurable. |
 | **Módulos integrados** | **Navegación** (indicaciones del siguiente giro desde Google Maps / Waze, o un botón animado *Navegar*), **Reproductor multimedia** (portada, progreso, fondo animado vibrante), **Notificaciones** (tarjetas con vista previa, acciones, renderizado nativo para estilos no mapeados). |
 | **Barra superior** | Píldora de **clima** animada (degradado según la condición) y una **escena de velocidad**: un auto / SUV / pickup / gato / perro en una ciudad que cambia según la hora del día y el clima, y que se convierte en un cohete por encima de una velocidad configurable. Velocímetro independiente opcional (circular o en línea). |
-| **Isla de notificaciones** | Ventana emergente al estilo Dynamic Island para notificaciones nuevas y cambios de canción. |
+| **Isla de notificaciones** | Ventana emergente al estilo Dynamic Island para notificaciones nuevas y cambios de canción, que queda como burbuja arriba al centro con la última notificación. |
 | **Dock inferior** | Reloj, cajón de apps, botón de Google Assistant con sugerencias rotativas, accesos directos a apps, hotspot, señal (4G/5G, estándar Wi-Fi), volumen, notificaciones, ajustes. |
 | **Ajustes** | Tema (sistema/claro/oscuro), color de acento (incl. Material You), fondo (sólido / fondo de pantalla / degradado animado con partículas), unidades (°C/°F, km/h/mph), 12/24 h, qué mostrar en las barras, estilo del menú de apps y más. |
 
