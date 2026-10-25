@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build signed APK and publish release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Tag must be on main and match versionName
+        run: |
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || { echo "Tag is not on main"; exit 1; }
+          version=$(sed -n 's/.*versionName = "\(.*\)".*/\1/p' app/build.gradle.kts)
+          [ "v$version" = "$GITHUB_REF_NAME" ] || { echo "Tag $GITHUB_REF_NAME != versionName $version"; exit 1; }
+
+      - uses: ./.github/actions/setup
+
+      - name: Decode keystore
+        run: |
+          [ -n "$KEYSTORE_B64" ] || { echo "Missing RELEASE_KEYSTORE_BASE64 secret"; exit 1; }
+          echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "RELEASE_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+        env:
+          KEYSTORE_B64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+
+      - name: Test and assemble release
+        run: ./gradlew --no-daemon test assembleRelease
+        env:
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+
+      - name: Rename and checksum
+        run: |
+          apk="open-car-project-$GITHUB_REF_NAME.apk"
+          cp app/build/outputs/apk/release/app-release.apk "$apk"
+          sha256sum "$apk" > "$apk.sha256"
+          echo "APK=$apk" >> "$GITHUB_ENV"
+          rm -f "$RUNNER_TEMP/release.jks"
+
+      - name: Release notes from CHANGELOG
+        run: |
+          version=${GITHUB_REF_NAME#v}
+          awk -v v="$version" '$0 ~ "^## \\[" v "\\]" {f=1; next} /^## \[/ {f=0} f' CHANGELOG.md > notes.md
+          [ -s notes.md ] || echo "See CHANGELOG.md" > notes.md
+
+      - name: Publish GitHub release
+        run: |
+          gh release create "$GITHUB_REF_NAME" "$APK" "$APK.sha256" \
+            --title "Open Car Project $GITHUB_REF_NAME" --notes-file notes.md \
+            $(case "$GITHUB_REF_NAME" in *-*) echo --prerelease ;; esac)
+        env:
+          GH_TOKEN: ${{ github.token }}

@@ -1,0 +1,11 @@
+<resources>
+    <!-- Base theme without ActionBar: all UI is drawn by Compose. -->
+    <style name="Theme.OpenCarProject" parent="android:Theme.Material.NoActionBar">
+        <!-- Like any launcher, the window shows the wallpaper; in the "Liso" and
+             "Degradado" modes the UI paints its own background on top. -->
+        <item name="android:windowShowWallpaper">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+</resources>

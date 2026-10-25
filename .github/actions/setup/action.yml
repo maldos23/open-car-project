@@ -1,0 +1,13 @@
+name: Set up Android build
+description: JDK 21, Android SDK (API 37.0) and Gradle cache.
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: "21"
+    - uses: android-actions/setup-android@v3
+      with:
+        packages: "platforms;android-37.0 build-tools;37.0.0 platform-tools"
+    - uses: gradle/actions/setup-gradle@v4

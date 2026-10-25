@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copy to /system/etc/permissions/ (or /product/etc/permissions/) next to the APK in priv-app. -->
+<permissions>
+    <privapp-permissions package="org.opencarproject.launcher">
+        <permission name="android.permission.TETHER_PRIVILEGED" />
+    </privapp-permissions>
+</permissions>
