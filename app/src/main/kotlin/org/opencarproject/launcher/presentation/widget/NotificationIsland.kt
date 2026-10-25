@@ -1,6 +1,7 @@
 package org.opencarproject.launcher.presentation.widget
 
 import org.opencarproject.launcher.R
+import androidx.compose.ui.res.stringResource
 import android.content.Context
 import android.service.notification.StatusBarNotification
 import androidx.compose.animation.core.Animatable
@@ -53,8 +54,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import org.opencarproject.launcher.core.util.dpInt
-import org.opencarproject.launcher.core.util.toImageBitmap
+import org.opencarproject.launcher.core.util.appIcon
+import org.opencarproject.launcher.core.util.appLabel
 import org.opencarproject.launcher.data.source.LauncherNotificationListener
 import org.opencarproject.launcher.data.source.MediaSessionSource
 import org.opencarproject.launcher.data.source.NowPlaying
@@ -198,7 +199,7 @@ fun NotificationIsland(modifier: Modifier = Modifier) {
             ) {
                 if (content.appIcon != null) Image(content.appIcon, contentDescription = null, modifier = Modifier.size(24.dp))
                 Text(
-                    text = listOf(content.title, content.text).filter { it.isNotBlank() }.joinToString(" · ").ifBlank { content.appName },
+                    text = listOf(content.title, content.text).filter { it.isNotBlank() }.joinToString(stringResource(R.string.separator)).ifBlank { content.appName },
                     style = MaterialTheme.typography.labelLarge,
                     color = Color.White,
                     maxLines = 1,
@@ -295,9 +296,8 @@ private fun Context.toIslandItem(sbn: StatusBarNotification): IslandItem {
 }
 
 private fun Context.toIslandItem(track: NowPlaying): IslandItem {
-    val pm = packageManager
-    val appName = runCatching { pm.getApplicationLabel(pm.getApplicationInfo(track.packageName, 0)).toString() }.getOrDefault(track.packageName)
-    val appIcon = runCatching { pm.getApplicationIcon(track.packageName).toImageBitmap(dpInt(22f)) }.getOrNull()
+    val appName = appLabel(track.packageName)
+    val appIcon = appIcon(track.packageName, 22f)
     return IslandItem(
         key = "media:${track.packageName}",
         id = "media:${track.packageName}:${track.title}:${track.artist}",
@@ -307,13 +307,8 @@ private fun Context.toIslandItem(track: NowPlaying): IslandItem {
         // The cover art takes the avatar's place (rounded).
         avatar = track.art?.asImageBitmap() ?: appIcon,
         title = track.title,
-        text = listOf(track.artist, track.album).filter { it.isNotBlank() }.joinToString(" · "),
+        text = listOf(track.artist, track.album).filter { it.isNotBlank() }.joinToString(getString(R.string.separator)),
         picture = null,
-        onOpen = {
-            val sent = track.sessionActivity?.let { runCatching { it.send() }.isSuccess } ?: false
-            if (!sent) pm.getLaunchIntentForPackage(track.packageName)?.let {
-                runCatching { startActivity(it.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
-            }
-        },
+        onOpen = { openPlayer(this, track) },
     )
 }

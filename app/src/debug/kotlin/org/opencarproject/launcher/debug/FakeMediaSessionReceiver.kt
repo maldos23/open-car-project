@@ -1,6 +1,7 @@
 package org.opencarproject.launcher.debug
 
 import android.content.BroadcastReceiver
+import androidx.core.graphics.createBitmap
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -27,7 +28,7 @@ class FakeMediaSessionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == "org.opencarproject.launcher.DEBUG_WALLPAPER") {
             // Test wallpaper: diagonal gradient of vivid colors.
-            val bmp = Bitmap.createBitmap(1280, 800, Bitmap.Config.ARGB_8888)
+            val bmp = createBitmap(1280, 800)
             val paint = Paint().apply {
                 shader = LinearGradient(0f, 0f, 1280f, 800f, intArrayOf(0xFF00897B.toInt(), 0xFF3949AB.toInt(), 0xFFD81B60.toInt()), null, Shader.TileMode.CLAMP)
             }
@@ -72,7 +73,7 @@ class FakeMediaSessionReceiver : BroadcastReceiver() {
 
     /** Synthetic cover art: gradient of the requested color (to see the vibrant background). */
     private fun cover(rgb: Int): Bitmap {
-        val bmp = Bitmap.createBitmap(256, 256, Bitmap.Config.ARGB_8888)
+        val bmp = createBitmap(256, 256)
         val color = 0xFF000000.toInt() or rgb
         val paint = Paint().apply { shader = LinearGradient(0f, 0f, 256f, 256f, color, 0xFF101010.toInt(), Shader.TileMode.CLAMP) }
         Canvas(bmp).drawRect(0f, 0f, 256f, 256f, paint)

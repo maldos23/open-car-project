@@ -174,7 +174,7 @@ fun VolumeButton(modifier: Modifier = Modifier) {
                             Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.volume_up))
                         }
                         Text(
-                            text = "$percent %",
+                            text = stringResource(R.string.percent, percent),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
                             textAlign = TextAlign.End,

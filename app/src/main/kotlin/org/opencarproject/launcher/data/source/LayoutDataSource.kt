@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import org.opencarproject.launcher.core.model.LayoutDefinition
 import org.opencarproject.launcher.core.pure.JsonLayoutCodec
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -32,13 +33,14 @@ private val Context.launcherDataStore by preferencesDataStore(
 class LayoutDataSource(
     private val context: Context,
     private val codec: JsonLayoutCodec = JsonLayoutCodec(),
+    private val decodeDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) {
     private val layoutKey = stringPreferencesKey("layout_json")
 
     /** Flow of the persisted layout; emits the default menu if none exists yet. */
     val layoutFlow: Flow<LayoutDefinition> = context.launcherDataStore.data.recoverIoErrors().map { prefs ->
         prefs[layoutKey]?.let { codec.decode(it)?.toFineColumns() } ?: LayoutDefinition.DEFAULT
-    }.flowOn(Dispatchers.Default) // JSON decoding stays off the main thread.
+    }.flowOn(decodeDispatcher) // JSON decoding stays off the main thread.
 
     /** Persists the whole layout (atomic DataStore operation). */
     suspend fun save(layout: LayoutDefinition) {

@@ -353,35 +353,17 @@ fun LauncherScreen(
                     // Settings are in visible cells; the layout uses half cells.
                     grid = state.grid.copy(columns = state.grid.columns / LayoutDefinition.COLUMN_SCALE),
                     gridError = gridError,
-                    onFullscreenChange = viewModel::onFullscreenChange,
-                    onThemeChange = viewModel::onThemeChange,
-                    onTemperatureUnitChange = viewModel::onTemperatureUnitChange,
-                    onTimeFormatChange = viewModel::onTimeFormatChange,
+                    onChange = viewModel::onSettingsChange,
                     onWeatherPositionChange = viewModel::onWeatherPositionChange,
-                    onBackgroundChange = viewModel::onBackgroundChange,
-                    onGradientParticlesChange = viewModel::onGradientParticlesChange,
                     onSpeedSceneChange = viewModel::onSpeedSceneChange,
-                    onSpeedSourceChange = viewModel::onSpeedSourceChange,
                     onRocketKmhChange = viewModel::onRocketKmhChange,
-                    onShowSpeedDialChange = viewModel::onShowSpeedDialChange,
-                    onSpeedUnitChange = viewModel::onSpeedUnitChange,
-                    onSpeedDialStyleChange = viewModel::onSpeedDialStyleChange,
-                    onVehicleShapeChange = viewModel::onVehicleShapeChange,
-                    onVehicleColorChange = viewModel::onVehicleColorChange,
-                    onAppMenuStyleChange = viewModel::onAppMenuStyleChange,
-                    onDockIconSizeChange = viewModel::onDockIconSizeChange,
-                    onAppLanguageChange = viewModel::onAppLanguageChange,
                     onUiScaleChange = viewModel::onUiScaleChange,
                     onMenuIconScaleChange = viewModel::onMenuIconScaleChange,
-                    onMotionGlowChange = viewModel::onMotionGlowChange,
                     onMotionGlowSensitivityChange = viewModel::onMotionGlowSensitivityChange,
-                    onMotionGlowColorChange = viewModel::onMotionGlowColorChange,
                     onMotionGlowTest = {
                         settingsOpen = false
                         glowDemo = true
                     },
-                    onShowAppLabelsChange = viewModel::onShowAppLabelsChange,
-                    onAccentColorChange = viewModel::onAccentColorChange,
                     onElementVisibilityChange = viewModel::onElementVisibilityChange,
                     onGridChange = { viewModel.onGridChange(it.copy(columns = it.columns * LayoutDefinition.COLUMN_SCALE)) },
                     onDismiss = { settingsOpen = false },
@@ -647,16 +629,21 @@ private fun LauncherBackground(style: BackgroundStyle, particles: Boolean) {
                 },
             )
         }
-        BackgroundStyle.WALLPAPER -> Box(
-            Modifier.fillMaxSize().background(
-                Brush.verticalGradient(
-                    0f to Color.Black.copy(alpha = 0.45f),
-                    0.18f to Color.Transparent,
-                    0.8f to Color.Transparent,
-                    1f to Color.Black.copy(alpha = 0.55f),
+        // Scrim behind the bars in the theme's surface color: the bar text uses onSurface,
+        // so it stays readable in light theme too (a black scrim made it dark on dark).
+        BackgroundStyle.WALLPAPER -> {
+            val scrim = MaterialTheme.colorScheme.surface
+            Box(
+                Modifier.fillMaxSize().background(
+                    Brush.verticalGradient(
+                        0f to scrim.copy(alpha = 0.45f),
+                        0.18f to Color.Transparent,
+                        0.8f to Color.Transparent,
+                        1f to scrim.copy(alpha = 0.55f),
+                    ),
                 ),
-            ),
-        )
+            )
+        }
     }
 }
 

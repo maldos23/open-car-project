@@ -210,13 +210,6 @@ enum class ThemeMode {
     DARK,
 }
 
-/** Tonal variant of the glass, to reuse styles without duplicating values. */
-enum class GlassTone {
-    LIGHT,
-    DARK,
-    ACCENT,
-}
-
 /**
  * UI language: [SYSTEM] follows the device; the others force a BCP 47 language (+ script) tag.
  * No region on purpose: the device region keeps driving the automatic units.

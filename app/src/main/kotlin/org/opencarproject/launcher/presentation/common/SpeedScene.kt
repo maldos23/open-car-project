@@ -71,10 +71,10 @@ fun SpeedScene(
     rocketKmh: Int,
     vehicle: VehicleShape,
     color: Color,
+    modifier: Modifier = Modifier,
     showDial: Boolean = true,
     dialStyle: SpeedDialStyle = SpeedDialStyle.CIRCLE,
     mph: Boolean = false,
-    modifier: Modifier = Modifier,
 ) {
     val vehicleSpeed = rememberVehicleSpeed(source)
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
@@ -624,21 +624,21 @@ private fun SpeedDial(kmh: () -> Float, mph: Boolean, rocketKmh: Int, fire: () -
             }
         }
         androidx.compose.foundation.layout.Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            SpeedText(kmh, mph, needsGps, numberSize = 22.sp, unitSize = 9.sp, gpsSize = 14.sp, unitModifier = Modifier)
+            SpeedText(kmh, mph, needsGps, numberSize = 22.sp, unitSize = 9.sp, gpsSize = 14.sp, unitBeside = false)
         }
     }
 }
 
 /** The number and unit (or "GPS" when the permission is missing); recomposes only when the shown number changes. */
 @Composable
-private fun SpeedText(kmh: () -> Float, mph: Boolean, needsGps: Boolean, numberSize: TextUnit, unitSize: TextUnit, gpsSize: TextUnit, unitModifier: Modifier) {
+private fun SpeedText(kmh: () -> Float, mph: Boolean, needsGps: Boolean, numberSize: TextUnit, unitSize: TextUnit, gpsSize: TextUnit, unitBeside: Boolean) {
     if (needsGps) {
         Text(stringResource(R.string.speed_needs_gps), color = Color.White, fontWeight = FontWeight.Bold, fontSize = gpsSize, style = ReadoutShadow)
         return
     }
     val shown by remember(kmh, mph) { derivedStateOf { SpeedUnits.display(kmh(), mph).roundToInt() } }
     Text("$shown", color = Color.White, fontWeight = FontWeight.Black, fontSize = numberSize, lineHeight = numberSize, style = ReadoutShadow)
-    Text(SpeedUnits.label(mph), color = Color.White.copy(alpha = 0.85f), fontWeight = FontWeight.Bold, fontSize = unitSize, lineHeight = unitSize, style = ReadoutShadow, modifier = unitModifier)
+    Text(SpeedUnits.label(mph), color = Color.White.copy(alpha = 0.85f), fontWeight = FontWeight.Bold, fontSize = unitSize, lineHeight = unitSize, style = ReadoutShadow, modifier = if (unitBeside) Modifier.padding(start = 6.dp, top = 6.dp) else Modifier)
 }
 
 private val ReadoutShadow = TextStyle(shadow = Shadow(Color(0x99000000), Offset(0f, 2f), 6f))
@@ -747,7 +747,7 @@ private fun SpeedInline(kmh: () -> Float, mph: Boolean, fire: () -> Float, time:
             numberSize = if (standalone) 34.sp else 26.sp,
             unitSize = if (standalone) 15.sp else 12.sp,
             gpsSize = 16.sp,
-            unitModifier = Modifier.padding(start = 6.dp, top = 6.dp),
+            unitBeside = true,
         )
     }
 }

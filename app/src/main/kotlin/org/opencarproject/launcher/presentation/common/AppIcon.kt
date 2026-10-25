@@ -19,6 +19,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.graphics.createBitmap
 import org.opencarproject.launcher.core.util.dpInt
@@ -65,7 +66,8 @@ private fun loadAppIcon(context: Context, componentKey: String, sizePx: Int, wit
 @Composable
 fun rememberWidgetPreview(componentKey: String): ImageBitmap? {
     val context = LocalContext.current
-    return remember(componentKey) {
+    val densityDpi = LocalConfiguration.current.densityDpi
+    return remember(componentKey, densityDpi) {
         runCatching {
             val cn = ComponentName.unflattenFromString(componentKey) ?: return@runCatching null
             val manager = AppWidgetManager.getInstance(context)
@@ -83,7 +85,7 @@ fun rememberWidgetPreview(componentKey: String): ImageBitmap? {
             }
             layoutPreview?.let { runCatching { it.render(context, info) }.getOrNull() }?.let { return@runCatching it }
 
-            val density = context.resources.displayMetrics.densityDpi
+            val density = densityDpi
             val drawable = info.loadPreviewImage(context, density)
                 ?: if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     info.loadIcon(context, density)
@@ -119,9 +121,9 @@ private fun RemoteViews.render(context: Context, info: AppWidgetProviderInfo): I
  * `null` if the icon isn't adaptive (legacy icons already ship their own drawing).
  */
 private fun Drawable.foregroundBitmap(sizePx: Int): ImageBitmap? {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || this !is AdaptiveIconDrawable) return null
+    if (this !is AdaptiveIconDrawable) return null
     val front = foreground ?: return null
-    val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+    val bitmap = createBitmap(sizePx, sizePx)
     val inset = sizePx / 4
     front.setBounds(-inset, -inset, sizePx + inset, sizePx + inset)
     front.draw(Canvas(bitmap))

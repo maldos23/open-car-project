@@ -6,7 +6,6 @@ import android.app.Notification
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.service.notification.StatusBarNotification
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -55,6 +54,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.net.toUri
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -379,7 +379,10 @@ private fun AppHeader(app: NavApp?, status: String?) {
     ) {
         if (app.icon != null) Image(app.icon, contentDescription = null, modifier = Modifier.size(22.dp))
         Text(
-            text = listOfNotNull(if (status == null) stringResource(R.string.nav_with_app, app.label) else app.label, status).joinToString(" · "),
+            text = when (status) {
+                null -> stringResource(R.string.nav_with_app, app.label)
+                else -> listOf(app.label, status).joinToString(stringResource(R.string.separator))
+            },
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -399,7 +402,7 @@ private fun Context.appLabelAndIcon(packageName: String): NavApp? = runCatching 
  */
 private fun Context.defaultNavigationApp(): NavApp? {
     val pm = packageManager
-    val chosen = pm.resolveActivity(Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0")), PackageManager.MATCH_DEFAULT_ONLY)
+    val chosen = pm.resolveActivity(Intent(Intent.ACTION_VIEW, "geo:0,0".toUri()), PackageManager.MATCH_DEFAULT_ONLY)
         ?.activityInfo?.packageName
         ?.takeIf { it != "android" && pm.getLaunchIntentForPackage(it) != null }
     val pkg = chosen ?: LauncherNotificationListener.NAVIGATION_PACKAGES.firstOrNull { pm.getLaunchIntentForPackage(it) != null }
@@ -409,6 +412,6 @@ private fun Context.defaultNavigationApp(): NavApp? {
 /** Opens the given app; if none is installed, delegates to `geo:` (Android offers a choice). */
 private fun Context.openNavigationApp(packageName: String?) {
     val intent = packageName?.let { packageManager.getLaunchIntentForPackage(it) }
-        ?: Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0"))
+        ?: Intent(Intent.ACTION_VIEW, "geo:0,0".toUri())
     runCatching { startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
 }

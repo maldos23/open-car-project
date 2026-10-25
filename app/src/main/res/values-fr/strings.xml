@@ -32,6 +32,10 @@
     <string name="temperature_value_unknown">--°</string>
     <!-- Badge text when there are more than 99 notifications. -->
     <string name="badge_overflow">99+</string>
+    <!-- Joins short pieces of info on one line (app · time). Quoted to keep the spaces. -->
+    <string name="separator">" · "</string>
+    <!-- Card size while resizing: columns × rows. -->
+    <string name="span_size">%1$d × %2$d</string>
 
     <string name="drawer_search">Rechercher des apps</string>
     <string name="drawer_clear_search">Effacer la recherche</string>

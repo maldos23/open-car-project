@@ -25,6 +25,9 @@ All notable changes to this project are documented here. The format follows
 - Smoother home screen with less battery use: the speed scene, weather pill, assistant button,
   player and navigation cards and card dragging now animate by redrawing instead of rebuilding
   the screen on every frame.
+- Settings switches toggle by tapping anywhere on their row; color swatches and the dock's
+  remove badge have full 48 dp touch targets and announce their selected state.
+- With the system wallpaper in light theme, the bars' scrim is light so their text stays readable.
 
 ## [0.2.0] - 2026-10-25
 

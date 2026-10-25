@@ -73,6 +73,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.opencarproject.launcher.core.util.appIcon
+import org.opencarproject.launcher.core.util.appLabel
 import org.opencarproject.launcher.core.util.dpInt
 import org.opencarproject.launcher.core.util.toBoundedImageBitmap
 import org.opencarproject.launcher.core.util.toImageBitmap
@@ -254,7 +256,7 @@ private fun NotificationItem(sbn: StatusBarNotification, modifier: Modifier = Mo
                     Image(content.appIcon, contentDescription = null, modifier = Modifier.size(18.dp))
                 }
                 Text(
-                    text = "${content.appName} · ${DateUtils.getRelativeTimeSpanString(sbn.postTime)}",
+                    text = listOf(content.appName, DateUtils.getRelativeTimeSpanString(sbn.postTime)).joinToString(stringResource(R.string.separator)),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -262,10 +264,10 @@ private fun NotificationItem(sbn: StatusBarNotification, modifier: Modifier = Mo
                     modifier = Modifier.padding(start = 8.dp).weight(1f),
                 )
                 if (content.hasPreview) {
-                    IconButton(onClick = { expanded = !expanded }, modifier = Modifier.size(36.dp)) {
+                    IconButton(onClick = { expanded = !expanded }) {
                         Icon(
                             imageVector = Icons.Rounded.ExpandMore,
-                            contentDescription = if (expanded) stringResource(R.string.collapse) else stringResource(R.string.expand),
+                            contentDescription = stringResource(if (expanded) R.string.collapse else R.string.expand),
                             modifier = Modifier.graphicsLayer { rotationZ = chevron },
                         )
                     }
@@ -345,10 +347,8 @@ private fun NotificationItem(sbn: StatusBarNotification, modifier: Modifier = Mo
 @Suppress("DEPRECATION") // getParcelable without class: the typed variant is API 33+.
 internal fun Context.readContent(sbn: StatusBarNotification): NotificationContent {
     val extras = sbn.notification.extras
-    val pm = packageManager
-    val appName = runCatching { pm.getApplicationLabel(pm.getApplicationInfo(sbn.packageName, 0)).toString() }
-        .getOrDefault(sbn.packageName)
-    val appIcon = runCatching { pm.getApplicationIcon(sbn.packageName).toImageBitmap(dpInt(18f)) }.getOrNull()
+    val appName = appLabel(sbn.packageName)
+    val appIcon = appIcon(sbn.packageName, 18f)
     val avatar = runCatching { sbn.notification.getLargeIcon()?.loadDrawable(this)?.toBoundedImageBitmap(dpInt(96f)) }.getOrNull()
 
     val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString().orEmpty()

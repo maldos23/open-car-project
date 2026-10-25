@@ -3,22 +3,17 @@ package org.opencarproject.launcher.presentation.launcher
 import org.opencarproject.launcher.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import org.opencarproject.launcher.core.model.AccentColor
-import org.opencarproject.launcher.core.model.AppMenuStyle
-import org.opencarproject.launcher.core.model.BackgroundStyle
 import org.opencarproject.launcher.core.model.CatalogItem
 import org.opencarproject.launcher.core.model.CatalogItemKind
 import org.opencarproject.launcher.core.model.Cell
 import org.opencarproject.launcher.core.model.DockElement
 import org.opencarproject.launcher.core.model.DragPhase
-import org.opencarproject.launcher.core.model.DockIconSize
 import org.opencarproject.launcher.core.model.DockSide
-import org.opencarproject.launcher.core.model.AppLanguage
-import org.opencarproject.launcher.presentation.settings.MenuIconScaleRange
-import org.opencarproject.launcher.presentation.settings.MotionGlowSensitivityRange
-import org.opencarproject.launcher.presentation.settings.UiScaleRange
-import kotlin.math.roundToInt
-import org.opencarproject.launcher.core.model.GlowColor
+import org.opencarproject.launcher.core.pure.MenuIconScaleRange
+import org.opencarproject.launcher.core.pure.MotionGlowSensitivityRange
+import org.opencarproject.launcher.core.pure.RocketKmhRange
+import org.opencarproject.launcher.core.pure.UiScaleRange
+import org.opencarproject.launcher.core.pure.snap
 import org.opencarproject.launcher.core.model.GridSpec
 import org.opencarproject.launcher.core.model.LayoutDefinition
 import org.opencarproject.launcher.core.model.LayoutMode
@@ -26,14 +21,6 @@ import org.opencarproject.launcher.core.model.LauncherSettings
 import org.opencarproject.launcher.core.model.LauncherUiState
 import org.opencarproject.launcher.core.model.PanelState
 import org.opencarproject.launcher.core.model.PlacedItem
-import org.opencarproject.launcher.core.model.SpeedDialStyle
-import org.opencarproject.launcher.core.model.SpeedSource
-import org.opencarproject.launcher.core.model.SpeedUnit
-import org.opencarproject.launcher.core.model.TemperatureUnit
-import org.opencarproject.launcher.core.model.ThemeMode
-import org.opencarproject.launcher.core.model.TimeFormat
-import org.opencarproject.launcher.core.model.VehicleColor
-import org.opencarproject.launcher.core.model.VehicleShape
 import org.opencarproject.launcher.core.model.WeatherPosition
 import org.opencarproject.launcher.domain.usecase.AddBoundWidget
 import org.opencarproject.launcher.domain.usecase.AddItem
@@ -310,148 +297,44 @@ class LauncherViewModel(
 
     // ---- Settings ----
 
-    fun onFullscreenChange(enabled: Boolean) {
-        viewModelScope.launch { updateSettings { it.copy(fullscreen = enabled) } }
-    }
-
-    fun onThemeChange(mode: ThemeMode) {
-        viewModelScope.launch { updateSettings { it.copy(themeMode = mode) } }
-    }
-
-    fun onTemperatureUnitChange(unit: TemperatureUnit) {
-        viewModelScope.launch { updateSettings { it.copy(temperatureUnit = unit) } }
-    }
-
-    fun onGradientParticlesChange(enabled: Boolean) {
-        viewModelScope.launch { updateSettings { it.copy(gradientParticles = enabled) } }
-    }
-
-    fun onBackgroundChange(style: BackgroundStyle) {
-        viewModelScope.launch { updateSettings { it.copy(background = style) } }
+    /** Plain setting changes (one field, no rule): the settings sheet passes the copy to apply. */
+    fun onSettingsChange(transform: (LauncherSettings) -> LauncherSettings) {
+        viewModelScope.launch { updateSettings(transform) }
     }
 
     /** Centered weather and the speed scene are mutually exclusive: choosing "Centro" turns off the scene. */
-    fun onWeatherPositionChange(position: WeatherPosition) {
-        viewModelScope.launch {
-            updateSettings {
-                it.copy(weatherPosition = position, speedScene = it.speedScene && position != WeatherPosition.CENTER)
-            }
-        }
+    fun onWeatherPositionChange(position: WeatherPosition) = onSettingsChange {
+        it.copy(weatherPosition = position, speedScene = it.speedScene && position != WeatherPosition.CENTER)
     }
 
     /** Enabling the scene while the weather is centered moves it to the left. */
-    fun onSpeedSceneChange(enabled: Boolean) {
-        viewModelScope.launch {
-            updateSettings {
-                val position = if (enabled && it.weatherPosition == WeatherPosition.CENTER) WeatherPosition.LEFT else it.weatherPosition
-                it.copy(speedScene = enabled, weatherPosition = position)
-            }
-        }
+    fun onSpeedSceneChange(enabled: Boolean) = onSettingsChange {
+        val position = if (enabled && it.weatherPosition == WeatherPosition.CENTER) WeatherPosition.LEFT else it.weatherPosition
+        it.copy(speedScene = enabled, weatherPosition = position)
     }
 
-    fun onSpeedSourceChange(source: SpeedSource) {
-        viewModelScope.launch { updateSettings { it.copy(speedSource = source) } }
-    }
+    fun onRocketKmhChange(kmh: Int) = onSettingsChange { it.copy(rocketKmh = kmh.coerceIn(RocketKmhRange)) }
 
-    fun onVehicleShapeChange(shape: VehicleShape) {
-        viewModelScope.launch { updateSettings { it.copy(vehicleShape = shape) } }
-    }
+    fun onUiScaleChange(scale: Float) = onSettingsChange { it.copy(uiScale = snap(scale, 20, UiScaleRange)) }
 
-    fun onVehicleColorChange(color: VehicleColor) {
-        viewModelScope.launch { updateSettings { it.copy(vehicleColor = color) } }
-    }
+    fun onMenuIconScaleChange(scale: Float) = onSettingsChange { it.copy(menuIconScale = snap(scale, 20, MenuIconScaleRange)) }
 
-    fun onShowSpeedDialChange(show: Boolean) {
-        viewModelScope.launch { updateSettings { it.copy(showSpeedDial = show) } }
-    }
-
-    fun onSpeedDialStyleChange(style: SpeedDialStyle) {
-        viewModelScope.launch { updateSettings { it.copy(speedDialStyle = style) } }
-    }
-
-    fun onSpeedUnitChange(unit: SpeedUnit) {
-        viewModelScope.launch { updateSettings { it.copy(speedUnit = unit) } }
-    }
-
-    fun onRocketKmhChange(kmh: Int) {
-        viewModelScope.launch { updateSettings { it.copy(rocketKmh = kmh.coerceIn(20, 200)) } }
-    }
-
-    fun onTimeFormatChange(format: TimeFormat) {
-        viewModelScope.launch { updateSettings { it.copy(timeFormat = format) } }
-    }
-
-    fun onAccentColorChange(accent: AccentColor) {
-        viewModelScope.launch { updateSettings { it.copy(accentColor = accent) } }
-    }
-
-    fun onShowAppLabelsChange(show: Boolean) {
-        viewModelScope.launch { updateSettings { it.copy(showAppLabels = show) } }
-    }
-
-    fun onUiScaleChange(scale: Float) {
-        viewModelScope.launch { updateSettings { it.copy(uiScale = ((scale * 20).roundToInt() / 20f).coerceIn(UiScaleRange)) } }
-    }
-
-    fun onMenuIconScaleChange(scale: Float) {
-        viewModelScope.launch { updateSettings { it.copy(menuIconScale = ((scale * 20).roundToInt() / 20f).coerceIn(MenuIconScaleRange)) } }
-    }
-
-    fun onMotionGlowChange(enabled: Boolean) {
-        viewModelScope.launch { updateSettings { it.copy(motionGlow = enabled) } }
-    }
-
-    fun onMotionGlowColorChange(color: GlowColor) {
-        viewModelScope.launch { updateSettings { it.copy(motionGlowColor = color) } }
-    }
-
-    fun onMotionGlowSensitivityChange(sensitivity: Float) {
-        viewModelScope.launch {
-            updateSettings { it.copy(motionGlowSensitivity = ((sensitivity * 10).roundToInt() / 10f).coerceIn(MotionGlowSensitivityRange)) }
-        }
-    }
-
-    fun onAppLanguageChange(language: AppLanguage) {
-        viewModelScope.launch { updateSettings { it.copy(appLanguage = language) } }
-    }
-
-    fun onDockIconSizeChange(size: DockIconSize) {
-        viewModelScope.launch { updateSettings { it.copy(dockIconSize = size) } }
+    fun onMotionGlowSensitivityChange(sensitivity: Float) = onSettingsChange {
+        it.copy(motionGlowSensitivity = snap(sensitivity, 10, MotionGlowSensitivityRange))
     }
 
     /** Adds an app to one side of the bottom bar (without duplicating it on that side). */
-    fun onDockAppAdd(side: DockSide, componentKey: String) {
-        viewModelScope.launch {
-            updateSettings {
-                when (side) {
-                    DockSide.LEFT -> if (componentKey in it.dockLeftApps) it else it.copy(dockLeftApps = it.dockLeftApps + componentKey)
-                    DockSide.RIGHT -> if (componentKey in it.dockRightApps) it else it.copy(dockRightApps = it.dockRightApps + componentKey)
-                }
-            }
-        }
+    fun onDockAppAdd(side: DockSide, componentKey: String) = onSettingsChange {
+        val apps = it.dockApps(side)
+        if (componentKey in apps) it else it.withDockApps(side, apps + componentKey)
     }
 
-    fun onDockAppRemove(side: DockSide, componentKey: String) {
-        viewModelScope.launch {
-            updateSettings {
-                when (side) {
-                    DockSide.LEFT -> it.copy(dockLeftApps = it.dockLeftApps - componentKey)
-                    DockSide.RIGHT -> it.copy(dockRightApps = it.dockRightApps - componentKey)
-                }
-            }
-        }
+    fun onDockAppRemove(side: DockSide, componentKey: String) = onSettingsChange {
+        it.withDockApps(side, it.dockApps(side) - componentKey)
     }
 
-    fun onAppMenuStyleChange(style: AppMenuStyle) {
-        viewModelScope.launch { updateSettings { it.copy(appMenuStyle = style) } }
-    }
-
-    fun onElementVisibilityChange(element: DockElement, visible: Boolean) {
-        viewModelScope.launch {
-            updateSettings {
-                it.copy(hiddenElements = if (visible) it.hiddenElements - element else it.hiddenElements + element)
-            }
-        }
+    fun onElementVisibilityChange(element: DockElement, visible: Boolean) = onSettingsChange {
+        it.copy(hiddenElements = if (visible) it.hiddenElements - element else it.hiddenElements + element)
     }
 
     fun onGridChange(grid: GridSpec) {
@@ -482,6 +365,16 @@ class LauncherViewModel(
 
     /** Invokes the voice assistant (Google Assistant). */
     fun onLaunchAssistant() = launchAssistant()
+
+    private fun LauncherSettings.dockApps(side: DockSide) = when (side) {
+        DockSide.LEFT -> dockLeftApps
+        DockSide.RIGHT -> dockRightApps
+    }
+
+    private fun LauncherSettings.withDockApps(side: DockSide, apps: List<String>) = when (side) {
+        DockSide.LEFT -> copy(dockLeftApps = apps)
+        DockSide.RIGHT -> copy(dockRightApps = apps)
+    }
 
     private fun clearDrag() = interaction.update { it.idle() }
 
