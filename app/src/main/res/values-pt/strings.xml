@@ -90,7 +90,11 @@
     <string name="settings_motion_glow">Brilho de movimento</string>
     <string name="settings_motion_glow_desc">As bordas da tela se iluminam na direção em que o carro vai: curvas, aceleração e frenagem.</string>
     <string name="settings_motion_glow_sensitivity">Sensibilidade do brilho</string>
+    <string name="settings_motion_glow_smoothness">Suavidade do brilho</string>
     <string name="settings_motion_glow_color">Cor do brilho</string>
+    <string name="settings_motion_source">Fonte das curvas</string>
+    <string name="motion_source_sensors_gps">Sensores + GPS (mais rápido)</string>
+    <string name="motion_source_gps">Só GPS</string>
     <string name="settings_motion_glow_test">Testar</string>
     <string name="settings_speed_scene">Cena de velocidade</string>
     <string name="settings_speed_scene_desc">Um carro na cidade que vira foguete quando você anda rápido, do lado oposto ao clima.</string>

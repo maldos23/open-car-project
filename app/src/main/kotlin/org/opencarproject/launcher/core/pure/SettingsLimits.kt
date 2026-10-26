@@ -10,6 +10,7 @@ val GridRowsRange = 2..6
 val UiScaleRange = 0.8f..1.3f
 val MenuIconScaleRange = 0.75f..1.5f
 val MotionGlowSensitivityRange = 0.5f..2f
+val MotionGlowSmoothnessRange = 0f..1f
 
 /** Rocket threshold limits, in km/h. */
 val RocketKmhRange = 20..200
