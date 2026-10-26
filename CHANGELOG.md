@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- The weather comes back as soon as the internet does after an outage, instead of up to 30 minutes later.
+- The weather and city follow the car: refreshed every 15 minutes and after driving about 5 km.
+- The weather icon and colors switch between day and night by the local sunrise and sunset, also
+  when the last update is old.
+
 ## [0.4.0] - 2026-10-25
 
 ### Added

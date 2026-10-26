@@ -36,6 +36,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -56,16 +57,17 @@ import org.opencarproject.launcher.core.model.TemperatureUnit
 import org.opencarproject.launcher.core.model.Weather
 import org.opencarproject.launcher.core.model.WeatherCondition
 import org.opencarproject.launcher.core.pure.Temperature
+import org.opencarproject.launcher.core.pure.WeatherSchedule
+import org.opencarproject.launcher.data.source.GpsFixes
+import org.opencarproject.launcher.data.source.NetworkEvents
 import org.opencarproject.launcher.data.source.WeatherSource
 import org.opencarproject.launcher.presentation.widget.rememberOnResume
+import android.location.Location
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.Locale
-
-/** How often to refetch while the launcher is visible. */
-private const val REFRESH_MS = 30 * 60 * 1000L
-
-/** When returning to the launcher, don't refetch if the data is younger than this. */
-private const val FRESH_MS = 10 * 60 * 1000L
 
 /** Last fetched weather (survives recompositions and theme changes). */
 private var cached: Weather? = null
@@ -75,8 +77,10 @@ private var cachedAt = 0L
 val CurrentWeather = kotlinx.coroutines.flow.MutableStateFlow<Weather?>(null)
 
 /**
- * Top-bar weather: animated condition icon, temperature and city. Refreshes every 30 min and on
- * returning to the launcher; tapping it forces a refresh. Without location permission, prompts for it.
+ * Top-bar weather: animated condition icon, temperature and city. Refreshes every 15 min, on
+ * returning to the launcher, as soon as the internet is back after a failure, and when the car
+ * has driven to another area; tapping it forces a refresh. Day or night follows the clock and
+ * the local sunrise/sunset, not the last fetch. Without location permission, prompts for it.
  */
 @Composable
 fun WeatherIndicator(unit: TemperatureUnit, modifier: Modifier = Modifier) {
@@ -91,27 +95,53 @@ fun WeatherIndicator(unit: TemperatureUnit, modifier: Modifier = Modifier) {
     LaunchedEffect(hasPermission, refreshKey) {
         if (!hasPermission) return@LaunchedEffect
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            // Events that cut the wait short: internet back, or the car reached another area.
+            val wake = Channel<Unit>(Channel.CONFLATED)
+            var lastAttemptFailed = false
+            var movedAway = false
+            launch { NetworkEvents.internetAvailable(context).collect { if (lastAttemptFailed) wake.trySend(Unit) } }
+            launch {
+                GpsFixes.get(context).collect { fix ->
+                    val at = cached ?: return@collect
+                    val meters = FloatArray(1).also { Location.distanceBetween(at.latitude, at.longitude, fix.latitude, fix.longitude, it) }[0]
+                    if (!movedAway && WeatherSchedule.hasMovedFarEnough(meters)) {
+                        movedAway = true
+                        wake.trySend(Unit)
+                    }
+                }
+            }
+            var force = refreshKey > 0 && System.currentTimeMillis() - cachedAt > 5_000
             while (true) {
-                val force = refreshKey > 0 && System.currentTimeMillis() - cachedAt > 5_000
                 // No city yet (the geocoder timed out or failed): retry on the next pass.
-                val stale = cached?.city == null || System.currentTimeMillis() - cachedAt > FRESH_MS
-                if (force || stale) {
-                    source.current()?.let { fresh ->
+                val stale = cached?.city == null || System.currentTimeMillis() - cachedAt > WeatherSchedule.FRESH_MS
+                if (force || stale || lastAttemptFailed || movedAway) {
+                    val fresh = source.current()
+                    lastAttemptFailed = fresh == null
+                    if (fresh != null) {
                         // A failed lookup keeps the last known city instead of falling back to the condition.
                         val it = if (fresh.city == null) fresh.copy(city = cached?.city) else fresh
                         cached = it
                         cachedAt = System.currentTimeMillis()
                         CurrentWeather.value = it
                         weather = it
+                        movedAway = false
                     }
                 }
-                delay(REFRESH_MS)
+                force = false
+                withTimeoutOrNull(WeatherSchedule.nextWaitMs(lastAttemptFailed)) { wake.receive() }
             }
         }
     }
 
     val current = weather
-    val (from, to) = current?.gradient() ?: (Color.Transparent to Color.Transparent)
+    // Day or night by the clock and the local sun times, rechecked every minute.
+    val isDay by produceState(current?.isDayNow() ?: true, current) {
+        while (true) {
+            value = current?.isDayNow() ?: true
+            delay(60_000)
+        }
+    }
+    val (from, to) = current?.gradient(isDay) ?: (Color.Transparent to Color.Transparent)
     // Animated values are read only in drawBehind: they redraw the pill, never recompose it.
     val c1 = animateColorAsState(from, tween(1200), label = "c1")
     val c2 = animateColorAsState(to, tween(1200), label = "c2")
@@ -120,8 +150,14 @@ fun WeatherIndicator(unit: TemperatureUnit, modifier: Modifier = Modifier) {
     val drift = t.animateFloat(0f, 1f, infiniteRepeatable(tween(7000, easing = LinearEasing), RepeatMode.Reverse), label = "drift")
     val flashPhase = t.animateFloat(0f, 1f, infiniteRepeatable(tween(4200, easing = LinearEasing)), label = "flash")
     val storm = current?.condition == WeatherCondition.THUNDERSTORM
-    val onColor = if (current != null) Color.White else MaterialTheme.colorScheme.onSurface
-    val onColorDim = if (current != null) Color.White.copy(alpha = 0.85f) else MaterialTheme.colorScheme.onSurfaceVariant
+    // Text turns white at the same pace as the gradient fades in: switching at once left white
+    // text on the still-light pill for a moment.
+    val onColor by animateColorAsState(if (current != null) Color.White else MaterialTheme.colorScheme.onSurface, tween(1200), label = "on")
+    val onColorDim by animateColorAsState(
+        if (current != null) Color.White.copy(alpha = 0.85f) else MaterialTheme.colorScheme.onSurfaceVariant,
+        tween(1200),
+        label = "onDim",
+    )
     val shape = RoundedCornerShape(50)
 
     Row(
@@ -149,7 +185,7 @@ fun WeatherIndicator(unit: TemperatureUnit, modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         // Animated condition icon; crossfades to the new one when the weather changes.
-        Crossfade(targetState = current?.let { it.condition to it.isDay }, label = "weatherIcon") { state ->
+        Crossfade(targetState = current?.let { it.condition to isDay }, label = "weatherIcon") { state ->
             if (state == null) {
                 Icon(
                     imageVector = Icons.Rounded.Thermostat,
@@ -193,8 +229,12 @@ fun WeatherIndicator(unit: TemperatureUnit, modifier: Modifier = Modifier) {
     }
 }
 
+/** Whether it is day now where the weather was fetched (falls back to the fetch-time flag). */
+fun Weather.isDayNow(nowMs: Long = System.currentTimeMillis()): Boolean =
+    WeatherSchedule.isDay(nowMs / 1000, sunriseSeconds, sunsetSeconds, fallback = isDay)
+
 /** Two-tone gradient based on weather and daytime; dark so white text stays readable. */
-private fun Weather.gradient(): Pair<Color, Color> = when (condition) {
+private fun Weather.gradient(isDay: Boolean): Pair<Color, Color> = when (condition) {
     WeatherCondition.CLEAR -> if (isDay) Color(0xFF1976D2) to Color(0xFFBF360C) else Color(0xFF1A237E) to Color(0xFF4A148C)
     WeatherCondition.PARTLY_CLOUDY -> if (isDay) Color(0xFF1976D2) to Color(0xFF607D8B) else Color(0xFF283593) to Color(0xFF37474F)
     WeatherCondition.CLOUDY, WeatherCondition.UNKNOWN -> Color(0xFF455A64) to Color(0xFF78909C)
