@@ -70,8 +70,21 @@ object MediaSessionSource {
     /** Registers the listener; if notification access wasn't granted yet, retries on every call. */
     fun start(context: Context) {
         users++
+        register(context.applicationContext)
+    }
+
+    /**
+     * The notification listener just connected: access may have been granted after [start] (first
+     * install, reinstall), so register now instead of waiting for the next [start], and re-read
+     * the sessions that were already playing.
+     */
+    fun onListenerConnected(context: Context) {
+        if (users == 0) return
+        if (registered) attach(manager?.activeSessionsOrEmpty()) else register(context.applicationContext)
+    }
+
+    private fun register(app: Context) {
         if (registered) return
-        val app = context.applicationContext
         val m = app.getSystemService(MediaSessionManager::class.java) ?: return
         manager = m
         listenerComponent = ComponentName(app, LauncherNotificationListener::class.java)

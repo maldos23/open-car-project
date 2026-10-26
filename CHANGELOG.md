@@ -14,6 +14,8 @@ All notable changes to this project are documented here. The format follows
 
 - Apps whose logo lives in the icon's background layer, such as Chrome, no longer show up as a
   blank square on the desktop and in the dock.
+- After installing or updating the launcher, the player picks up audio from other apps right
+  away instead of showing "Nothing playing".
 
 ## [0.5.0] - 2026-10-26
 
