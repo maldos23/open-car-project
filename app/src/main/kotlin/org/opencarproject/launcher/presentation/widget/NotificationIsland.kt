@@ -22,6 +22,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -59,6 +61,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -96,6 +99,9 @@ private const val DETAIL_MS = 10_000L
 /** Tallest the preview body grows below the header, so it never covers the road view. */
 private val DETAIL_MAX_HEIGHT = 320.dp
 
+/** Narrowest the island gets when the top bar leaves little room, so its text stays readable. */
+private val MIN_WIDTH = 240.dp
+
 /** Music keeps its bubble this long after it stops playing: skipping tracks pauses briefly. */
 private const val MEDIA_GRACE_MS = 3_000L
 
@@ -116,7 +122,7 @@ private val CallGreen = Color(0xFF34C759)
  * meter), else the newest notification (pulsing dot).
  */
 @Composable
-fun NotificationIsland(modifier: Modifier = Modifier) {
+fun NotificationIsland(modifier: Modifier = Modifier, maxWidth: Dp = Dp.Unspecified) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val queue = remember { mutableStateListOf<IslandItem>() }
@@ -208,7 +214,9 @@ fun NotificationIsland(modifier: Modifier = Modifier) {
     val detail = detailId == content.id
     val expanded = shownPhase == IslandPhase.EXPANDED || detail
 
-    val width by animateDpAsState(if (expanded) 560.dp else 340.dp, IslandSpring, label = "w")
+    // Never wider than the free room between the top bar's side elements (readable minimum aside).
+    val fit = { w: Dp -> (if (maxWidth.isSpecified) minOf(w, maxWidth) else w).coerceAtLeast(MIN_WIDTH) }
+    val width by animateDpAsState(fit(if (expanded) 560.dp else 340.dp), IslandSpring, label = "w")
     val height by animateDpAsState(if (expanded) 104.dp else 48.dp, IslandSpring, label = "h")
     val corner by animateDpAsState(if (expanded) 34.dp else 24.dp, IslandSpring, label = "r")
     // Content appears once the island has grown and leaves before it shrinks.
@@ -223,6 +231,12 @@ fun NotificationIsland(modifier: Modifier = Modifier) {
         presence.animateTo(if (shownPhase == IslandPhase.HIDDEN) 0f else 1f, spring(dampingRatio = 0.65f, stiffness = 420f))
     }
     var dragY by remember(content.id) { mutableStateOf(0f) }
+
+    if (detail) {
+        // A touch anywhere outside the open preview collapses it (and doesn't reach what's below).
+        Box(Modifier.fillMaxSize().pointerInput(Unit) { detectTapGestures(onPress = { detailId = null }) })
+        BackHandler { detailId = null }
+    }
 
     Box(
         modifier
