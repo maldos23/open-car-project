@@ -1,6 +1,7 @@
 package org.opencarproject.launcher.core.pure
 
 import kotlin.math.abs
+import kotlin.math.pow
 import kotlin.math.sign
 import kotlin.math.sqrt
 
@@ -60,6 +61,12 @@ object MotionMath {
         val d = abs(a - b) % perimeter
         return minOf(d, perimeter - d)
     }
+
+    /**
+     * Stiffness of the glow's spring for a [smoothness] in 0..1: 0 → 200 (snappy, follows every
+     * step), 0.5 → ~63, 1 → 20 (very soft, lags more). Exponential so each slider step feels alike.
+     */
+    fun glowSpringStiffness(smoothness: Float): Float = 200f * 0.1f.pow(smoothness.coerceIn(0f, 1f))
 
     /**
      * Glow intensity in -1..1: 0 inside the dead zone (sensor noise, small corrections), then

@@ -102,7 +102,11 @@ data class LauncherSettings(
     val motionGlow: Boolean = false,
     /** Multiplies the measured motion before thresholds (calibration for each car/sensor). */
     val motionGlowSensitivity: Float = 1f,
+    /** How softly the glow glides between directions (0 = snappy, 1 = very soft). */
+    val motionGlowSmoothness: Float = 0.5f,
     val motionGlowColor: GlowColor = GlowColor.ACCENT,
+    /** Where the glow reads turns from. */
+    val motionSource: MotionSource = MotionSource.SENSORS_AND_GPS,
 )
 
 /** Current weather for the dock. */

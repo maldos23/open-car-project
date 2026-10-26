@@ -30,7 +30,8 @@ object MotionReader {
     /** Below this distance between fixes a bearing derived from the positions is GPS noise. */
     private const val MIN_DISTANCE_FOR_DERIVED_BEARING_METERS = 3f
 
-    fun motion(context: Context): Flow<VehicleMotion> = callbackFlow {
+    /** With [useSensors] false the gyroscope and accelerometer are not even registered: GPS only. */
+    fun motion(context: Context, useSensors: Boolean = true): Flow<VehicleMotion> = callbackFlow {
         var current = VehicleMotion()
         val gyroscopeEstimator = GyroscopeYawEstimator()
         val gpsBearingEstimator = GpsBearingYawEstimator()
@@ -58,8 +59,10 @@ object MotionReader {
             override fun onAccuracyChanged(s: Sensor?, accuracy: Int) = Unit
         }
         val gravitySensor = sm?.getDefaultSensor(Sensor.TYPE_GRAVITY) ?: sm?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-        listOfNotNull(gravitySensor, sm?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)).forEach {
-            sm?.registerListener(sensorListener, it, SensorManager.SENSOR_DELAY_UI)
+        if (useSensors) {
+            listOfNotNull(gravitySensor, sm?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)).forEach {
+                sm?.registerListener(sensorListener, it, SensorManager.SENSOR_DELAY_UI)
+            }
         }
 
         var last: Location? = null

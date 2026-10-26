@@ -6,6 +6,18 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-25
+
+### Added
+
+- Motion glow setting "Turn source": sensors + GPS (default) or GPS only.
+- Motion glow setting "Glow smoothness": how softly the light glides between directions.
+
+### Changed
+
+- The motion glow glides smoothly between directions and reacts about a second sooner to
+  turns read from the GPS.
+
 ## [0.3.3] - 2026-10-25
 
 ### Changed
@@ -140,7 +152,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.3.3...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.4.0...develop
+[0.4.0]: https://github.com/maldos23/open-car-project/compare/v0.3.3...v0.4.0
 [0.3.3]: https://github.com/maldos23/open-car-project/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/maldos23/open-car-project/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/maldos23/open-car-project/compare/v0.3.0...v0.3.1

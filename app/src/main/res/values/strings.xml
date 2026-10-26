@@ -101,7 +101,11 @@
     <string name="settings_motion_glow">Motion glow</string>
     <string name="settings_motion_glow_desc">The screen edges light up towards where the car is going: turns, speeding up and braking.</string>
     <string name="settings_motion_glow_sensitivity">Glow sensitivity</string>
+    <string name="settings_motion_glow_smoothness">Glow smoothness</string>
     <string name="settings_motion_glow_color">Glow color</string>
+    <string name="settings_motion_source">Turn source</string>
+    <string name="motion_source_sensors_gps">Sensors + GPS (faster)</string>
+    <string name="motion_source_gps">GPS only</string>
     <string name="settings_motion_glow_test">Test</string>
     <string name="settings_speed_scene">Speed scene</string>
     <string name="settings_speed_scene_desc">A car in the city that turns into a rocket when you go fast, opposite the weather.</string>

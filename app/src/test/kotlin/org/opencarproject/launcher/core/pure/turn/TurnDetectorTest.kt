@@ -45,6 +45,12 @@ class TurnDetectorTest {
         assertTrue(detector.currentYawRateRadiansPerSecond < 0.2f)
     }
 
+    @Test fun gpsTurnShowsWithinOneFix() {
+        // 15°/s ≈ 0.26 rad/s: the first bearing change must already give most of it (no extra lag).
+        driveGps(fixes = 2, startBearing = 0f, degreesPerFix = -15f)
+        assertTrue(detector.currentYawRateRadiansPerSecond > 0.2f)
+    }
+
     @Test fun crawlingIsNotATurn() {
         driveGps(fixes = 6, startBearing = 0f, degreesPerFix = 30f, speed = 1f)
         assertEquals(0f, detector.currentYawRateRadiansPerSecond, 0f)

@@ -89,6 +89,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.opencarproject.launcher.core.model.AppMenuStyle
 import org.opencarproject.launcher.core.model.BackgroundStyle
 import org.opencarproject.launcher.core.model.CatalogItem
+import org.opencarproject.launcher.core.model.MotionSource
 import org.opencarproject.launcher.core.model.CatalogItemKind
 import org.opencarproject.launcher.core.model.DockElement
 import org.opencarproject.launcher.core.model.DockSide
@@ -366,6 +367,7 @@ fun LauncherScreen(
                     onUiScaleChange = viewModel::onUiScaleChange,
                     onMenuIconScaleChange = viewModel::onMenuIconScaleChange,
                     onMotionGlowSensitivityChange = viewModel::onMotionGlowSensitivityChange,
+                    onMotionGlowSmoothnessChange = viewModel::onMotionGlowSmoothnessChange,
                     onMotionGlowTest = {
                         settingsOpen = false
                         glowDemo = true
@@ -417,6 +419,8 @@ fun LauncherScreen(
     if (settings.motionGlow || glowDemo) {
         MotionGlowOverlay(
             sensitivity = settings.motionGlowSensitivity,
+            smoothness = settings.motionGlowSmoothness,
+            useSensors = settings.motionSource == MotionSource.SENSORS_AND_GPS,
             color = settings.motionGlowColor.argb?.let(::Color) ?: MaterialTheme.colorScheme.primary,
             demo = glowDemo,
             onDemoEnd = {
