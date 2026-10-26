@@ -10,6 +10,11 @@ All notable changes to this project are documented here. The format follows
 
 - The media player shows the logo of the app that is playing.
 
+### Fixed
+
+- Apps whose logo lives in the icon's background layer, such as Chrome, no longer show up as a
+  blank square on the desktop and in the dock.
+
 ## [0.5.0] - 2026-10-26
 
 ### Changed
