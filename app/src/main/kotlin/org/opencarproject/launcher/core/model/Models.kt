@@ -114,9 +114,16 @@ data class Weather(
     /** Always in °C: the unit is applied on display, so changing it needs no new request. */
     val celsius: Double,
     val condition: WeatherCondition,
+    /** Day/night as reported at fetch time; prefer `WeatherSchedule.isDay` with the sun times. */
     val isDay: Boolean,
     /** City resolved by the system geocoder; `null` if unavailable. */
     val city: String?,
+    /** Today's sunrise and sunset there (Unix seconds), to tell day from night at any later time. */
+    val sunriseSeconds: Long? = null,
+    val sunsetSeconds: Long? = null,
+    /** Where it was fetched, to refetch once the car has moved far enough. */
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0,
 )
 
 /** Device connected to the hotspot (only visible if the launcher is a system app). */
