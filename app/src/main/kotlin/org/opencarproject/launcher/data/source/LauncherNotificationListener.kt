@@ -26,6 +26,7 @@ class LauncherNotificationListener : NotificationListenerService() {
         runCatching { activeNotifications.orEmpty().forEach { active[it.key] = it } }
         alerted += active.keys
         publish()
+        MediaSessionSource.onListenerConnected(this)
     }
 
     override fun onListenerDisconnected() {
