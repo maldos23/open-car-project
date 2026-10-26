@@ -46,16 +46,23 @@ class WeatherSource(private val context: Context) {
             val url = String.format(
                 Locale.US,
                 "https://api.open-meteo.com/v1/forecast?latitude=%.3f&longitude=%.3f" +
-                    "&current=temperature_2m,weather_code,is_day&timezone=auto",
+                    "&current=temperature_2m,weather_code,is_day&daily=sunrise,sunset&forecast_days=1" +
+                    "&timezone=auto&timeformat=unixtime",
                 location.latitude,
                 location.longitude,
             )
-            val current = JSONObject(get(url)).getJSONObject("current")
+            val json = JSONObject(get(url))
+            val current = json.getJSONObject("current")
+            val daily = json.optJSONObject("daily")
             Weather(
                 celsius = current.getDouble("temperature_2m"),
                 condition = WeatherCodes.condition(current.getInt("weather_code")),
                 isDay = current.optInt("is_day", 1) == 1,
                 city = city(location),
+                sunriseSeconds = daily?.optJSONArray("sunrise")?.optLong(0)?.takeIf { it > 0 },
+                sunsetSeconds = daily?.optJSONArray("sunset")?.optLong(0)?.takeIf { it > 0 },
+                latitude = location.latitude,
+                longitude = location.longitude,
             )
         }.onFailure { if (it is CancellationException) throw it }.getOrNull()
     }
@@ -128,6 +135,7 @@ class WeatherSource(private val context: Context) {
     }
 
     private companion object {
-        const val MAX_LOCATION_AGE_MS = 60 * 60 * 1000L
+        // Older fixes may be from another town: while driving, the weather must follow the car.
+        const val MAX_LOCATION_AGE_MS = 5 * 60 * 1000L
     }
 }

@@ -89,7 +89,7 @@ fun SpeedScene(
             value = currentHour()
         }
     }
-    val sky = remember(hour, weather) { SkyState(TimeOfDay.from(hour, weather?.isDay), weather?.condition) }
+    val sky = remember(hour, weather) { SkyState(TimeOfDay.from(hour, weather?.isDayNow()), weather?.condition) }
 
     // Distance traveled in "scene units": the city/stars scroll with it.
     var travel by remember { mutableFloatStateOf(0f) }
