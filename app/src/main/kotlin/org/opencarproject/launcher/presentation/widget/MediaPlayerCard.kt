@@ -165,20 +165,21 @@ private fun PlayerLayouts(current: NowPlaying, onBg: Color) {
     BoxWithConstraints(Modifier.fillMaxSize().padding(14.dp)) {
         val w = maxWidth
         val h = maxHeight
+        val mini = h < 90.dp || (w < 180.dp && h < 200.dp)
         // Mini (play only), compact (text + controls), tall (artwork on top), wide (artwork on the left).
         when {
-            h < 90.dp || (w < 180.dp && h < 200.dp) -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            mini -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 PlayPause(current.isPlaying, controls, big = h >= 72.dp, onBg)
             }
             h < 170.dp -> Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     TrackText(current, center = false, titleStyle = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                    AppLogo(current.packageName, Modifier.padding(end = 8.dp).size(24.dp))
                     Equalizer(current.isPlaying, Modifier.size(24.dp, 20.dp))
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Controls(current.isPlaying, controls, compact = true, onBg)
-                    Progress(current, Modifier.weight(1f).padding(start = 8.dp), showTimes = w > 360.dp)
+                    // End padding leaves room for the app logo in the corner.
+                    Progress(current, Modifier.weight(1f).padding(start = 8.dp, end = 36.dp), showTimes = w > 360.dp)
                 }
             }
             h > w * 1.1f -> Column(
@@ -186,11 +187,7 @@ private fun PlayerLayouts(current: NowPlaying, onBg: Color) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             ) {
-                Box(Modifier.weight(1f, fill = false).fillMaxWidth().aspectRatio(1f, matchHeightConstraintsFirst = true)) {
-                    Cover(current, Modifier.fillMaxSize())
-                    // No equalizer in this layout: the app logo sits on the artwork's corner.
-                    AppLogo(current.packageName, Modifier.align(Alignment.TopEnd).padding(8.dp).size(28.dp))
-                }
+                Cover(current, Modifier.weight(1f, fill = false).fillMaxWidth().aspectRatio(1f, matchHeightConstraintsFirst = true))
                 TrackText(current, center = true, titleStyle = MaterialTheme.typography.titleLarge)
                 Progress(current, Modifier.fillMaxWidth(), showTimes = true)
                 Controls(current.isPlaying, controls, compact = w < 260.dp, onBg)
@@ -203,7 +200,6 @@ private fun PlayerLayouts(current: NowPlaying, onBg: Color) {
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         TrackText(current, center = false, titleStyle = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
-                        AppLogo(current.packageName, Modifier.padding(end = 10.dp).size(28.dp))
                         Equalizer(current.isPlaying, Modifier.size(30.dp, 26.dp))
                     }
                     Progress(current, Modifier.fillMaxWidth(), showTimes = true)
@@ -211,6 +207,8 @@ private fun PlayerLayouts(current: NowPlaying, onBg: Color) {
                 }
             }
         }
+        // The app that is playing, in the card's bottom-right corner.
+        if (!mini) AppLogo(current.packageName, Modifier.align(Alignment.BottomEnd).size(28.dp))
     }
 }
 

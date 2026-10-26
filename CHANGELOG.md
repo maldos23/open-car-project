@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- The logo of the app that is playing moved to the player's bottom-right corner.
+
 ## [0.6.1] - 2026-10-26
 
 ### Fixed
