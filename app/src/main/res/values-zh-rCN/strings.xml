@@ -150,6 +150,7 @@
     <string name="expand">展开</string>
     <string name="island_now">刚刚</string>
     <string name="island_playing">正在播放</string>
+    <string name="island_call">通话中</string>
 
     <string name="signal_none">无连接</string>
     <string name="signal_wifi">%1$s，信号 %2$d/4</string>
