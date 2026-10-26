@@ -284,14 +284,10 @@ private fun Progress(current: NowPlaying, modifier: Modifier, showTimes: Boolean
     }
 }
 
-/** Logo (no background) of the app that is playing; nothing if it has no launcher activity. */
+/** Logo (no background) of the app that is playing. */
 @Composable
 private fun AppLogo(packageName: String, modifier: Modifier) {
-    val context = LocalContext.current
-    val key = remember(packageName) {
-        context.packageManager.getLaunchIntentForPackage(packageName)?.component?.flattenToString()
-    } ?: return
-    val icon = rememberAppIcon(key, sizePx = with(LocalDensity.current) { 28.dp.roundToPx() }, withoutBackground = true) ?: return
+    val icon = rememberAppIcon(packageName, sizePx = with(LocalDensity.current) { 28.dp.roundToPx() }, withoutBackground = true) ?: return
     Image(icon, contentDescription = null, modifier = modifier)
 }
 

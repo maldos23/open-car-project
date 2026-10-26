@@ -29,7 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Resolves an app's icon (by "package/activity" component) as an [ImageBitmap].
+ * Resolves an app's icon (by "package/activity" component, or just "package") as an [ImageBitmap].
  * Shared between the grid, the dock and the menus (DRY). Decoded off the main thread and kept
  * in a process-wide cache, so scrolling the menu or reopening it doesn't decode again.
  */
@@ -51,8 +51,10 @@ private object AppIconCache : LruCache<String, ImageBitmap>(16 * 1024 * 1024) {
 
 private fun loadAppIcon(context: Context, componentKey: String, sizePx: Int, withoutBackground: Boolean): ImageBitmap? =
     runCatching {
-        val cn = ComponentName.unflattenFromString(componentKey) ?: return@runCatching null
-        val drawable = context.packageManager.getActivityInfo(cn, 0).loadIcon(context.packageManager)
+        val pm = context.packageManager
+        // A bare package name (e.g. a media session's owner) resolves to the app's icon.
+        val cn = ComponentName.unflattenFromString(componentKey)
+        val drawable = if (cn != null) pm.getActivityInfo(cn, 0).loadIcon(pm) else pm.getApplicationIcon(componentKey)
         val logo = if (withoutBackground) drawable.foregroundBitmap(sizePx) else null
         logo ?: drawable.toImageBitmap(sizePx)
     }.getOrNull()
@@ -118,7 +120,8 @@ private fun RemoteViews.render(context: Context, info: AppWidgetProviderInfo): I
 /**
  * Just the logo of an adaptive icon (without the background shape). The foreground layer is 108 dp,
  * of which 72 are visible: it's drawn 1.5× larger and centered to crop the safe-zone margin.
- * `null` if the icon isn't adaptive (legacy icons already ship their own drawing).
+ * `null` if the icon isn't adaptive (legacy icons already ship their own drawing) or the
+ * foreground is empty, so the caller falls back to the full icon.
  */
 private fun Drawable.foregroundBitmap(sizePx: Int): ImageBitmap? {
     if (this !is AdaptiveIconDrawable) return null
@@ -135,6 +138,8 @@ private fun Drawable.foregroundBitmap(sizePx: Int): ImageBitmap? {
     for (i in pixels.indices) {
         if ((pixels[i] ushr 24) < VEIL_ALPHA) pixels[i] = 0
     }
+    // Some apps keep the logo in the background layer (e.g. Chrome: empty foreground shape).
+    if (pixels.all { it == 0 }) return null
     bitmap.setPixels(pixels, 0, sizePx, 0, 0, sizePx, sizePx)
     return bitmap.asImageBitmap()
 }
