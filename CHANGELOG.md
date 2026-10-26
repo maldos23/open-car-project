@@ -8,7 +8,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
-- Long-press an app in the app drawer to uninstall it.
+- Long-press an app in the app drawer to enter edit mode: icons jiggle and a trash button
+  uninstalls them; tap outside an icon to finish.
 
 ## [0.7.0] - 2026-10-26
 

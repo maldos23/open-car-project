@@ -2,6 +2,19 @@ package org.opencarproject.launcher.presentation.drawer
 
 import org.opencarproject.launcher.R
 import androidx.compose.ui.res.stringResource
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -56,7 +69,8 @@ import org.opencarproject.launcher.presentation.common.rememberAppIcon
 
 /**
  * "Bottom-up" app menu: a card that slides up (closed by dragging it down or tapping
- * outside) with a search box and grid. Tapping an app opens it; long-pressing calls [onLongPress].
+ * outside) with a search box and grid. Tapping an app opens it; with [onUninstall], long-pressing
+ * enters the edit mode described in [AppDrawerContent].
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,7 +80,7 @@ fun AppDrawerSheet(
     onDismiss: () -> Unit,
     title: String? = null,
     iconScale: Float = 1f,
-    onLongPress: ((CatalogItem) -> Unit)? = null,
+    onUninstall: ((CatalogItem) -> Unit)? = null,
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -80,7 +94,7 @@ fun AppDrawerSheet(
         AppDrawerContent(
             apps = apps,
             onLaunch = onLaunch,
-            onLongPress = onLongPress,
+            onUninstall = onUninstall,
             iconSize = 56.dp * iconScale,
             modifier = Modifier.fillMaxWidth().fillMaxHeight(0.85f).padding(horizontal = 24.dp),
         )
@@ -90,6 +104,9 @@ fun AppDrawerSheet(
 /**
  * Search box + app grid, shared by the bottom sheet and the side panel
  * (which uses it with larger icons).
+ *
+ * With [onUninstall], long-pressing an app enters edit mode: icons jiggle and show a trash badge
+ * that calls [onUninstall]. Tapping outside an icon, Back or closing the drawer leaves it.
  */
 @Composable
 fun AppDrawerContent(
@@ -97,13 +114,22 @@ fun AppDrawerContent(
     onLaunch: (CatalogItem) -> Unit,
     iconSize: Dp,
     modifier: Modifier = Modifier,
-    onLongPress: ((CatalogItem) -> Unit)? = null,
+    onUninstall: ((CatalogItem) -> Unit)? = null,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     val filtered = remember(apps, query) { apps.filter { TextSearch.matches(it.title, query) } }
     val focusManager = LocalFocusManager.current
+    // Plain remember: closing the sheet or leaving the swipe page disposes it and ends edit mode.
+    var editing by remember { mutableStateOf(false) }
+    BackHandler(enabled = editing) { editing = false }
 
-    Column(modifier) {
+    Column(
+        modifier.clickable(
+            enabled = editing,
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+        ) { editing = false },
+    ) {
         TextField(
             value = query,
             onValueChange = { query = it },
@@ -146,7 +172,15 @@ fun AppDrawerContent(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(filtered, key = { it.key }) { app ->
-                    AppTile(app, iconSize, onClick = { onLaunch(app) }, onLongClick = onLongPress?.let { { it(app) } })
+                    AppTile(
+                        app = app,
+                        iconSize = iconSize,
+                        editing = editing,
+                        // While editing, tapping an icon does nothing (like the iOS jiggle mode).
+                        onClick = { if (!editing) onLaunch(app) },
+                        onLongClick = onUninstall?.let { { editing = true } },
+                        onUninstall = { onUninstall?.invoke(app) },
+                    )
                 }
             }
         }
@@ -155,9 +189,28 @@ fun AppDrawerContent(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun AppTile(app: CatalogItem, iconSize: Dp, onClick: () -> Unit, onLongClick: (() -> Unit)?) {
+private fun AppTile(
+    app: CatalogItem,
+    iconSize: Dp,
+    editing: Boolean,
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)?,
+    onUninstall: () -> Unit,
+) {
     val density = LocalDensity.current
     val icon = rememberAppIcon(app.key, sizePx = with(density) { iconSize.roundToPx() })
+    // Alternate the swing direction so neighbouring icons don't move in lockstep.
+    val swing = if (app.key.hashCode() % 2 == 0) 2f else -2f
+    val angle = if (editing) {
+        rememberInfiniteTransition(label = "jiggle").animateFloat(
+            initialValue = -swing,
+            targetValue = swing,
+            animationSpec = infiniteRepeatable(tween(130), RepeatMode.Reverse),
+            label = "angle",
+        ).value
+    } else {
+        0f
+    }
     Column(
         Modifier
             .combinedClickable(
@@ -168,10 +221,28 @@ private fun AppTile(app: CatalogItem, iconSize: Dp, onClick: () -> Unit, onLongC
             .padding(vertical = 12.dp, horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (icon != null) {
-            Image(bitmap = icon, contentDescription = null, modifier = Modifier.size(iconSize))
-        } else {
-            Icon(Icons.Rounded.Apps, contentDescription = null, modifier = Modifier.size(iconSize))
+        Box(Modifier.graphicsLayer { rotationZ = angle }) {
+            if (icon != null) {
+                Image(bitmap = icon, contentDescription = null, modifier = Modifier.size(iconSize))
+            } else {
+                Icon(Icons.Rounded.Apps, contentDescription = null, modifier = Modifier.size(iconSize))
+            }
+            if (editing) {
+                IconButton(
+                    onClick = onUninstall,
+                    modifier = Modifier.align(Alignment.TopEnd).offset(x = 16.dp, y = (-16).dp).size(48.dp),
+                ) {
+                    Icon(
+                        Icons.Rounded.Delete,
+                        contentDescription = stringResource(R.string.drawer_uninstall_app, app.title),
+                        tint = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier
+                            .size(28.dp)
+                            .background(MaterialTheme.colorScheme.errorContainer, CircleShape)
+                            .padding(5.dp),
+                    )
+                }
+            }
         }
         Spacer(Modifier.height(8.dp))
         Text(

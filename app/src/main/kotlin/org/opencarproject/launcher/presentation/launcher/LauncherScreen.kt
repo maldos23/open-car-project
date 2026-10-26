@@ -254,7 +254,7 @@ fun LauncherScreen(
                                 apps = apps,
                                 onLaunch = launchFromMenu,
                                 iconScale = settings.menuIconScale,
-                                onLongPress = { context.requestUninstall(it.packageName) },
+                                onUninstall = { context.requestUninstall(it.packageName) },
                                 onBack = { scope.launch { pagerState.animateScrollToPage(HOME_PAGE) } },
                             )
                         }
@@ -413,7 +413,7 @@ fun LauncherScreen(
                     onLaunch = launchFromMenu,
                     onDismiss = { drawerOpen = false },
                     iconScale = settings.menuIconScale,
-                    onLongPress = { context.requestUninstall(it.packageName) },
+                    onUninstall = { context.requestUninstall(it.packageName) },
                 )
             }
 
