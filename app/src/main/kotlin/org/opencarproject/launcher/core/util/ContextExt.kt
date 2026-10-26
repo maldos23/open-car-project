@@ -1,9 +1,11 @@
 package org.opencarproject.launcher.core.util
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.util.TypedValue
 import androidx.core.app.NotificationManagerCompat
 import androidx.compose.ui.graphics.ImageBitmap
@@ -71,6 +73,11 @@ fun Context.appLabel(packageName: String): String = runCatching {
 fun Context.appIcon(packageName: String, sizeDp: Float): ImageBitmap? = runCatching {
     packageManager.getApplicationIcon(packageName).toImageBitmap(dpInt(sizeDp))
 }.getOrNull()
+
+/** Opens the system uninstall confirmation for [packageName] (no-op if there is no installer UI). */
+fun Context.requestUninstall(packageName: String) {
+    runCatching { startActivity(Intent(Intent.ACTION_DELETE, Uri.fromParts("package", packageName, null))) }
+}
 
 /** `true` if the user granted notification access (also required to read MediaSessions). */
 fun Context.hasNotificationAccess(): Boolean =

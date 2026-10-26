@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.navigationBarsPadding
+import org.opencarproject.launcher.core.util.requestUninstall
 import org.opencarproject.launcher.presentation.common.MotionGlowOverlay
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -253,6 +254,7 @@ fun LauncherScreen(
                                 apps = apps,
                                 onLaunch = launchFromMenu,
                                 iconScale = settings.menuIconScale,
+                                onUninstall = { context.requestUninstall(it.packageName) },
                                 onBack = { scope.launch { pagerState.animateScrollToPage(HOME_PAGE) } },
                             )
                         }
@@ -406,7 +408,13 @@ fun LauncherScreen(
             }
 
             if (!swipeMenu && drawerOpen) {
-                AppDrawerSheet(apps = apps, onLaunch = launchFromMenu, onDismiss = { drawerOpen = false }, iconScale = settings.menuIconScale)
+                AppDrawerSheet(
+                    apps = apps,
+                    onLaunch = launchFromMenu,
+                    onDismiss = { drawerOpen = false },
+                    iconScale = settings.menuIconScale,
+                    onUninstall = { context.requestUninstall(it.packageName) },
+                )
             }
 
             AnimatedVisibility(

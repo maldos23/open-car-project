@@ -6,6 +6,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Long-press an app in the app drawer to enter edit mode: icons jiggle and a trash button
+  uninstalls them; tap outside an icon to finish.
+
 ## [0.7.0] - 2026-10-26
 
 ### Added

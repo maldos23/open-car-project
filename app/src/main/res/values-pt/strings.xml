@@ -40,6 +40,8 @@
     <string name="drawer_search">Buscar apps</string>
     <string name="drawer_clear_search">Limpar busca</string>
     <string name="drawer_no_results">Nenhum resultado</string>
+    <string name="drawer_uninstall">Desinstalar</string>
+    <string name="drawer_uninstall_app">Desinstalar %1$s</string>
     <string name="apps_back_home">Voltar ao início</string>
     <string name="apps_title">Aplicativos</string>
 
