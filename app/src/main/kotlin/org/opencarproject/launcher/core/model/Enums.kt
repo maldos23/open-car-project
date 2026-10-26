@@ -179,6 +179,15 @@ enum class SpeedSource {
     SENSORS,
 }
 
+/** Where the motion glow reads turns from. */
+enum class MotionSource {
+    /** Gyroscope and accelerometer once they prove alive, GPS otherwise: fastest response. */
+    SENSORS_AND_GPS,
+
+    /** GPS only: for head units whose motion sensors misbehave. */
+    GPS_ONLY,
+}
+
 /** Where the weather goes in the top bar. */
 enum class WeatherPosition {
     LEFT,

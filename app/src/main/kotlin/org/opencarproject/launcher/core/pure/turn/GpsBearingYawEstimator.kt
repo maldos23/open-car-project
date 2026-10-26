@@ -59,7 +59,9 @@ class GpsBearingYawEstimator : YawRateEstimator {
     }
 
     private companion object {
-        const val YAW_SMOOTHING = 0.5f
+        // ponytail: light smoothing only; the glow's spring does the rest. Heavier smoothing here
+        // stacked a whole extra fix (~1 s) of delay on top of the bearing's own half-fix lag.
+        const val YAW_SMOOTHING = 0.8f
         const val MIN_SPEED_FOR_BEARING_METERS_PER_SECOND = 2f
         const val MAX_GAP_BETWEEN_FIXES_SECONDS = 5f
         const val STALE_AFTER_NANOS = 2_500_000_000L

@@ -6,6 +6,16 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Motion glow setting "Turn source": sensors + GPS (default) or GPS only.
+- Motion glow setting "Glow smoothness": how softly the light glides between directions.
+
+### Changed
+
+- The motion glow glides smoothly between directions and reacts about a second sooner to
+  turns read from the GPS.
+
 ## [0.3.3] - 2026-10-25
 
 ### Changed

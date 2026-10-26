@@ -1,7 +1,8 @@
 package org.opencarproject.launcher.presentation.common
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -62,19 +63,25 @@ private val BrakeRed = Color(0xFFFF1744)
  * while turning, up while speeding up, down and red while braking, and the corners in between.
  * Draw-only: touches pass through.
  * [sensitivity] scales the thresholds (2 = reacts to half the motion) to calibrate real sensors.
+ * The light eases with a critically damped spring: unlike a tween it keeps its velocity when the
+ * target changes mid-way, so GPS steps (one per second) and sensor jitter become one glide.
+ * [smoothness] (0..1) sets how soft that spring is.
+ * With [useSensors] false, turns come from the GPS only.
  * With [demo] it ignores the sensors and sweeps the light once around the border, then calls
  * [onDemoEnd].
  */
 @Composable
 fun MotionGlowOverlay(
     sensitivity: Float,
+    smoothness: Float,
+    useSensors: Boolean,
     color: Color,
     demo: Boolean,
     onDemoEnd: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val flow = remember(context) { MotionReader.motion(context) }
+    val flow = remember(context, useSensors) { MotionReader.motion(context, useSensors) }
     val motion by flow.collectAsStateWithLifecycle(VehicleMotion())
     val demoEnd by rememberUpdatedState(onDemoEnd)
     // Demo step: (turn, accel) at full strength, one after another.
@@ -90,15 +97,18 @@ fun MotionGlowOverlay(
         demoEnd()
     }
 
+    val glowSpring = remember(smoothness) {
+        spring<Float>(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = MotionMath.glowSpringStiffness(smoothness))
+    }
     // The same easing on both axes keeps the light gliding along the border, not jumping.
     val turn by animateFloatAsState(
         demoCue?.first ?: MotionMath.intensity(motion.yawRate * sensitivity, YAW_DEAD_ZONE, YAW_FULL),
-        tween(400),
+        glowSpring,
         label = "turn",
     )
     val accel by animateFloatAsState(
         demoCue?.second ?: MotionMath.intensity(motion.acceleration * sensitivity, ACCEL_DEAD_ZONE, ACCEL_FULL),
-        tween(400),
+        glowSpring,
         label = "accel",
     )
 

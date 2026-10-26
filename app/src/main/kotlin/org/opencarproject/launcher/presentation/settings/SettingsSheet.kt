@@ -66,6 +66,7 @@ import org.opencarproject.launcher.core.pure.GridColumnsRange
 import org.opencarproject.launcher.core.pure.GridRowsRange
 import org.opencarproject.launcher.core.pure.MenuIconScaleRange
 import org.opencarproject.launcher.core.pure.MotionGlowSensitivityRange
+import org.opencarproject.launcher.core.pure.MotionGlowSmoothnessRange
 import org.opencarproject.launcher.core.pure.UiScaleRange
 import org.opencarproject.launcher.core.model.AccentColor
 import org.opencarproject.launcher.core.model.AppLanguage
@@ -74,6 +75,7 @@ import org.opencarproject.launcher.core.model.BackgroundStyle
 import org.opencarproject.launcher.core.model.DockElement
 import org.opencarproject.launcher.core.model.DockIconSize
 import org.opencarproject.launcher.core.model.GlowColor
+import org.opencarproject.launcher.core.model.MotionSource
 import org.opencarproject.launcher.core.model.GridSpec
 import org.opencarproject.launcher.core.model.LayoutDefinition
 import org.opencarproject.launcher.core.model.LauncherSettings
@@ -107,6 +109,7 @@ fun SettingsSheet(
     onUiScaleChange: (Float) -> Unit,
     onMenuIconScaleChange: (Float) -> Unit,
     onMotionGlowSensitivityChange: (Float) -> Unit,
+    onMotionGlowSmoothnessChange: (Float) -> Unit,
     onMotionGlowTest: () -> Unit,
     onElementVisibilityChange: (DockElement, Boolean) -> Unit,
     onGridChange: (GridSpec) -> Unit,
@@ -246,6 +249,22 @@ fun SettingsSheet(
                         range = MotionGlowSensitivityRange,
                         steps = 14,
                         onChange = onMotionGlowSensitivityChange,
+                    )
+                    SliderRow(
+                        title = stringResource(R.string.settings_motion_glow_smoothness),
+                        value = settings.motionGlowSmoothness,
+                        range = MotionGlowSmoothnessRange,
+                        steps = 9,
+                        onChange = onMotionGlowSmoothnessChange,
+                    )
+                    Choice(
+                        title = stringResource(R.string.settings_motion_source),
+                        options = listOf(
+                            MotionSource.SENSORS_AND_GPS to stringResource(R.string.motion_source_sensors_gps),
+                            MotionSource.GPS_ONLY to stringResource(R.string.motion_source_gps),
+                        ),
+                        selected = settings.motionSource,
+                        onSelect = { v -> onChange { it.copy(motionSource = v) } },
                     )
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text(stringResource(R.string.settings_motion_glow_color), style = MaterialTheme.typography.titleMedium)

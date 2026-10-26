@@ -11,6 +11,7 @@ import org.opencarproject.launcher.core.model.DragPhase
 import org.opencarproject.launcher.core.model.DockSide
 import org.opencarproject.launcher.core.pure.MenuIconScaleRange
 import org.opencarproject.launcher.core.pure.MotionGlowSensitivityRange
+import org.opencarproject.launcher.core.pure.MotionGlowSmoothnessRange
 import org.opencarproject.launcher.core.pure.RocketKmhRange
 import org.opencarproject.launcher.core.pure.UiScaleRange
 import org.opencarproject.launcher.core.pure.snap
@@ -321,6 +322,10 @@ class LauncherViewModel(
 
     fun onMotionGlowSensitivityChange(sensitivity: Float) = onSettingsChange {
         it.copy(motionGlowSensitivity = snap(sensitivity, 10, MotionGlowSensitivityRange))
+    }
+
+    fun onMotionGlowSmoothnessChange(smoothness: Float) = onSettingsChange {
+        it.copy(motionGlowSmoothness = snap(smoothness, 10, MotionGlowSmoothnessRange))
     }
 
     /** Adds an app to one side of the bottom bar (without duplicating it on that side). */

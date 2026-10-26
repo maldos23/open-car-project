@@ -90,7 +90,11 @@
     <string name="settings_motion_glow">运动光效</string>
     <string name="settings_motion_glow_desc">屏幕边缘朝车辆行驶方向发光：转弯、加速和刹车。</string>
     <string name="settings_motion_glow_sensitivity">光效灵敏度</string>
+    <string name="settings_motion_glow_smoothness">光效平滑度</string>
     <string name="settings_motion_glow_color">光效颜色</string>
+    <string name="settings_motion_source">转弯数据来源</string>
+    <string name="motion_source_sensors_gps">传感器 + GPS（更快）</string>
+    <string name="motion_source_gps">仅 GPS</string>
     <string name="settings_motion_glow_test">测试</string>
     <string name="settings_speed_scene">速度场景</string>
     <string name="settings_speed_scene_desc">城市中的汽车，开得快时会变成火箭，位于与天气相对的一侧。</string>

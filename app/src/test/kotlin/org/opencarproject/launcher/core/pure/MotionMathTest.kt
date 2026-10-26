@@ -23,6 +23,14 @@ class MotionMathTest {
         assertEquals(180f, MotionMath.bearingDelta(0f, 180f), 1e-4f)
     }
 
+    @Test fun glowSmoothnessMapsToSpringStiffness() {
+        assertEquals(200f, MotionMath.glowSpringStiffness(0f), 1e-3f)
+        assertEquals(63.2f, MotionMath.glowSpringStiffness(0.5f), 0.1f) // default ≈ the tuned 60
+        assertEquals(20f, MotionMath.glowSpringStiffness(1f), 1e-3f)
+        // Out-of-range values (old or hand-edited settings) are clamped, never a zero/negative spring.
+        assertEquals(20f, MotionMath.glowSpringStiffness(5f), 1e-3f)
+    }
+
     @Test fun intensityHasDeadZoneAndSaturates() {
         assertEquals(0f, MotionMath.intensity(0.04f, 0.05f, 0.35f), 0f)
         assertEquals(0.5f, MotionMath.intensity(0.2f, 0.05f, 0.35f), 1e-4f)
