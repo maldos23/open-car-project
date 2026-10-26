@@ -150,6 +150,7 @@
     <string name="expand">Développer</string>
     <string name="island_now">maintenant</string>
     <string name="island_playing">en lecture</string>
+    <string name="island_call">appel</string>
 
     <string name="signal_none">Pas de connexion</string>
     <string name="signal_wifi">%1$s, niveau %2$d sur 4</string>

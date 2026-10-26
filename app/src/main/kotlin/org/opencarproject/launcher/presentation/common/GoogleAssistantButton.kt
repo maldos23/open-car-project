@@ -17,7 +17,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,14 +44,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
-import kotlin.math.PI
-import kotlin.math.sin
 
 /** Maximum pill width (the bottom bar reserves half on each side of the center). */
 val AssistantMaxWidth = 520.dp
@@ -140,7 +136,8 @@ fun GoogleAssistantButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        VoiceBars(Modifier.size(width = 30.dp, height = 28.dp))
+        // Four bars in Google colors that rise and fall like a speaking voice.
+        AudioBars(GoogleSweep.dropLast(1), Modifier.size(width = 30.dp, height = 28.dp))
         Column {
             Text(
                 text = stringResource(R.string.assistant_talk),
@@ -166,40 +163,6 @@ fun GoogleAssistantButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-        }
-    }
-}
-
-/**
- * Four bars in Google colors that rise and fall like a speaking voice. Each bar
- * mixes two integer-frequency sines (seamless loop) with a different phase: irregular pattern.
- */
-@Composable
-private fun VoiceBars(modifier: Modifier = Modifier) {
-    val transition = rememberInfiniteTransition(label = "voice")
-    val t by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = (2 * PI).toFloat(),
-        animationSpec = infiniteRepeatable(tween(1600, easing = LinearEasing)),
-        label = "t",
-    )
-    val colors = GoogleSweep.dropLast(1)
-    Canvas(modifier) {
-        val barWidth = size.width / (colors.size + (colors.size - 1) * 0.7f)
-        val gap = barWidth * 0.7f
-        colors.forEachIndexed { i, color ->
-            val wave = 0.6f * (0.5f + 0.5f * sin(2 * t + i * 1.3f)) +
-                0.4f * (0.5f + 0.5f * sin(3 * t + i * 2.1f))
-            // With rounded caps the line grows by barWidth/2 on each side.
-            val length = (size.height - barWidth) * (0.2f + 0.8f * wave)
-            val x = barWidth / 2 + i * (barWidth + gap)
-            drawLine(
-                color = color,
-                start = Offset(x, center.y - length / 2),
-                end = Offset(x, center.y + length / 2),
-                strokeWidth = barWidth,
-                cap = StrokeCap.Round,
-            )
         }
     }
 }

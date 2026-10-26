@@ -171,6 +171,7 @@
     <string name="expand">Expand</string>
     <string name="island_now">now</string>
     <string name="island_playing">playing</string>
+    <string name="island_call">call</string>
 
     <!-- Status -->
     <string name="signal_none">No connection</string>

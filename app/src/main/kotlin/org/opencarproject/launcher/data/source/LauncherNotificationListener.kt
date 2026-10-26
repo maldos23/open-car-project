@@ -1,6 +1,7 @@
 package org.opencarproject.launcher.data.source
 
 import android.app.Notification
+import android.content.ComponentName
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -30,6 +31,9 @@ class LauncherNotificationListener : NotificationListenerService() {
     override fun onListenerDisconnected() {
         active.clear()
         publish()
+        // The system may unbind the listener (low memory, doze, app update) and not bind it back
+        // on its own: without this, no notification or media session reaches the launcher again.
+        runCatching { requestRebind(ComponentName(this, LauncherNotificationListener::class.java)) }
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
@@ -64,6 +68,7 @@ class LauncherNotificationListener : NotificationListenerService() {
         // Google Maps / Waze don't share their route; their guidance notification is the only public data.
         val ongoing = active.values.filter { it.isOngoing }
         _navigation.value = NAVIGATION_PACKAGES.firstNotNullOfOrNull { pkg -> ongoing.firstOrNull { it.packageName == pkg } }
+        _call.value = ongoing.firstOrNull { it.notification.category == Notification.CATEGORY_CALL }
     }
 
     companion object {
@@ -92,5 +97,10 @@ class LauncherNotificationListener : NotificationListenerService() {
 
         /** Active guidance notification (next turn, distance, arrival) or `null` if not navigating. */
         val navigation: StateFlow<StatusBarNotification?> = _navigation.asStateFlow()
+
+        private val _call = MutableStateFlow<StatusBarNotification?>(null)
+
+        /** Ongoing call notification (dialing or in a call), or `null` if there is none. */
+        val call: StateFlow<StatusBarNotification?> = _call.asStateFlow()
     }
 }
