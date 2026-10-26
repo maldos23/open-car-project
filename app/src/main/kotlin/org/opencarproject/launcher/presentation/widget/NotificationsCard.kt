@@ -24,6 +24,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -310,36 +311,53 @@ private fun NotificationItem(sbn: StatusBarNotification, modifier: Modifier = Mo
                 enter = expandVertically(spring(dampingRatio = 0.85f, stiffness = Spring.StiffnessMediumLow)) + fadeIn(),
                 exit = shrinkVertically(spring(dampingRatio = 1f, stiffness = Spring.StiffnessMediumLow)) + fadeOut(),
             ) {
-                Column(Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    if (content.native) {
-                        // Whatever we don't map is drawn by Android just like in its notification shade.
-                        NativeNotificationView(sbn)
-                    } else {
-                    Text(
-                        text = content.detail.ifBlank { content.text },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 8,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    if (content.picture != null) {
-                        Image(
-                            bitmap = content.picture,
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(160.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(Color.Black),
-                        )
-                    }
-                    content.progress?.let { ProgressBar(it) }
-                    }
-                    if (content.actions.isNotEmpty()) ActionsRow(content.actions)
-                }
+                NotificationDetail(sbn, content, MaterialTheme.colorScheme.onSurfaceVariant, Modifier.padding(top = 8.dp))
             }
         }
+    }
+}
+
+/**
+ * Expanded body of a notification, shared by the card and the island: detail text, picture and
+ * progress, or Android's native rendering for templates we don't map (media, calls, custom
+ * views…), followed by the app's action buttons.
+ */
+@Composable
+internal fun NotificationDetail(
+    sbn: StatusBarNotification,
+    content: NotificationContent,
+    textColor: Color,
+    modifier: Modifier = Modifier,
+    /** Drawn on a dark surface (the island): the native view uses the dark device theme. */
+    dark: Boolean = false,
+) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        if (content.native) {
+            // Whatever we don't map is drawn by Android just like in its notification shade.
+            NativeNotificationView(sbn, dark)
+        } else {
+            Text(
+                text = content.detail.ifBlank { content.text },
+                style = MaterialTheme.typography.bodyMedium,
+                color = textColor,
+                maxLines = 8,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (content.picture != null) {
+                Image(
+                    bitmap = content.picture,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(160.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.Black),
+                )
+            }
+            content.progress?.let { ProgressBar(it) }
+        }
+        if (content.actions.isNotEmpty()) ActionsRow(content.actions)
     }
 }
 
@@ -421,9 +439,15 @@ private fun android.os.Bundle.progress(): NotificationProgress? {
  * shade (includes the app's custom views, scoreboards, trips, ProgressStyle…).
  */
 @Composable
-private fun NativeNotificationView(sbn: StatusBarNotification) {
+private fun NativeNotificationView(sbn: StatusBarNotification, dark: Boolean) {
+    // Android colors the template for the system theme (in the posting app's context, so it
+    // can't be recolored): on a dark surface with a light system theme it gets a light card.
+    val card = dark && !isSystemInDarkTheme()
     androidx.compose.ui.viewinterop.AndroidView(
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .then(if (card) Modifier.background(Color.White) else Modifier),
         factory = { ctx ->
             val frame = android.widget.FrameLayout(ctx)
             runCatching {

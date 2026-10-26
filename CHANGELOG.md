@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Tapping the notification island expands it into the full preview, the same one the
+  notifications module shows: long text, picture, progress and the app's buttons, and Android's
+  own view for special notifications such as playback, radio or calls. The music bubble shows
+  player controls. Tap again to open the app; swipe up to close it.
+
 ## [0.4.1] - 2026-10-25
 
 ### Fixed
