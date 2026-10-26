@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-26
+
 ### Added
 
 - The media player shows the logo of the app that is playing.
@@ -181,7 +183,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.5.0...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.6.0...develop
+[0.6.0]: https://github.com/maldos23/open-car-project/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/maldos23/open-car-project/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/maldos23/open-car-project/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/maldos23/open-car-project/compare/v0.3.3...v0.4.0
