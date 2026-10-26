@@ -3,7 +3,8 @@ package org.opencarproject.launcher.presentation.drawer
 import org.opencarproject.launcher.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,7 +56,7 @@ import org.opencarproject.launcher.presentation.common.rememberAppIcon
 
 /**
  * "Bottom-up" app menu: a card that slides up (closed by dragging it down or tapping
- * outside) with a search box and grid. Tapping an app opens it.
+ * outside) with a search box and grid. Tapping an app opens it; long-pressing calls [onLongPress].
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,6 +66,7 @@ fun AppDrawerSheet(
     onDismiss: () -> Unit,
     title: String? = null,
     iconScale: Float = 1f,
+    onLongPress: ((CatalogItem) -> Unit)? = null,
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -78,6 +80,7 @@ fun AppDrawerSheet(
         AppDrawerContent(
             apps = apps,
             onLaunch = onLaunch,
+            onLongPress = onLongPress,
             iconSize = 56.dp * iconScale,
             modifier = Modifier.fillMaxWidth().fillMaxHeight(0.85f).padding(horizontal = 24.dp),
         )
@@ -94,6 +97,7 @@ fun AppDrawerContent(
     onLaunch: (CatalogItem) -> Unit,
     iconSize: Dp,
     modifier: Modifier = Modifier,
+    onLongPress: ((CatalogItem) -> Unit)? = null,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     val filtered = remember(apps, query) { apps.filter { TextSearch.matches(it.title, query) } }
@@ -141,19 +145,26 @@ fun AppDrawerContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(filtered, key = { it.key }) { app -> AppTile(app, iconSize, onClick = { onLaunch(app) }) }
+                items(filtered, key = { it.key }) { app ->
+                    AppTile(app, iconSize, onClick = { onLaunch(app) }, onLongClick = onLongPress?.let { { it(app) } })
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun AppTile(app: CatalogItem, iconSize: Dp, onClick: () -> Unit) {
+private fun AppTile(app: CatalogItem, iconSize: Dp, onClick: () -> Unit, onLongClick: (() -> Unit)?) {
     val density = LocalDensity.current
     val icon = rememberAppIcon(app.key, sizePx = with(density) { iconSize.roundToPx() })
     Column(
         Modifier
-            .clickable(onClick = onClick)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick,
+                onLongClickLabel = onLongClick?.let { stringResource(R.string.drawer_uninstall) },
+            )
             .padding(vertical = 12.dp, horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

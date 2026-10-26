@@ -34,6 +34,7 @@ fun AppsPage(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     iconScale: Float = 1f,
+    onLongPress: ((CatalogItem) -> Unit)? = null,
 ) {
     // Card with the same background, corners and margin as the home screen ones: separates the
     // list from the fixed bars and stays aligned with the cards while swiping.
@@ -54,7 +55,7 @@ fun AppsPage(
                     modifier = Modifier.padding(start = 16.dp),
                 )
             }
-            AppDrawerContent(apps = apps, onLaunch = onLaunch, iconSize = 76.dp * iconScale)
+            AppDrawerContent(apps = apps, onLaunch = onLaunch, onLongPress = onLongPress, iconSize = 76.dp * iconScale)
         }
     }
 }

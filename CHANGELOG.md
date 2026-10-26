@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Long-press an app in the app drawer to uninstall it.
+
 ## [0.7.0] - 2026-10-26
 
 ### Added
