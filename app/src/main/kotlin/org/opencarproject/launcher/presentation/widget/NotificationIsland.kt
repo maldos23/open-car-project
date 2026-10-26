@@ -5,10 +5,15 @@ import androidx.compose.ui.res.stringResource
 import android.content.Context
 import android.service.notification.StatusBarNotification
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,6 +36,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.rememberCoroutineScope
@@ -54,13 +60,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import org.opencarproject.launcher.core.pure.IslandIndicator
+import org.opencarproject.launcher.core.pure.IslandResting
 import org.opencarproject.launcher.core.util.appIcon
+import org.opencarproject.launcher.presentation.common.AudioBars
 import org.opencarproject.launcher.core.util.appLabel
 import org.opencarproject.launcher.data.source.LauncherNotificationListener
 import org.opencarproject.launcher.data.source.MediaSessionSource
 import org.opencarproject.launcher.data.source.NowPlaying
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -75,12 +85,22 @@ private val IslandSpring = spring<Dp>(dampingRatio = 0.72f, stiffness = 380f)
 /** How long the notification stays expanded if not touched. */
 private const val EXPANDED_MS = 4_500L
 
+/** Music keeps its bubble this long after it stops playing: skipping tracks pauses briefly. */
+private const val MEDIA_GRACE_MS = 3_000L
+
+/** Ongoing-call green, on the always-black island. */
+private val CallGreen = Color(0xFF34C759)
+
 /**
  * Notification "island" (Dynamic Island style): each new notification appears at the top
  * as a black pill, springs open showing its preview and then collapses back to a bubble that
  * stays with the newest active notification (icon + one line) until none are left. Tapping
  * opens it; swiping up dismisses it until a newer one arrives. Notifications arriving back to
  * back wait in a queue. Only listens while the launcher is visible.
+ *
+ * The resting bubble is state, not an event, so it is back as soon as the screen wakes even if
+ * the alert was missed: an ongoing call (pulsing green dot), else the music playing (level
+ * meter), else the newest notification (pulsing dot).
  */
 @Composable
 fun NotificationIsland(modifier: Modifier = Modifier) {
@@ -93,12 +113,33 @@ fun NotificationIsland(modifier: Modifier = Modifier) {
     var dismissed by remember { mutableStateOf(CompletableDeferred<Unit>()) }
     val scope = rememberCoroutineScope()
 
-    // Resting bubble: the newest active notification, unless the user swiped it away.
+    // Resting bubble: call > music playing > newest notification, skipping the one swiped away.
     val active by LauncherNotificationListener.notifications.collectAsStateWithLifecycle()
     val newest = active.firstOrNull()
+    val call by LauncherNotificationListener.call.collectAsStateWithLifecycle()
+    val playing by produceState<NowPlaying?>(null) {
+        // collectLatest: playing again within the grace period cancels the pending hide.
+        MediaSessionSource.nowPlaying.collectLatest { track ->
+            if (track?.isPlaying == true && track.title.isNotBlank()) {
+                value = track
+            } else {
+                delay(MEDIA_GRACE_MS)
+                value = null
+            }
+        }
+    }
     var swipedAwayId by remember { mutableStateOf<String?>(null) }
-    val resting = remember(newest?.key, newest?.postTime) { newest?.let { context.toIslandItem(it) } }
-        ?.takeIf { it.id != swipedAwayId }
+    val newestItem = remember(newest?.key, newest?.postTime) { newest?.let { context.toIslandItem(it) } }
+    val callItem = remember(call?.key, call?.postTime) {
+        call?.let { context.toIslandItem(it, IslandIndicator.CALL, R.string.island_call) }
+    }
+    val mediaItem = remember(playing?.packageName, playing?.title, playing?.artist, playing?.art) { playing?.let { context.toIslandItem(it) } }
+    val resting = when (IslandResting.pick(callItem?.id, mediaItem?.id, newestItem?.id, swipedAwayId)) {
+        IslandIndicator.CALL -> callItem
+        IslandIndicator.MEDIA -> mediaItem
+        IslandIndicator.NOTIFICATION -> newestItem
+        null -> null
+    }
     val restingNow by rememberUpdatedState(resting)
 
     LaunchedEffect(lifecycleOwner) {
@@ -206,7 +247,7 @@ fun NotificationIsland(modifier: Modifier = Modifier) {
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),
                 )
-                Box(Modifier.size(10.dp).background(MaterialTheme.colorScheme.primary, CircleShape))
+                IslandIndicatorMark(content.indicator)
             }
 
             // Expanded: full preview.
@@ -277,21 +318,49 @@ private class IslandItem(
     val text: String,
     val picture: ImageBitmap?,
     val onOpen: () -> Unit,
+    /** Animated mark at the end of the compact pill. */
+    val indicator: IslandIndicator,
 )
 
-private fun Context.toIslandItem(sbn: StatusBarNotification): IslandItem {
+/** Level meter for music; a softly pulsing dot for a call (green) or a notification. */
+@Composable
+private fun IslandIndicatorMark(indicator: IslandIndicator) {
+    if (indicator == IslandIndicator.MEDIA) {
+        AudioBars(List(4) { Color.White.copy(alpha = 0.7f) }, Modifier.size(width = 18.dp, height = 14.dp), periodMs = 2000)
+        return
+    }
+    val color = if (indicator == IslandIndicator.CALL) CallGreen else MaterialTheme.colorScheme.primary
+    val transition = rememberInfiniteTransition(label = "pulse")
+    val pulse by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(900), RepeatMode.Reverse),
+        label = "p",
+    )
+    // Read in the draw phase only: no recomposition per frame.
+    Canvas(Modifier.size(10.dp)) {
+        drawCircle(color.copy(alpha = 0.45f + 0.55f * pulse), radius = size.minDimension / 2 * (0.75f + 0.25f * pulse))
+    }
+}
+
+private fun Context.toIslandItem(
+    sbn: StatusBarNotification,
+    indicator: IslandIndicator = IslandIndicator.NOTIFICATION,
+    label: Int = R.string.island_now,
+): IslandItem {
     val c = readContent(sbn)
     return IslandItem(
         key = sbn.key,
         id = "${sbn.key}@${sbn.postTime}",
         appName = c.appName,
-        label = getString(R.string.island_now),
+        label = getString(label),
         appIcon = c.appIcon,
         avatar = c.avatar,
         title = c.title,
         text = c.text,
         picture = c.picture,
         onOpen = { runCatching { sbn.notification.contentIntent?.send() } },
+        indicator = indicator,
     )
 }
 
@@ -310,5 +379,6 @@ private fun Context.toIslandItem(track: NowPlaying): IslandItem {
         text = listOf(track.artist, track.album).filter { it.isNotBlank() }.joinToString(getString(R.string.separator)),
         picture = null,
         onOpen = { openPlayer(this, track) },
+        indicator = IslandIndicator.MEDIA,
     )
 }

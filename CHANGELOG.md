@@ -6,6 +6,18 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-10-25
+
+### Changed
+
+- The notification island keeps an ongoing call (pulsing green dot) or the music playing (a small
+  level meter) pinned, and returns to it after each alert and when the screen wakes.
+
+### Fixed
+
+- Song changes no longer go unannounced when the player loads the next track before it starts.
+- Notifications keep arriving after the system disconnects the notification listener.
+
 ## [0.3.2] - 2026-10-25
 
 ### Fixed
@@ -128,7 +140,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.3.2...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.3.3...develop
+[0.3.3]: https://github.com/maldos23/open-car-project/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/maldos23/open-car-project/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/maldos23/open-car-project/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/maldos23/open-car-project/compare/v0.2.0...v0.3.0

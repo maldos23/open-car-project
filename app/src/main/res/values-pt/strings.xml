@@ -150,6 +150,7 @@
     <string name="expand">Expandir</string>
     <string name="island_now">agora</string>
     <string name="island_playing">tocando</string>
+    <string name="island_call">chamada</string>
 
     <string name="signal_none">Sem conexão</string>
     <string name="signal_wifi">%1$s, nível %2$d de 4</string>

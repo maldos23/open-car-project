@@ -115,15 +115,20 @@ object MediaSessionSource {
         return hasTrack || !dead
     }
 
+    /**
+     * Last track announced on [trackChanged]. Compared instead of the previous snapshot: players
+     * load the next track's metadata while skipping (not yet playing), so by the time it plays the
+     * snapshot already has the new title and the change would never be announced.
+     */
+    private var lastAnnouncedTrack: Triple<String, String, String>? = null
+
     private fun publish() {
-        val c = controller
-        val previous = _nowPlaying.value
-        val next = c?.toNowPlaying()
+        val next = controller?.toNowPlaying()
         _nowPlaying.value = next
-        // New track = title/artist changed and something is playing.
-        if (next != null && next.title.isNotBlank() && next.isPlaying &&
-            (previous == null || previous.title != next.title || previous.artist != next.artist)
-        ) {
+        if (next == null || next.title.isBlank() || !next.isPlaying) return
+        val track = Triple(next.packageName, next.title, next.artist)
+        if (track != lastAnnouncedTrack) {
+            lastAnnouncedTrack = track
             _trackChanged.tryEmit(next)
         }
     }
