@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-26
+
+### Changed
+
+- Tapping the notification island expands it into the full preview, the same one the
+  notifications module shows: long text, picture, progress and the app's buttons, and Android's
+  own view for special notifications such as playback, radio or calls. The music bubble shows
+  player controls. Tap again to open the app; swipe up to close it.
+
 ## [0.4.1] - 2026-10-25
 
 ### Fixed
@@ -161,7 +170,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.4.1...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.5.0...develop
+[0.5.0]: https://github.com/maldos23/open-car-project/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/maldos23/open-car-project/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/maldos23/open-car-project/compare/v0.3.3...v0.4.0
 [0.3.3]: https://github.com/maldos23/open-car-project/compare/v0.3.2...v0.3.3

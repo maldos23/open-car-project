@@ -13,7 +13,12 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -85,6 +90,12 @@ private val IslandSpring = spring<Dp>(dampingRatio = 0.72f, stiffness = 380f)
 /** How long the notification stays expanded if not touched. */
 private const val EXPANDED_MS = 4_500L
 
+/** How long a preview opened by a tap stays open if not touched again. */
+private const val DETAIL_MS = 10_000L
+
+/** Tallest the preview body grows below the header, so it never covers the road view. */
+private val DETAIL_MAX_HEIGHT = 320.dp
+
 /** Music keeps its bubble this long after it stops playing: skipping tracks pauses briefly. */
 private const val MEDIA_GRACE_MS = 3_000L
 
@@ -95,7 +106,9 @@ private val CallGreen = Color(0xFF34C759)
  * Notification "island" (Dynamic Island style): each new notification appears at the top
  * as a black pill, springs open showing its preview and then collapses back to a bubble that
  * stays with the newest active notification (icon + one line) until none are left. Tapping
- * opens it; swiping up dismisses it until a newer one arrives. Notifications arriving back to
+ * grows it into the full preview the notifications card shows (native view for media, calls…;
+ * player controls for the music bubble) and tapping again opens it; swiping up closes the
+ * preview or dismisses the bubble until a newer one arrives. Notifications arriving back to
  * back wait in a queue. Only listens while the launcher is visible.
  *
  * The resting bubble is state, not an event, so it is back as soon as the screen wakes even if
@@ -111,6 +124,8 @@ fun NotificationIsland(modifier: Modifier = Modifier) {
     var phase by remember { mutableStateOf(IslandPhase.HIDDEN) }
     // Completes when the user taps or dismisses: cuts short the expanded-phase wait.
     var dismissed by remember { mutableStateOf(CompletableDeferred<Unit>()) }
+    // Id of the item opened into its full preview by a tap (null: none).
+    var detailId by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
     // Resting bubble: call > music playing > newest notification, skipping the one swiped away.
@@ -157,8 +172,8 @@ fun NotificationIsland(modifier: Modifier = Modifier) {
     // Choreography: pill → expanded → pill → hidden, one notification after another.
     LaunchedEffect(Unit) {
         while (true) {
-            // Waits (without polling) until something is in the queue.
-            val next = snapshotFlow { queue.firstOrNull() }.filterNotNull().first()
+            // Waits (without polling) until something is in the queue and no preview is open.
+            val next = snapshotFlow { queue.firstOrNull()?.takeIf { detailId == null } }.filterNotNull().first()
             queue.remove(next)
             current = next
             dismissed = CompletableDeferred()
@@ -166,6 +181,8 @@ fun NotificationIsland(modifier: Modifier = Modifier) {
             delay(220)
             phase = IslandPhase.EXPANDED
             withTimeoutOrNull(EXPANDED_MS) { dismissed.await() }
+            // Opened into its full preview: stays until that closes.
+            snapshotFlow { detailId }.first { it != next.id }
             phase = IslandPhase.COMPACT
             delay(260)
             // Hides only when there is no bubble to rest on.
@@ -177,9 +194,19 @@ fun NotificationIsland(modifier: Modifier = Modifier) {
         }
     }
 
+    // The full preview closes on its own if left untouched.
+    LaunchedEffect(detailId) {
+        if (detailId != null) {
+            delay(DETAIL_MS)
+            detailId = null
+        }
+    }
+    val liveTrack by MediaSessionSource.nowPlaying.collectAsStateWithLifecycle()
+
     val content = current ?: resting ?: return
     val shownPhase = if (current != null) phase else IslandPhase.COMPACT
-    val expanded = shownPhase == IslandPhase.EXPANDED
+    val detail = detailId == content.id
+    val expanded = shownPhase == IslandPhase.EXPANDED || detail
 
     val width by animateDpAsState(if (expanded) 560.dp else 340.dp, IslandSpring, label = "w")
     val height by animateDpAsState(if (expanded) 104.dp else 48.dp, IslandSpring, label = "h")
@@ -211,11 +238,12 @@ fun NotificationIsland(modifier: Modifier = Modifier) {
                 clip = true
             }
             .background(Color.Black, RoundedCornerShape(corner))
-            .pointerInput(content.id) {
+            .pointerInput(content.id, detail) {
                 detectVerticalDragGestures(
                     onDragEnd = {
                         if (dragY < -24.dp.toPx()) {
-                            swipedAwayId = content.id
+                            // Swiping a preview only closes it; swiping the pill hides it.
+                            if (detail) detailId = null else swipedAwayId = content.id
                             dismissed.complete(Unit)
                         }
                         dragY = 0f
@@ -224,80 +252,108 @@ fun NotificationIsland(modifier: Modifier = Modifier) {
                 )
             }
             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                scope.launch { content.onOpen() }
-                dismissed.complete(Unit)
+                // First tap opens the full preview; a tap on the preview opens the app.
+                if (detail) {
+                    scope.launch { content.onOpen() }
+                    detailId = null
+                    dismissed.complete(Unit)
+                } else {
+                    detailId = content.id
+                }
             },
     ) {
-        Box(Modifier.size(width, height)) {
-            // Compact: app icon, a one-line summary and an alert dot.
-            Row(
-                Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 14.dp)
-                    .graphicsLayer { alpha = 1f - contentAlpha },
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                if (content.appIcon != null) Image(content.appIcon, contentDescription = null, modifier = Modifier.size(24.dp))
-                Text(
-                    text = listOf(content.title, content.text).filter { it.isNotBlank() }.joinToString(stringResource(R.string.separator)).ifBlank { content.appName },
-                    style = MaterialTheme.typography.labelLarge,
-                    color = Color.White,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f),
-                )
-                IslandIndicatorMark(content.indicator)
-            }
-
-            // Expanded: full preview.
-            Row(
-                Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 18.dp, vertical = 14.dp)
-                    .graphicsLayer { alpha = contentAlpha },
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(14.dp),
-            ) {
-                val leading = content.avatar ?: content.appIcon
-                if (leading != null) {
-                    Image(
-                        bitmap = leading,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.size(52.dp).clip(CircleShape),
-                    )
-                }
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Column(Modifier.width(width).animateContentSize(spring(dampingRatio = 0.8f, stiffness = 380f))) {
+            Box(Modifier.size(width, height)) {
+                // Compact: app icon, a one-line summary and an alert dot.
+                Row(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 14.dp)
+                        .graphicsLayer { alpha = 1f - contentAlpha },
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    if (content.appIcon != null) Image(content.appIcon, contentDescription = null, modifier = Modifier.size(24.dp))
                     Text(
-                        text = "${content.appName} · ${content.label}",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color.White.copy(alpha = 0.6f),
-                        maxLines = 1,
-                    )
-                    Text(
-                        text = content.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
+                        text = listOf(content.title, content.text).filter { it.isNotBlank() }.joinToString(stringResource(R.string.separator)).ifBlank { content.appName },
+                        style = MaterialTheme.typography.labelLarge,
                         color = Color.White,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f),
                     )
-                    Text(
-                        text = content.text,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.75f),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                    IslandIndicatorMark(content.indicator)
                 }
-                if (content.picture != null) {
-                    Image(
-                        bitmap = content.picture,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.size(60.dp).clip(RoundedCornerShape(14.dp)),
-                    )
+
+                // Expanded: full preview.
+                Row(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 18.dp, vertical = 14.dp)
+                        .graphicsLayer { alpha = contentAlpha },
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                ) {
+                    val leading = content.avatar ?: content.appIcon
+                    if (leading != null) {
+                        Image(
+                            bitmap = leading,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.size(52.dp).clip(CircleShape),
+                        )
+                    }
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(
+                            text = "${content.appName} · ${content.label}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color.White.copy(alpha = 0.6f),
+                            maxLines = 1,
+                        )
+                        Text(
+                            text = content.title,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        // The full preview below already shows the text in full.
+                        if (!detail || content.sbn == null) {
+                            Text(
+                                text = content.text,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.White.copy(alpha = 0.75f),
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    }
+                    if (content.picture != null) {
+                        Image(
+                            bitmap = content.picture,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.size(60.dp).clip(RoundedCornerShape(14.dp)),
+                        )
+                    }
+                }
+            }
+
+            // Full preview: same body as the notifications card (native view for media, calls,
+            // custom views…); the music bubble, with no notification behind it, gets its controls.
+            if (detail) {
+                CompositionLocalProvider(LocalContentColor provides Color.White) {
+                    // Capped and clipped, not scrollable: the full notification is one more tap away.
+                    Box(Modifier.fillMaxWidth().heightIn(max = DETAIL_MAX_HEIGHT).padding(start = 18.dp, end = 18.dp, bottom = 16.dp)) {
+                        when {
+                            content.sbn != null && content.content != null ->
+                                NotificationDetail(content.sbn, content.content, Color.White.copy(alpha = 0.75f), dark = true)
+                            content.indicator == IslandIndicator.MEDIA -> Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                                Controls(liveTrack?.isPlaying == true, MediaSessionSource.controller?.transportControls, compact = true, onBg = Color.White)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -320,6 +376,9 @@ private class IslandItem(
     val onOpen: () -> Unit,
     /** Animated mark at the end of the compact pill. */
     val indicator: IslandIndicator,
+    /** Notification behind it and its content, for the full preview (`null` for music). */
+    val sbn: StatusBarNotification? = null,
+    val content: NotificationContent? = null,
 )
 
 /** Level meter for music; a softly pulsing dot for a call (green) or a notification. */
@@ -361,6 +420,8 @@ private fun Context.toIslandItem(
         picture = c.picture,
         onOpen = { runCatching { sbn.notification.contentIntent?.send() } },
         indicator = indicator,
+        sbn = sbn,
+        content = c,
     )
 }
 

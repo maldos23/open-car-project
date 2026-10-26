@@ -303,7 +303,7 @@ private fun Equalizer(playing: Boolean, modifier: Modifier) {
 
 /** Previous · play/pause · next; [compact] shrinks the buttons (still ≥ 48 dp). */
 @Composable
-private fun Controls(isPlaying: Boolean, controls: MediaController.TransportControls?, compact: Boolean, onBg: Color) {
+internal fun Controls(isPlaying: Boolean, controls: MediaController.TransportControls?, compact: Boolean, onBg: Color) {
     val side = if (compact) 48.dp else 56.dp
     Row(verticalAlignment = Alignment.CenterVertically) {
         IconButton(onClick = { controls?.skipToPrevious() }, modifier = Modifier.size(side)) {
