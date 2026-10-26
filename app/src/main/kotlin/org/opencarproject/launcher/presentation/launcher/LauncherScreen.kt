@@ -68,6 +68,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -84,6 +86,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.opencarproject.launcher.core.model.AppMenuStyle
@@ -98,6 +103,7 @@ import org.opencarproject.launcher.core.model.LayoutDefinition
 import org.opencarproject.launcher.core.model.LayoutMode
 import org.opencarproject.launcher.core.model.TemperatureUnit
 import org.opencarproject.launcher.core.model.WeatherPosition
+import org.opencarproject.launcher.core.pure.IslandGap
 import org.opencarproject.launcher.core.pure.SpeedUnits
 import org.opencarproject.launcher.core.model.PanelState
 import org.opencarproject.launcher.core.ui.theme.Dimens
@@ -142,6 +148,8 @@ fun LauncherScreen(
     var glowDemo by remember { mutableStateOf(false) }
     val settingsScroll = rememberScrollState()
     var notificationsOpen by rememberSaveable { mutableStateOf(false) }
+    // Free width between the top bar's side elements: the island never grows past it.
+    var islandMaxWidth by remember { mutableStateOf(Dp.Unspecified) }
     // Side of the bar a shortcut is being added to (null = picker closed).
     var dockPickerSide by remember { mutableStateOf<DockSide?>(null) }
     val settings by viewModel.settings.collectAsStateWithLifecycle()
@@ -225,6 +233,7 @@ fun LauncherScreen(
                         temperatureUnit = settings.temperatureUnit,
                         onToggleEdit = viewModel::toggleEditMode,
                         onAdd = viewModel::openPanel,
+                        onCenterGap = { islandMaxWidth = it },
                     )
                 }
                 // Only the middle content slides: with the "page to the right" menu, swiping
@@ -352,7 +361,7 @@ fun LauncherScreen(
             }
 
             // Notification island at top center (above everything except the sheets).
-            NotificationIsland(Modifier.align(Alignment.TopCenter).padding(top = 8.dp))
+            NotificationIsland(Modifier.align(Alignment.TopCenter).padding(top = 8.dp), maxWidth = islandMaxWidth)
 
             if (settingsOpen) {
                 SettingsSheet(
@@ -445,10 +454,26 @@ private fun TopBar(
     temperatureUnit: TemperatureUnit,
     onToggleEdit: () -> Unit,
     onAdd: () -> Unit,
+    onCenterGap: (Dp) -> Unit,
 ) {
+    // Bounds of the side elements (root x), so the island stays in the free middle.
+    val sides = remember { mutableStateMapOf<String, Pair<Float, Float>>() }
+    var center by remember { mutableFloatStateOf(0f) }
+    val density = LocalDensity.current
+    fun Modifier.side(key: String) = onGloballyPositioned { sides[key] = it.boundsInRoot().let { b -> b.left to b.right } }
+    val gap = IslandGap.width(center, sides.values, with(density) { 8.dp.toPx() })
+    val gapDp = gap?.let { with(density) { it.toDp() } } ?: Dp.Unspecified
+    LaunchedEffect(gapDp) { onCenterGap(gapDp) }
+    // Without the bar (collapsed), nothing limits the island.
+    DisposableEffect(Unit) { onDispose { onCenterGap(Dp.Unspecified) } }
+
     Box(
         // Same bottom margin as top (ScreenPadding), so the weather is centered between edge and cards.
-        Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(bottom = Dimens.ScreenPadding),
+        Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .padding(bottom = Dimens.ScreenPadding)
+            .onGloballyPositioned { center = it.boundsInRoot().center.x },
         contentAlignment = Alignment.Center,
     ) {
         // On the right, it shifts while editing so it doesn't sit under ✓ and +.
@@ -469,7 +494,8 @@ private fun TopBar(
                     },
                 )
                 .padding(horizontal = 8.dp)
-                .padding(end = editEndPadding),
+                .padding(end = editEndPadding)
+                .side("weather"),
         ) {
             WeatherIndicator(unit = temperatureUnit)
         }
@@ -492,7 +518,8 @@ private fun TopBar(
             modifier = Modifier
                 .align(if (dialOnRight) Alignment.CenterEnd else Alignment.CenterStart)
                 .padding(horizontal = 8.dp)
-                .padding(end = dialEndPadding),
+                .padding(end = dialEndPadding)
+                .side("dial"),
         ) {
             StandaloneSpeedometer(
                 style = settings.speedDialStyle,
@@ -508,7 +535,8 @@ private fun TopBar(
             modifier = Modifier
                 .align(if (sceneOnRight) Alignment.CenterEnd else Alignment.CenterStart)
                 .padding(horizontal = 8.dp)
-                .padding(end = sceneEndPadding),
+                .padding(end = sceneEndPadding)
+                .side("scene"),
         ) {
             SpeedScene(
                 source = settings.speedSource,
@@ -524,7 +552,7 @@ private fun TopBar(
             visible = layoutMode == LayoutMode.EDIT,
             enter = fadeIn() + slideInHorizontally { it / 2 },
             exit = fadeOut() + slideOutHorizontally { it / 2 },
-            modifier = Modifier.align(Alignment.CenterEnd),
+            modifier = Modifier.align(Alignment.CenterEnd).side("edit"),
         ) {
             Row {
                 FilledTonalIconButton(onClick = onToggleEdit) {
