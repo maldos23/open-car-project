@@ -142,6 +142,9 @@
     <string name="media_next">Siguiente</string>
     <string name="media_pause">Pausar</string>
     <string name="media_play">Reproducir</string>
+    <string name="media_queue">A continuación</string>
+    <string name="media_queue_open">Ver cola</string>
+    <string name="media_queue_close">Volver al reproductor</string>
 
     <string name="nav_navigating">Navegando</string>
     <string name="nav_navigate">Navegar</string>

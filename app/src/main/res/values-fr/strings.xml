@@ -142,6 +142,9 @@
     <string name="media_next">Suivant</string>
     <string name="media_pause">Pause</string>
     <string name="media_play">Lecture</string>
+    <string name="media_queue">À suivre</string>
+    <string name="media_queue_open">Voir la file d\'attente</string>
+    <string name="media_queue_close">Retour au lecteur</string>
 
     <string name="nav_navigating">Navigation en cours</string>
     <string name="nav_navigate">Naviguer</string>

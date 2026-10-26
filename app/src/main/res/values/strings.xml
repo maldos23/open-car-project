@@ -161,6 +161,9 @@
     <string name="media_next">Next</string>
     <string name="media_pause">Pause</string>
     <string name="media_play">Play</string>
+    <string name="media_queue">Up next</string>
+    <string name="media_queue_open">Show queue</string>
+    <string name="media_queue_close">Back to player</string>
 
     <!-- Navigation -->
     <string name="nav_navigating">Navigating</string>

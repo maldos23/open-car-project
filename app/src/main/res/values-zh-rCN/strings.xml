@@ -142,6 +142,9 @@
     <string name="media_next">下一首</string>
     <string name="media_pause">暂停</string>
     <string name="media_play">播放</string>
+    <string name="media_queue">接下来播放</string>
+    <string name="media_queue_open">查看播放队列</string>
+    <string name="media_queue_close">返回播放器</string>
 
     <string name="nav_navigating">导航中</string>
     <string name="nav_navigate">导航</string>

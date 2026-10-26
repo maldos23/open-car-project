@@ -10,7 +10,13 @@ import kotlin.math.min
  */
 object VibrantColor {
 
-    fun from(pixels: IntArray): Int? {
+    fun from(pixels: IntArray): Int? = palette(pixels, 1).firstOrNull()
+
+    /**
+     * Up to [max] vibrant colors of the image, most dominant first, each from a different
+     * hue family (neighboring hues are skipped so the colors actually differ). Empty if gray.
+     */
+    fun palette(pixels: IntArray, max: Int = 3): List<Int> {
         // 12 hue buckets; each pixel votes with its "vividness" (saturation × mid brightness).
         val weight = FloatArray(12)
         val sumR = FloatArray(12)
@@ -32,11 +38,17 @@ object VibrantColor {
             sumG[bucket] += g * w
             sumB[bucket] += b * w
         }
-        val best = weight.indices.maxByOrNull { weight[it] } ?: return null
-        if (weight[best] < pixels.size * 0.02f) return null
-        val w = weight[best]
-        fun ch(v: Float) = (v / w * 255).toInt().coerceIn(0, 255)
-        return (0xFF shl 24) or (ch(sumR[best]) shl 16) or (ch(sumG[best]) shl 8) or ch(sumB[best])
+        val picked = mutableListOf<Int>()
+        for (b in weight.indices.sortedByDescending { weight[it] }) {
+            if (picked.size == max || weight[b] < pixels.size * 0.02f) break
+            if (picked.any { (b - it + 12) % 12 <= 1 || (it - b + 12) % 12 <= 1 }) continue
+            picked += b
+        }
+        return picked.map { b ->
+            val w = weight[b]
+            fun ch(v: Float) = (v / w * 255).toInt().coerceIn(0, 255)
+            (0xFF shl 24) or (ch(sumR[b]) shl 16) or (ch(sumG[b]) shl 8) or ch(sumB[b])
+        }
     }
 
     private fun hue(r: Float, g: Float, b: Float, mx: Float, mn: Float): Float {
