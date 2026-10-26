@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-10-26
+
+### Fixed
+
+- Touching anywhere outside the open notification island (or pressing Back) collapses it, and
+  the touch no longer reaches what is underneath.
+- The notification island no longer overlaps the weather or the speed scene: it only takes the
+  free space between them, also on smaller screens, and the open preview grows downward.
+
 ## [0.6.0] - 2026-10-26
 
 ### Added
@@ -183,7 +192,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.6.0...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.6.1...develop
+[0.6.1]: https://github.com/maldos23/open-car-project/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/maldos23/open-car-project/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/maldos23/open-car-project/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/maldos23/open-car-project/compare/v0.4.0...v0.4.1
