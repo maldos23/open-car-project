@@ -6,6 +6,19 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-26
+
+### Added
+
+- The player shows the playing app's queue ("Up next") when the app publishes one: tap the list
+  button, then a song to play it.
+- The player's background is an animated gradient of the cover's colors that blends into the next
+  track's.
+
+### Changed
+
+- The logo of the app that is playing moved to the player's bottom-right corner.
+
 ## [0.6.1] - 2026-10-26
 
 ### Fixed
@@ -192,7 +205,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.6.1...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.7.0...develop
+[0.7.0]: https://github.com/maldos23/open-car-project/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/maldos23/open-car-project/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/maldos23/open-car-project/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/maldos23/open-car-project/compare/v0.4.1...v0.5.0
