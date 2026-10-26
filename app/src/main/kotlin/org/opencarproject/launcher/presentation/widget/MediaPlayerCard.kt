@@ -26,6 +26,17 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.QueueMusic
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import kotlin.math.cos
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -109,26 +120,37 @@ fun MediaPlayerCard(modifier: Modifier = Modifier) {
     }
     val current by MediaSessionSource.nowPlaying.collectAsStateWithLifecycle()
 
-    // Background: vibrant artwork color (or the theme primary) with a smooth transition.
+    // Background: an animated gradient of the artwork's colors (or the theme primary); each color
+    // blends smoothly into the next track's.
     val fallback = MaterialTheme.colorScheme.primaryContainer
     val art = current?.art
-    val vibrant = remember(art) { art?.vibrantColor() }
-    val accent by animateColorAsState(vibrant?.let { Color(it) } ?: fallback, tween(900), label = "accent")
+    val palette = remember(art) { art?.vibrantPalette().orEmpty().map { Color(it) } }
+    val base = palette.getOrNull(0) ?: fallback
+    val first by animateColorAsState(base, tween(900), label = "c0")
+    val second by animateColorAsState(palette.getOrNull(1) ?: base.darker(), tween(900), label = "c1")
+    val third by animateColorAsState(palette.getOrNull(2) ?: lerp(base, Color.White, 0.25f), tween(900), label = "c2")
     val surface = MaterialTheme.colorScheme.surfaceContainerHighest
     val transition = rememberInfiniteTransition(label = "bg")
-    val drift = transition.animateFloat(0f, 1f, infiniteRepeatable(tween(9000, easing = LinearEasing), RepeatMode.Reverse), label = "drift")
+    val phase = transition.animateFloat(0f, (2 * PI).toFloat(), infiniteRepeatable(tween(24_000, easing = LinearEasing)), label = "phase")
     val playingAlpha by animateFloatAsState(if (current?.isPlaying == true) 1f else 0.55f, tween(600), label = "alpha")
-    val top = lerp(surface, accent, 0.85f * playingAlpha)
-    val bottom = lerp(surface, accent.darker(), 0.6f * playingAlpha)
-    val onBg = if (top.luminance() > 0.5f) Color(0xFF111111) else Color.White
+    val tint = 0.85f * playingAlpha
+    val a = lerp(surface, first, tint)
+    val b = lerp(surface, second, tint)
+    val c = lerp(surface, third, tint)
+    val bottom = lerp(surface, first.darker(), 0.6f * playingAlpha)
+    val onBg = if (lerp(lerp(a, b, 0.5f), c, 0.33f).luminance() > 0.5f) Color(0xFF111111) else Color.White
 
     Box(
         modifier
             .fillMaxSize()
-            // The drift is read while drawing: the card redraws, it doesn't recompose 60 times a second.
+            // The phase is read while drawing: the card redraws, it doesn't recompose 60 times a second.
             .drawBehind {
-                val d = drift.value
-                drawRect(Brush.linearGradient(listOf(top, bottom), start = Offset(0f, 600f * d), end = Offset(900f, 900f - 300f * d)))
+                val t = phase.value
+                drawRect(Brush.linearGradient(listOf(a, bottom), start = Offset.Zero, end = Offset(size.width, size.height)))
+                // Soft color blobs drifting on closed loops (integer frequencies: seamless repeat).
+                drawBlob(b, 0.5f + 0.4f * cos(t), 0.5f + 0.4f * sin(2 * t))
+                drawBlob(c, 0.5f + 0.45f * cos(2 * t + 2.1f), 0.5f + 0.4f * sin(t + 2.1f))
+                drawBlob(a, 0.5f + 0.35f * cos(t + 4.2f), 0.5f + 0.45f * sin(t + 4.2f))
             }
             .clickable { openPlayer(context, current) },
     ) {
@@ -162,12 +184,15 @@ private fun IdleState() {
 @Composable
 private fun PlayerLayouts(current: NowPlaying, onBg: Color) {
     val controls = MediaSessionSource.controller?.transportControls
+    var showQueue by remember { mutableStateOf(false) }
+    val hasQueue = current.queue.isNotEmpty()
     BoxWithConstraints(Modifier.fillMaxSize().padding(14.dp)) {
         val w = maxWidth
         val h = maxHeight
         val mini = h < 90.dp || (w < 180.dp && h < 200.dp)
         // Mini (play only), compact (text + controls), tall (artwork on top), wide (artwork on the left).
         when {
+            showQueue && hasQueue && h >= 170.dp -> QueueList(current, controls, onClose = { showQueue = false })
             mini -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 PlayPause(current.isPlaying, controls, big = h >= 72.dp, onBg)
             }
@@ -190,7 +215,10 @@ private fun PlayerLayouts(current: NowPlaying, onBg: Color) {
                 Cover(current, Modifier.weight(1f, fill = false).fillMaxWidth().aspectRatio(1f, matchHeightConstraintsFirst = true))
                 TrackText(current, center = true, titleStyle = MaterialTheme.typography.titleLarge)
                 Progress(current, Modifier.fillMaxWidth(), showTimes = true)
-                Controls(current.isPlaying, controls, compact = w < 260.dp, onBg)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Controls(current.isPlaying, controls, compact = w < 260.dp, onBg)
+                    if (hasQueue) QueueButton { showQueue = true }
+                }
             }
             else -> Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
                 if (w >= h + 220.dp) Cover(current, Modifier.fillMaxHeight().aspectRatio(1f))
@@ -203,7 +231,10 @@ private fun PlayerLayouts(current: NowPlaying, onBg: Color) {
                         Equalizer(current.isPlaying, Modifier.size(30.dp, 26.dp))
                     }
                     Progress(current, Modifier.fillMaxWidth(), showTimes = true)
-                    Controls(current.isPlaying, controls, compact = false, onBg)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Controls(current.isPlaying, controls, compact = false, onBg)
+                        if (hasQueue) QueueButton { showQueue = true }
+                    }
                 }
             }
         }
@@ -277,6 +308,76 @@ private fun Progress(current: NowPlaying, modifier: Modifier, showTimes: Boolean
             Row(Modifier.fillMaxWidth().padding(top = 2.dp)) {
                 Text(DateUtils.formatElapsedTime(position / 1000), style = MaterialTheme.typography.labelSmall, color = color.copy(alpha = 0.75f), modifier = Modifier.weight(1f))
                 Text(DateUtils.formatElapsedTime(current.durationMs / 1000), style = MaterialTheme.typography.labelSmall, color = color.copy(alpha = 0.75f))
+            }
+        }
+    }
+}
+
+@Composable
+private fun QueueButton(onClick: () -> Unit) {
+    IconButton(onClick = onClick, modifier = Modifier.size(56.dp)) {
+        Icon(Icons.AutoMirrored.Rounded.QueueMusic, contentDescription = stringResource(R.string.media_queue_open), modifier = Modifier.size(30.dp))
+    }
+}
+
+/** The app's queue ("up next"): the current item is highlighted; tapping one plays it. */
+@Composable
+private fun QueueList(current: NowPlaying, controls: MediaController.TransportControls?, onClose: () -> Unit) {
+    val active = current.queue.indexOfFirst { it.id == current.activeQueueId }
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = active.coerceAtLeast(0))
+    Column(Modifier.fillMaxSize()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onClose, modifier = Modifier.size(48.dp)) {
+                Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.media_queue_close))
+            }
+            Text(
+                current.queueTitle.ifBlank { stringResource(R.string.media_queue) },
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        // Bottom padding keeps the last item clear of the app logo in the corner.
+        LazyColumn(state = listState, contentPadding = PaddingValues(bottom = 36.dp)) {
+            itemsIndexed(current.queue, key = { _, item -> item.id }) { index, item ->
+                val playing = index == active
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 56.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(if (playing) LocalContentColor.current.copy(alpha = 0.15f) else Color.Transparent)
+                        .clickable {
+                            controls?.skipToQueueItem(item.id)
+                            onClose()
+                        }
+                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Box(Modifier.size(44.dp).clip(RoundedCornerShape(8.dp)).background(LocalContentColor.current.copy(alpha = 0.12f)), contentAlignment = Alignment.Center) {
+                        val art = item.art
+                        if (art != null) {
+                            Image(art.asImageBitmap(), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                        } else {
+                            Icon(Icons.Rounded.MusicNote, contentDescription = null, modifier = Modifier.size(22.dp))
+                        }
+                    }
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            item.title.ifBlank { stringResource(R.string.media_unknown) },
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = if (playing) FontWeight.SemiBold else FontWeight.Normal,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        if (item.subtitle.isNotBlank()) {
+                            Text(item.subtitle, style = MaterialTheme.typography.bodySmall, color = LocalContentColor.current.copy(alpha = 0.75f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        }
+                    }
+                    if (playing) Equalizer(current.isPlaying, Modifier.size(20.dp, 16.dp))
+                }
             }
         }
     }
@@ -368,11 +469,18 @@ internal fun openPlayer(context: Context, current: NowPlaying?) {
     }
 }
 
-private fun Bitmap.vibrantColor(): Int? = runCatching {
+private fun Bitmap.vibrantPalette(): List<Int> = runCatching {
     val small = scale(24, 24)
     val pixels = IntArray(24 * 24)
     small.getPixels(pixels, 0, 24, 0, 0, 24, 24)
-    VibrantColor.from(pixels)
-}.getOrNull()
+    VibrantColor.palette(pixels)
+}.getOrDefault(emptyList())
+
+/** Radial blob of [color] fading to transparent, centered at a fraction ([fx], [fy]) of the size. */
+private fun DrawScope.drawBlob(color: Color, fx: Float, fy: Float) {
+    val center = Offset(size.width * fx, size.height * fy)
+    val radius = maxOf(size.width, size.height) * 0.7f
+    drawCircle(Brush.radialGradient(listOf(color, color.copy(alpha = 0f)), center, radius), radius, center)
+}
 
 private fun Color.darker(): Color = lerp(this, Color.Black, 0.35f)

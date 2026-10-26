@@ -6,6 +6,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.media.MediaMetadata
 import android.media.session.MediaController
+import android.media.session.MediaSession
 import android.media.session.MediaSessionManager
 import android.media.session.PlaybackState
 import android.os.Handler
@@ -31,7 +32,15 @@ data class NowPlaying(
     val positionUpdatedAt: Long,
     val speed: Float,
     val sessionActivity: PendingIntent?,
+    /** What the app says comes next (empty if it doesn't publish its queue). */
+    val queue: List<QueueEntry> = emptyList(),
+    val queueTitle: String = "",
+    /** [QueueEntry.id] of the item playing now, or -1 if unknown. */
+    val activeQueueId: Long = -1,
 )
+
+/** One item of the player app's queue; [id] is what `skipToQueueItem` takes. */
+data class QueueEntry(val id: Long, val title: String, val subtitle: String, val art: Bitmap?)
 
 /**
  * The system's active media session, shared by the player and the island (which announces
@@ -56,6 +65,7 @@ object MediaSessionSource {
 
     private val callback = object : MediaController.Callback() {
         override fun onMetadataChanged(metadata: MediaMetadata?) = publish()
+        override fun onQueueChanged(queue: MutableList<MediaSession.QueueItem>?) = publish()
         override fun onPlaybackStateChanged(state: PlaybackState?) {
             // If another session started playing or this one became unusable, re-select.
             if (controller?.isUsable() == false) attach(manager?.activeSessionsOrEmpty()) else publish()
@@ -165,6 +175,11 @@ object MediaSessionSource {
             positionUpdatedAt = state?.lastPositionUpdateTime ?: 0L,
             speed = state?.playbackSpeed ?: 0f,
             sessionActivity = sessionActivity,
+            queue = queue.orEmpty().map {
+                QueueEntry(it.queueId, it.description.title?.toString().orEmpty(), it.description.subtitle?.toString().orEmpty(), it.description.iconBitmap)
+            },
+            queueTitle = queueTitle?.toString().orEmpty(),
+            activeQueueId = state?.activeQueueItemId ?: -1,
         )
     }
 }

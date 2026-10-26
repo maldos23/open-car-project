@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- The player shows the playing app's queue ("Up next") when the app publishes one: tap the list
+  button, then a song to play it.
+- The player's background is an animated gradient of the cover's colors that blends into the next
+  track's.
+
 ### Changed
 
 - The logo of the app that is playing moved to the player's bottom-right corner.
