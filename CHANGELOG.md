@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-10-25
+
 ### Fixed
 
 - The weather comes back as soon as the internet does after an outage, instead of up to 30 minutes later.
@@ -159,7 +161,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.4.0...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.4.1...develop
+[0.4.1]: https://github.com/maldos23/open-car-project/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/maldos23/open-car-project/compare/v0.3.3...v0.4.0
 [0.3.3]: https://github.com/maldos23/open-car-project/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/maldos23/open-car-project/compare/v0.3.1...v0.3.2
