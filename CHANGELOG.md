@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- The media player shows the logo of the app that is playing.
+
 ## [0.5.0] - 2026-10-26
 
 ### Changed

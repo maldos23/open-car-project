@@ -72,6 +72,7 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -82,6 +83,7 @@ import androidx.core.graphics.scale
 import org.opencarproject.launcher.core.pure.VibrantColor
 import org.opencarproject.launcher.data.source.MediaSessionSource
 import org.opencarproject.launcher.data.source.NowPlaying
+import org.opencarproject.launcher.presentation.common.rememberAppIcon
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material3.LocalContentColor
 import kotlinx.coroutines.delay
@@ -171,6 +173,7 @@ private fun PlayerLayouts(current: NowPlaying, onBg: Color) {
             h < 170.dp -> Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     TrackText(current, center = false, titleStyle = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                    AppLogo(current.packageName, Modifier.padding(end = 8.dp).size(24.dp))
                     Equalizer(current.isPlaying, Modifier.size(24.dp, 20.dp))
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -183,7 +186,11 @@ private fun PlayerLayouts(current: NowPlaying, onBg: Color) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             ) {
-                Cover(current, Modifier.weight(1f, fill = false).fillMaxWidth().aspectRatio(1f, matchHeightConstraintsFirst = true))
+                Box(Modifier.weight(1f, fill = false).fillMaxWidth().aspectRatio(1f, matchHeightConstraintsFirst = true)) {
+                    Cover(current, Modifier.fillMaxSize())
+                    // No equalizer in this layout: the app logo sits on the artwork's corner.
+                    AppLogo(current.packageName, Modifier.align(Alignment.TopEnd).padding(8.dp).size(28.dp))
+                }
                 TrackText(current, center = true, titleStyle = MaterialTheme.typography.titleLarge)
                 Progress(current, Modifier.fillMaxWidth(), showTimes = true)
                 Controls(current.isPlaying, controls, compact = w < 260.dp, onBg)
@@ -196,6 +203,7 @@ private fun PlayerLayouts(current: NowPlaying, onBg: Color) {
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         TrackText(current, center = false, titleStyle = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
+                        AppLogo(current.packageName, Modifier.padding(end = 10.dp).size(28.dp))
                         Equalizer(current.isPlaying, Modifier.size(30.dp, 26.dp))
                     }
                     Progress(current, Modifier.fillMaxWidth(), showTimes = true)
@@ -274,6 +282,17 @@ private fun Progress(current: NowPlaying, modifier: Modifier, showTimes: Boolean
             }
         }
     }
+}
+
+/** Logo (no background) of the app that is playing; nothing if it has no launcher activity. */
+@Composable
+private fun AppLogo(packageName: String, modifier: Modifier) {
+    val context = LocalContext.current
+    val key = remember(packageName) {
+        context.packageManager.getLaunchIntentForPackage(packageName)?.component?.flattenToString()
+    } ?: return
+    val icon = rememberAppIcon(key, sizePx = with(LocalDensity.current) { 28.dp.roundToPx() }, withoutBackground = true) ?: return
+    Image(icon, contentDescription = null, modifier = modifier)
 }
 
 /** Equalizer: bars that dance while playing and flatten (motionless) when paused. */
