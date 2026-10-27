@@ -25,6 +25,7 @@ import org.opencarproject.launcher.core.ui.theme.LauncherTheme
 import org.opencarproject.launcher.core.ui.theme.isDark
 import org.opencarproject.launcher.presentation.common.LocalFullscreen
 import org.opencarproject.launcher.presentation.common.setSystemBarsHidden
+import org.opencarproject.launcher.data.source.MediaSessionSource
 import org.opencarproject.launcher.di.AppContainer
 import org.opencarproject.launcher.presentation.launcher.LauncherScreen
 import org.opencarproject.launcher.presentation.launcher.LauncherViewModel
@@ -139,6 +140,15 @@ class LauncherActivity : ComponentActivity() {
                 }
                 launch {
                     viewModel.widgetConfigureRequest.collect { appWidgetId -> configureIfNeeded(appWidgetId) }
+                }
+                launch {
+                    // ponytail: 5 s poll as a safety net for ROMs that drop session callbacks in
+                    // sleep (one getActiveSessions call; acts only on a mismatch). Drop it if a
+                    // callback-only fix is found.
+                    while (true) {
+                        MediaSessionSource.resync()
+                        delay(5_000)
+                    }
                 }
                 launch {
                     viewModel.messages.collect { android.widget.Toast.makeText(this@LauncherActivity, getString(it), android.widget.Toast.LENGTH_LONG).show() }
