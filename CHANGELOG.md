@@ -6,6 +6,19 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Reverse overlay radar: a one-color top view of the car with three proximity arcs in front and
+  behind. The installed sensors are counted and their readings interpolated across the bumper, so
+  the arcs grow towards the car right where the obstacle is, with smooth transitions.
+
+### Fixed
+
+- With "Hide the system camera" on, the head unit's full-screen reverse view is closed the moment
+  it appears (it announces itself), instead of staying on screen for up to a few seconds.
+- The reverse overlay shows even if reverse was engaged right as the launcher started, and its
+  radar panel is no longer squeezed into a thin strip.
+
 ## [0.12.0] - 2026-10-27
 
 ### Added

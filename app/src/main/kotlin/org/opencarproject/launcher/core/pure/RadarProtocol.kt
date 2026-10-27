@@ -17,6 +17,27 @@ object RadarProtocol {
         else -> Proximity.FAR
     }
 
+    /** Zone as 0..1 closeness for drawing: clear or absent → 0, zone 1 → 1.0, zone 10 → 0.1. */
+    fun proximity01(zone: Int): Float = if (zone <= 0) 0f else ((11 - zone) / 10f).coerceIn(0f, 1f)
+
+    /**
+     * Closeness along a bumper, [samples] points from the car's left to its right. [sensors] are the
+     * present sensors only (any count), spread evenly at `(i + 0.5) / n`; between two sensors the
+     * value is linearly interpolated and beyond the outer ones it holds their value.
+     */
+    fun profile(sensors: List<Float>, samples: Int): FloatArray {
+        val n = sensors.size
+        if (n == 0 || samples <= 0) return FloatArray(samples.coerceAtLeast(0))
+        return FloatArray(samples) { s ->
+            // Position in sensor units: sensor i sits at i.
+            val x = ((s + 0.5f) / samples) * n - 0.5f
+            val i = x.toInt().coerceIn(0, n - 1)
+            if (x <= 0f) sensors[0]
+            else if (i >= n - 1) sensors[n - 1]
+            else sensors[i] + (sensors[i + 1] - sensors[i]) * (x - i)
+        }
+    }
+
     /**
      * Parses `[0x98, 0x04, len, 40 data bytes, 0xFF]`, laid out as the vendor's
      * `QfSdkDataPack.packRadarState`: 12 zones (LF1 LF2 LF3 RF3 RF2 RF1 LB1 LB2 LB3 RB3 RB2 RB1),
