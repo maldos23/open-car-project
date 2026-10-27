@@ -82,6 +82,7 @@ data class LauncherSettings(
     val speedUnit: SpeedUnit = SpeedUnit.AUTO,
     val vehicleShape: VehicleShape = VehicleShape.CAR,
     val vehicleColor: VehicleColor = VehicleColor.RED,
+    val sceneTheme: SceneTheme = SceneTheme.CITY,
     val timeFormat: TimeFormat = TimeFormat.SYSTEM,
     val appMenuStyle: AppMenuStyle = AppMenuStyle.BOTTOM_SHEET,
     val accentColor: AccentColor = AccentColor.BLUE,

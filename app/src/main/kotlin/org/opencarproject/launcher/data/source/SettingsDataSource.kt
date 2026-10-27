@@ -20,6 +20,7 @@ import org.opencarproject.launcher.core.model.DockIconSize
 import org.opencarproject.launcher.core.model.GlowColor
 import org.opencarproject.launcher.core.model.MotionSource
 import org.opencarproject.launcher.core.model.LauncherSettings
+import org.opencarproject.launcher.core.model.SceneTheme
 import org.opencarproject.launcher.core.model.SpeedDialStyle
 import org.opencarproject.launcher.core.model.SpeedSource
 import org.opencarproject.launcher.core.model.SpeedUnit
@@ -56,6 +57,7 @@ class SettingsDataSource(private val context: Context) {
     private val speedDialStyleKey = stringPreferencesKey("speed_dial_style")
     private val vehicleShapeKey = stringPreferencesKey("vehicle_shape")
     private val vehicleColorKey = stringPreferencesKey("vehicle_color")
+    private val sceneThemeKey = stringPreferencesKey("scene_theme")
     private val hiddenElementsKey = stringSetPreferencesKey("hidden_elements")
     private val appMenuStyleKey = stringPreferencesKey("app_menu_style")
     private val accentColorKey = stringPreferencesKey("accent_color")
@@ -93,6 +95,7 @@ class SettingsDataSource(private val context: Context) {
             prefs[speedDialStyleKey] = next.speedDialStyle.name
             prefs[vehicleShapeKey] = next.vehicleShape.name
             prefs[vehicleColorKey] = next.vehicleColor.name
+            prefs[sceneThemeKey] = next.sceneTheme.name
             prefs[hiddenElementsKey] = next.hiddenElements.map { it.name }.toSet()
             prefs[appMenuStyleKey] = next.appMenuStyle.name
             prefs[accentColorKey] = next.accentColor.name
@@ -128,6 +131,7 @@ class SettingsDataSource(private val context: Context) {
         speedDialStyle = enumOr(this[speedDialStyleKey], SpeedDialStyle.CIRCLE),
         vehicleShape = enumOr(this[vehicleShapeKey], VehicleShape.CAR),
         vehicleColor = enumOr(this[vehicleColorKey], VehicleColor.RED),
+        sceneTheme = enumOr(this[sceneThemeKey], SceneTheme.CITY),
         appMenuStyle = enumOr(this[appMenuStyleKey], AppMenuStyle.BOTTOM_SHEET),
         accentColor = enumOr(this[accentColorKey], AccentColor.BLUE),
         dockIconSize = enumOr(this[dockIconSizeKey], DockIconSize.MEDIUM),
