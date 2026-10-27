@@ -131,6 +131,8 @@ import org.opencarproject.launcher.presentation.grid.WidgetGrid
 import org.opencarproject.launcher.presentation.picker.WidgetPickerPanel
 import org.opencarproject.launcher.presentation.settings.SettingsSheet
 import org.opencarproject.launcher.presentation.widget.NotificationIsland
+import org.opencarproject.launcher.presentation.widget.ClimateBar
+import org.opencarproject.launcher.data.source.ClimateSource
 import org.opencarproject.launcher.presentation.widget.NotificationsCard
 import kotlinx.coroutines.launch
 
@@ -373,7 +375,11 @@ fun LauncherScreen(
             // Notification island at top center (above everything except the sheets).
             NotificationIsland(Modifier.align(Alignment.TopCenter).padding(top = 8.dp), maxWidth = islandMaxWidth)
 
+            // The launcher's own climate popup, just above the dock.
+            if (settings.climateBar) ClimateBar(Modifier.align(Alignment.BottomCenter).padding(bottom = 104.dp))
+
             if (settingsOpen) {
+                val nativeAcPopup by remember(context) { ClimateSource.nativePopup(context) }.collectAsStateWithLifecycle(null)
                 SettingsSheet(
                     settings = settings,
                     // Settings are in visible cells; the layout uses half cells.
@@ -394,6 +400,8 @@ fun LauncherScreen(
                     onElementVisibilityChange = viewModel::onElementVisibilityChange,
                     onGridChange = { viewModel.onGridChange(it.copy(columns = it.columns * LayoutDefinition.COLUMN_SCALE)) },
                     onDismiss = { settingsOpen = false },
+                    nativeAcPopup = nativeAcPopup,
+                    onNativeAcPopupChange = { ClimateSource.setNativePopup(context, it) },
                     scrollState = settingsScroll,
                 )
             }

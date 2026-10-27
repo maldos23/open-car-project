@@ -114,6 +114,8 @@ data class LauncherSettings(
     val assistantStyle: AssistantStyle = AssistantStyle.GOOGLE_ANIMATED,
     /** Colored halo and border around the assistant pill. */
     val assistantGlow: Boolean = true,
+    /** Bar at the bottom of the home screen that shows the climate for a few seconds when it changes. */
+    val climateBar: Boolean = false,
 )
 
 /** Current weather for the dock. */
@@ -198,6 +200,7 @@ object BuiltinKeys {
     const val MAP = "builtin/map"
     const val MEDIA = "builtin/media"
     const val NOTIFICATIONS = "builtin/notifications"
+    const val CLIMATE = "builtin/climate"
 }
 
 /**

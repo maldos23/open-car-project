@@ -39,6 +39,10 @@
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="geo" />
         </intent>
+        <!-- Climate module: the head unit's CAN service (see assets/climate/qf.json). -->
+        <intent>
+            <action android:name="com.qf.vehicle.service.ACTION_CAN_SERVICE" />
+        </intent>
     </queries>
 
     <application

@@ -238,4 +238,30 @@
         <item>Mets mon podcast préféré</item>
         <item>Quels restaurants y a-t-il à proximité ?</item>
     </string-array>
+
+    <!-- Climate module -->
+    <string name="module_climate">Climatisation</string>
+    <string name="climate_unavailable">Aucun service de climatisation sur cet autoradio</string>
+    <string name="climate_power">Allumer/éteindre la clim</string>
+    <string name="climate_ac">A/C</string>
+    <string name="climate_auto">AUTO</string>
+    <string name="climate_recirculation">Recycl.</string>
+    <string name="climate_defrost_front">Désembuage avant</string>
+    <string name="climate_defrost_rear">Désembuage arrière</string>
+    <string name="climate_mode">Air</string>
+    <string name="climate_mode_face">Visage</string>
+    <string name="climate_mode_face_feet">Visage + pieds</string>
+    <string name="climate_mode_feet">Pieds</string>
+    <string name="climate_mode_windshield_feet">Pare-brise + pieds</string>
+    <string name="climate_temp_low">LO</string>
+    <string name="climate_temp_high">HI</string>
+    <string name="climate_read_only">%1$s n\'est pas encore pris en charge : lecture seule</string>
+    <string name="climate_off">Éteint</string>
+    <string name="climate_fan_level">Ventilation %1$d</string>
+    <string name="settings_climate">Climatisation</string>
+    <string name="settings_climate_native_popup">Fenêtre de clim du système</string>
+    <string name="settings_climate_native_popup_desc">La fenêtre de clim de l\'autoradio qui s\'affiche par-dessus tout quand la clim change</string>
+    <string name="settings_climate_bar">Barre de clim</string>
+    <string name="settings_climate_bar_desc">Affiche la température et la ventilation en bas de l\'écran d\'accueil quelques secondes quand la clim change</string>
+    <string name="climate_waiting">En attente de la voiture…</string>
 </resources>

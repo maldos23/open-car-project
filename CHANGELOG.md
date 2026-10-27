@@ -6,6 +6,17 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Climate module for head units with a QF CAN app (`com.qf.vehicle`): cabin temperatures,
+  power, A/C, AUTO, recirculation, air direction, defrosters and fan. The launcher follows the
+  car configured in the head unit (`persist.sys.car_mode`) and sends the same commands as the
+  vendor's own AC panel, so it works with every car and CAN box that app supports.
+- Climate card redesign: ice flakes blowing with the fan (they settle and fade when the climate
+  is off), fan level as bars with the car's own number of levels, and the air direction icon.
+- Settings → Climate: switch the head unit's own AC popup on or off, and an optional climate bar
+  at the bottom of the home screen with blue-to-red temperature bars.
+
 ## [0.10.4] - 2026-10-27
 
 ### Fixed

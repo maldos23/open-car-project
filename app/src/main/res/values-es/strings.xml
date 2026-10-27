@@ -238,4 +238,30 @@
         <item>Pon mi podcast favorito</item>
         <item>¿Qué restaurantes hay cerca?</item>
     </string-array>
+
+    <!-- Climate module -->
+    <string name="module_climate">Clima</string>
+    <string name="climate_unavailable">Este radio no tiene servicio de clima</string>
+    <string name="climate_power">Encender/apagar clima</string>
+    <string name="climate_ac">A/C</string>
+    <string name="climate_auto">AUTO</string>
+    <string name="climate_recirculation">Recirc.</string>
+    <string name="climate_defrost_front">Desempañador del.</string>
+    <string name="climate_defrost_rear">Desempañador tras.</string>
+    <string name="climate_mode">Aire</string>
+    <string name="climate_mode_face">Cara</string>
+    <string name="climate_mode_face_feet">Cara + pies</string>
+    <string name="climate_mode_feet">Pies</string>
+    <string name="climate_mode_windshield_feet">Parabrisas + pies</string>
+    <string name="climate_temp_low">LO</string>
+    <string name="climate_temp_high">HI</string>
+    <string name="climate_read_only">%1$s aún no está mapeado: solo lectura</string>
+    <string name="climate_off">Apagado</string>
+    <string name="climate_fan_level">Ventilador %1$d</string>
+    <string name="settings_climate">Clima</string>
+    <string name="settings_climate_native_popup">Panel de A/C del sistema</string>
+    <string name="settings_climate_native_popup_desc">La ventana de A/C del radio que aparece sobre cualquier pantalla al cambiar el clima</string>
+    <string name="settings_climate_bar">Barra de clima</string>
+    <string name="settings_climate_bar_desc">Muestra la temperatura y el ventilador abajo del escritorio unos segundos cuando cambia el clima</string>
+    <string name="climate_waiting">Esperando al auto…</string>
 </resources>
