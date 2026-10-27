@@ -6,6 +6,17 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Speed scene: past the rocket speed the vehicle shakes and sparks, turns into a rocket and
+  lifts off into space; it lands back on the road when you slow down.
+- Speed scene: a picture catalog of silhouettes, with new sports car, van, bus, motorbike and
+  an 8-bit pixel cat with a rainbow trail.
+- Speed scene: selectable animated scenery: city, pixel art, countryside, beach, desert, snow
+  and jungle (the sky still follows the time and the weather).
+- More detail on vehicles (doors, mirrors, exhaust, brake light, night headlight beam), cats
+  (stripes, whiskers, blinking) and dogs (spots, collar, flapping ear, tongue out when fast).
+
 ## [0.8.0] - 2026-10-26
 
 ### Added

@@ -551,6 +551,7 @@ private fun TopBar(
                 rocketKmh = settings.rocketKmh,
                 vehicle = settings.vehicleShape,
                 color = Color(settings.vehicleColor.argb),
+                theme = settings.sceneTheme,
                 showDial = settings.showSpeedDial,
                 dialStyle = settings.speedDialStyle,
                 mph = SpeedUnits.usesMph(settings.speedUnit, androidx.compose.ui.text.intl.Locale.current.region),
