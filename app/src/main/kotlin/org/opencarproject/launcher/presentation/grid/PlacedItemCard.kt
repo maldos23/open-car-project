@@ -83,6 +83,7 @@ import org.opencarproject.launcher.presentation.widget.GlassWidgetHostView
 import org.opencarproject.launcher.presentation.widget.MediaPlayerCard
 import org.opencarproject.launcher.presentation.widget.NavigationCard
 import org.opencarproject.launcher.presentation.widget.NotificationsCard
+import org.opencarproject.launcher.presentation.widget.ClimateCard
 import kotlinx.coroutines.launch
 
 /**
@@ -238,6 +239,7 @@ fun PlacedItemCard(
                 CatalogItemKind.MAP -> NavigationCard()
                 CatalogItemKind.MEDIA -> MediaPlayerCard()
                 CatalogItemKind.NOTIFICATIONS -> NotificationsCard()
+                CatalogItemKind.CLIMATE -> ClimateCard()
             }
         }
 

@@ -61,6 +61,7 @@ class SystemCatalogSource(
         builtin(CatalogItemKind.MAP, BuiltinKeys.MAP, "Navegación", "Próximo giro de Google Maps o Waze"),
         builtin(CatalogItemKind.MEDIA, BuiltinKeys.MEDIA, "Reproductor", "Controla la música en curso"),
         builtin(CatalogItemKind.NOTIFICATIONS, BuiltinKeys.NOTIFICATIONS, "Notificaciones", "Notificaciones activas"),
+        builtin(CatalogItemKind.CLIMATE, BuiltinKeys.CLIMATE, "Clima", "Temperatura y modos del aire acondicionado"),
     )
 
     private fun builtin(kind: CatalogItemKind, key: String, title: String, description: String) = CatalogItem(

@@ -198,6 +198,7 @@ object BuiltinKeys {
     const val MAP = "builtin/map"
     const val MEDIA = "builtin/media"
     const val NOTIFICATIONS = "builtin/notifications"
+    const val CLIMATE = "builtin/climate"
 }
 
 /**

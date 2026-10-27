@@ -56,6 +56,9 @@ enum class CatalogItemKind {
 
     /** List of active notifications (NotificationListenerService). */
     NOTIFICATIONS,
+
+    /** Climate control of the car through the head unit's CAN service. */
+    CLIMATE,
 }
 
 /** Weather condition (groups Open-Meteo WMO codes). */

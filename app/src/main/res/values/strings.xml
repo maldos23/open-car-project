@@ -261,4 +261,29 @@
         <item>Play my favorite podcast</item>
         <item>What restaurants are nearby?</item>
     </string-array>
+
+    <!-- Climate module -->
+    <string name="module_climate">Climate</string>
+    <string name="climate_unavailable">No climate service on this head unit</string>
+    <string name="climate_power">Climate on/off</string>
+    <string name="climate_left_temp_up">Driver temperature up</string>
+    <string name="climate_left_temp_down">Driver temperature down</string>
+    <string name="climate_right_temp_up">Passenger temperature up</string>
+    <string name="climate_right_temp_down">Passenger temperature down</string>
+    <string name="climate_fan_up">Fan up</string>
+    <string name="climate_fan_down">Fan down</string>
+    <string name="climate_ac">A/C</string>
+    <string name="climate_auto">AUTO</string>
+    <string name="climate_recirculation">Recirc.</string>
+    <string name="climate_defrost_front">Front defrost</string>
+    <string name="climate_defrost_rear">Rear defrost</string>
+    <string name="climate_mode">Air</string>
+    <string name="climate_mode_face">Face</string>
+    <string name="climate_mode_face_feet">Face + feet</string>
+    <string name="climate_mode_feet">Feet</string>
+    <string name="climate_mode_windshield_feet">Windshield + feet</string>
+    <string name="climate_temp_low">LO</string>
+    <string name="climate_temp_high">HI</string>
+    <string name="climate_read_only">%1$s isn\'t mapped yet: read only</string>
+    <string name="climate_waiting">Waiting for the car…</string>
 </resources>
