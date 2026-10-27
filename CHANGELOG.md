@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Notifications and the media player no longer stay empty or frozen on head units whose system
+  kills the launcher and never reconnects its notification listener (seen on a Unisoc K706):
+  the launcher now detects the dropped listener and binds it again.
+
 ## [0.10.3] - 2026-10-26
 
 ### Changed
