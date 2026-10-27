@@ -19,6 +19,36 @@ All notable changes to this project are documented here. The format follows
 - More detail on vehicles (doors, mirrors, exhaust, brake light, night headlight beam), cats
   (stripes, whiskers, blinking) and dogs (spots, collar, flapping ear, tongue out when fast).
 
+### Screenshots
+
+**Rocket launch.** Past the rocket speed (Settings → Speed scene → Rocket from) the car
+shakes and throws sparks, a rocket grows out of it in the car's color, then it tilts and lifts
+off while the city fades into space. When you slow down it plays backwards and lands.
+
+![Vehicle turning into a rocket](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.9.0/rocket-launch.png)
+
+**Pixel cat and pixel art scenery.** An original 8-bit cat that runs with a waving rainbow and
+twinkling stars. Instead of a rocket it flies into space with a thicker rainbow. The pixel art
+city has a banded sky, blocky clouds and windows that blink at night.
+
+![Pixel cat on the pixel art city and flying in space](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.9.0/pixel-cat.png)
+
+**Silhouette catalog.** Settings → Speed scene → Silhouette is now a row of picture cards
+that you scroll sideways. It has 10 options, shown in the chosen color (the pixel cat keeps
+its own colors).
+
+![Silhouette catalog](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.9.0/silhouettes.png)
+
+**Scenery.** Pick where you drive: city (default), pixel art, countryside (windmill, trees,
+fence), beach (waves, palms, sailboat), desert (mesas, cacti, tumbleweed, heat haze), snow
+(peaks, pines, snowfall) or jungle (vines, fireflies at night). Each one scrolls with your speed.
+
+![Scenery catalog](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.9.0/sceneries.png)
+
+The catalogs follow the light and dark themes.
+
+![Catalogs in dark theme](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.9.0/catalog-dark.png)
+
 ## [0.8.0] - 2026-10-26
 
 ### Added
