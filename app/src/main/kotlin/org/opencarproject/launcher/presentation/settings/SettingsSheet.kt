@@ -1,6 +1,19 @@
 package org.opencarproject.launcher.presentation.settings
 
 import org.opencarproject.launcher.R
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.hardware.camera2.CameraManager
+import android.net.Uri
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import org.opencarproject.launcher.presentation.reverse.ReverseOverlay
 import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.AnimatedVisibility
 import android.os.Build
@@ -126,6 +139,9 @@ fun SettingsSheet(
     onElementVisibilityChange: (DockElement, Boolean) -> Unit,
     onGridChange: (GridSpec) -> Unit,
     onDismiss: () -> Unit,
+    /** The head unit's own AC popup (null: no vendor CAN app, the option is hidden). */
+    nativeAcPopup: Boolean?,
+    onNativeAcPopupChange: (Boolean) -> Unit,
     // Hoisted by the caller so the position survives closing and reopening (e.g. around "Test").
     scrollState: ScrollState = rememberScrollState(),
 ) {
@@ -294,6 +310,8 @@ fun SettingsSheet(
                     }
                 }
             }
+
+            ReverseCameraSettings(settings, onChange)
 
             SwitchRow(stringResource(R.string.settings_speed_scene), stringResource(R.string.settings_speed_scene_desc), settings.speedScene, onCheckedChange = onSpeedSceneChange)
             AnimatedVisibility(settings.speedScene) {
@@ -481,6 +499,17 @@ fun SettingsSheet(
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium,
                     )
+                }
+            }
+
+            if (nativeAcPopup != null) {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text(stringResource(R.string.settings_climate), style = MaterialTheme.typography.titleMedium)
+                    // The value lives in the head unit (its CAN app); this switch only asks it to change.
+                    SwitchRow(stringResource(R.string.settings_climate_native_popup), stringResource(R.string.settings_climate_native_popup_desc), nativeAcPopup, onCheckedChange = onNativeAcPopupChange)
+                    SwitchRow(stringResource(R.string.settings_climate_bar), stringResource(R.string.settings_climate_bar_desc), settings.climateBar) { v ->
+                        onChange { it.copy(climateBar = v) }
+                    }
                 }
             }
 
@@ -682,6 +711,63 @@ private fun SwitchRow(
             }
         }
         Switch(checked = checked, onCheckedChange = null)
+    }
+}
+
+/** Reverse camera overlay: switch, camera choice, overlay permission and a preview button. */
+@Composable
+private fun ReverseCameraSettings(settings: LauncherSettings, onChange: ((LauncherSettings) -> LauncherSettings) -> Unit) {
+    val context = LocalContext.current
+    val cameraPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    var canDraw by remember { mutableStateOf(ReverseOverlay.canDraw(context)) }
+    // Back from the system "display over other apps" screen.
+    LifecycleResumeEffect(Unit) {
+        canDraw = ReverseOverlay.canDraw(context)
+        onPauseOrDispose { }
+    }
+    SwitchRow(stringResource(R.string.settings_reverse_overlay), stringResource(R.string.settings_reverse_overlay_desc), settings.reverseOverlay) { v ->
+        if (v && ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            cameraPermission.launch(Manifest.permission.CAMERA)
+        }
+        onChange { it.copy(reverseOverlay = v) }
+    }
+    AnimatedVisibility(settings.reverseOverlay) {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            SwitchRow(
+                stringResource(R.string.settings_reverse_hide_system),
+                stringResource(R.string.settings_reverse_hide_system_desc),
+                settings.hideSystemReverseView,
+            ) { v -> onChange { it.copy(hideSystemReverseView = v) } }
+            val ids = remember { runCatching { context.getSystemService(CameraManager::class.java).cameraIdList.toList() }.getOrDefault(emptyList()) }
+            if (ids.size > 1) {
+                Choice(
+                    title = stringResource(R.string.settings_reverse_camera),
+                    options = ids.map { it to stringResource(R.string.reverse_camera_option, it) },
+                    selected = settings.reverseCameraId,
+                    onSelect = { v -> onChange { it.copy(reverseCameraId = v) } },
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (!canDraw) {
+                    FilledTonalButton(
+                        onClick = {
+                            runCatching {
+                                context.startActivity(
+                                    Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}"))
+                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                                )
+                            }
+                        },
+                        modifier = Modifier.height(48.dp),
+                    ) { Text(stringResource(R.string.settings_reverse_permission)) }
+                }
+                FilledTonalButton(onClick = { ReverseOverlay.preview(context) }, enabled = canDraw, modifier = Modifier.height(48.dp)) {
+                    Icon(Icons.Rounded.PlayArrow, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.settings_reverse_test))
+                }
+            }
+        }
     }
 }
 

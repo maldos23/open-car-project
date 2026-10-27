@@ -114,6 +114,14 @@ data class LauncherSettings(
     val assistantStyle: AssistantStyle = AssistantStyle.GOOGLE_ANIMATED,
     /** Colored halo and border around the assistant pill. */
     val assistantGlow: Boolean = true,
+    /** Bar at the bottom of the home screen that shows the climate for a few seconds when it changes. */
+    val climateBar: Boolean = false,
+    /** Floating reverse camera + parking radar over any app while in reverse (off = system camera only). */
+    val reverseOverlay: Boolean = false,
+    /** Camera2 id of the reverse camera (on QF head units the rear input is "1"). */
+    val reverseCameraId: String = "1",
+    /** Closes the system's own full-screen reverse view so the floating one is visible. */
+    val hideSystemReverseView: Boolean = false,
 )
 
 /** Current weather for the dock. */
@@ -198,6 +206,7 @@ object BuiltinKeys {
     const val MAP = "builtin/map"
     const val MEDIA = "builtin/media"
     const val NOTIFICATIONS = "builtin/notifications"
+    const val CLIMATE = "builtin/climate"
 }
 
 /**

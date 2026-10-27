@@ -140,6 +140,23 @@
     <string name="assistant_style_sparkles">闪光</string>
     <string name="settings_assistant_glow">彩色边框</string>
     <string name="settings_assistant_glow_desc">助理按钮周围的 Google 配色光晕和边框。</string>
+    <string name="settings_reverse_overlay">倒车影像</string>
+    <string name="settings_reverse_overlay_desc">倒车时，在任意应用上方的悬浮窗中显示后视摄像头和泊车雷达。</string>
+    <string name="settings_reverse_camera">摄像头</string>
+    <string name="settings_reverse_hide_system">隐藏系统倒车影像</string>
+    <string name="settings_reverse_hide_system_desc">关闭车机自带的全屏倒车画面，以便显示此悬浮窗。</string>
+    <string name="reverse_camera_option">摄像头 %1$s</string>
+    <string name="settings_reverse_permission">允许显示在其他应用上层</string>
+    <string name="settings_reverse_test">测试</string>
+    <string name="reverse_close">关闭倒车影像</string>
+    <string name="reverse_camera_unavailable">摄像头不可用</string>
+    <string name="reverse_radar">泊车雷达</string>
+    <string name="reverse_no_radar">无雷达数据</string>
+    <string name="reverse_clear">无障碍</string>
+    <string name="reverse_distance_cm">%1$d 厘米</string>
+    <string name="reverse_proximity_close">非常近</string>
+    <string name="reverse_proximity_medium">近</string>
+    <string name="reverse_proximity_far">远</string>
     <string name="settings_dock_icon_size">栏图标大小</string>
     <string name="size_small">小</string>
     <string name="size_medium">中</string>
@@ -234,4 +251,30 @@
         <item>播放我最喜欢的播客</item>
         <item>附近有什么餐厅？</item>
     </string-array>
+
+    <!-- Climate module -->
+    <string name="module_climate">空调</string>
+    <string name="climate_unavailable">此车机没有空调服务</string>
+    <string name="climate_power">开关空调</string>
+    <string name="climate_ac">A/C</string>
+    <string name="climate_auto">AUTO</string>
+    <string name="climate_recirculation">内循环</string>
+    <string name="climate_defrost_front">前除雾</string>
+    <string name="climate_defrost_rear">后除雾</string>
+    <string name="climate_mode">出风</string>
+    <string name="climate_mode_face">吹面</string>
+    <string name="climate_mode_face_feet">吹面 + 吹脚</string>
+    <string name="climate_mode_feet">吹脚</string>
+    <string name="climate_mode_windshield_feet">除雾 + 吹脚</string>
+    <string name="climate_temp_low">LO</string>
+    <string name="climate_temp_high">HI</string>
+    <string name="climate_read_only">%1$s 尚未适配：只读</string>
+    <string name="climate_off">已关闭</string>
+    <string name="climate_fan_level">风量 %1$d</string>
+    <string name="settings_climate">空调</string>
+    <string name="settings_climate_native_popup">系统空调弹窗</string>
+    <string name="settings_climate_native_popup_desc">空调变化时车机在任何界面上弹出的空调窗口</string>
+    <string name="settings_climate_bar">空调条</string>
+    <string name="settings_climate_bar_desc">空调变化时在桌面底部显示几秒钟温度和风量</string>
+    <string name="climate_waiting">等待车辆数据…</string>
 </resources>

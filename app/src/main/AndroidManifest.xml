@@ -26,6 +26,11 @@
     <!-- Long-press in the app drawer opens the system uninstall dialog (ACTION_DELETE, API 28+). -->
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
+    <!-- Reverse camera overlay: the rear camera in a floating window over any app. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
     <!-- Package visibility (API 30+): allows listing launchable apps for the panel. -->
     <queries>
         <intent>
@@ -39,9 +44,14 @@
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="geo" />
         </intent>
+        <!-- Climate module: the head unit's CAN service (see assets/climate/qf.json). -->
+        <intent>
+            <action android:name="com.qf.vehicle.service.ACTION_CAN_SERVICE" />
+        </intent>
     </queries>
 
     <application
+        android:name=".LauncherApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"

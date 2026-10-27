@@ -80,6 +80,10 @@ class SettingsDataSource(private val context: Context) {
     private val moduleCornerKey = intPreferencesKey("module_corner_dp")
     private val assistantStyleKey = stringPreferencesKey("assistant_style")
     private val assistantGlowKey = booleanPreferencesKey("assistant_glow")
+    private val climateBarKey = booleanPreferencesKey("climate_bar")
+    private val reverseOverlayKey = booleanPreferencesKey("reverse_overlay")
+    private val reverseCameraIdKey = stringPreferencesKey("reverse_camera_id")
+    private val hideSystemReverseKey = booleanPreferencesKey("hide_system_reverse_view")
 
     val settingsFlow: Flow<LauncherSettings> = context.settingsDataStore.data.recoverIoErrors().map { it.toSettings() }
 
@@ -123,6 +127,10 @@ class SettingsDataSource(private val context: Context) {
             prefs[moduleCornerKey] = next.moduleCornerDp
             prefs[assistantStyleKey] = next.assistantStyle.name
             prefs[assistantGlowKey] = next.assistantGlow
+            prefs[climateBarKey] = next.climateBar
+            prefs[reverseOverlayKey] = next.reverseOverlay
+            prefs[reverseCameraIdKey] = next.reverseCameraId
+            prefs[hideSystemReverseKey] = next.hideSystemReverseView
         }
     }
 
@@ -164,6 +172,10 @@ class SettingsDataSource(private val context: Context) {
         moduleCornerDp = (this[moduleCornerKey] ?: 12).coerceIn(ModuleCornerRange),
         assistantStyle = enumOr(this[assistantStyleKey], AssistantStyle.GOOGLE_ANIMATED),
         assistantGlow = this[assistantGlowKey] ?: true,
+        climateBar = this[climateBarKey] ?: false,
+        reverseOverlay = this[reverseOverlayKey] ?: false,
+        reverseCameraId = this[reverseCameraIdKey] ?: "1",
+        hideSystemReverseView = this[hideSystemReverseKey] ?: false,
     )
 
     /** Stored value, or the default if missing or from a version that no longer exists. */

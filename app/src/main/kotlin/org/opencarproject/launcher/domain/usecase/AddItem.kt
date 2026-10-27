@@ -46,6 +46,7 @@ class AddItem(
             CatalogItemKind.APP -> Cell(1, 1)
             CatalogItemKind.MAP, CatalogItemKind.MEDIA -> Cell(2, 3 * scale)
             CatalogItemKind.NOTIFICATIONS -> Cell(2, 2 * scale)
+            CatalogItemKind.CLIMATE -> Cell(2, 3 * scale)
             CatalogItemKind.WIDGET -> (candidate.suggestedSpan ?: Cell(1, 1)).let { it.copy(column = it.column * scale) }
         }.let { GridMath.clampSpan(Cell(0, 0), it, current.grid) }
         // Apps and built-in modules have a stable id: adding one twice would make both copies
@@ -59,7 +60,7 @@ class AddItem(
         val (freeCell, span) = GridMath.placeNew(current.grid, current.items, preferredSpan) ?: return AddItemResult.NoSpace
 
         return when (candidate.kind) {
-            CatalogItemKind.APP, CatalogItemKind.MAP, CatalogItemKind.MEDIA, CatalogItemKind.NOTIFICATIONS ->
+            CatalogItemKind.APP, CatalogItemKind.MAP, CatalogItemKind.MEDIA, CatalogItemKind.NOTIFICATIONS, CatalogItemKind.CLIMATE ->
                 AddItemResult.Success(placeAndSave(current, candidate, widgetId = -1, freeCell, span))
 
             CatalogItemKind.WIDGET -> {

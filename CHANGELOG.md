@@ -6,6 +6,42 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-10-27
+
+### Added
+
+- Climate module for head units with a QF CAN app (`com.qf.vehicle`): cabin temperatures,
+  power, A/C, AUTO, recirculation, air direction, defrosters and fan. The launcher follows the
+  car configured in the head unit (`persist.sys.car_mode`) and sends the same commands as the
+  vendor's own AC panel, so it works with every car and CAN box that app supports.
+- Climate card redesign: ice flakes blowing with the fan (they settle and fade when the climate
+  is off), fan level as bars with the car's own number of levels, and the air direction icon.
+- Settings → Climate: switch the head unit's own AC popup on or off, and an optional climate bar
+  at the bottom of the home screen with blue-to-red temperature bars.
+- Reverse camera overlay (Settings → Reverse camera, off by default): in reverse, a floating,
+  draggable window over any app shows the rear camera next to the CAN parking sensors (front,
+  rear and side bars plus the nearest rear distance). The camera is captured at its native
+  720x480 with high-quality edge and noise processing, sharper than the system's upscaled view.
+  Needs "display over other apps"; the settings row opens that permission and has a Test button.
+  "Hide the system camera" closes the head unit's own full-screen reverse view so the floating
+  one is visible; the floating camera reopens as soon as the system releases it.
+
+
+### Screenshots
+
+**Climate module.** On head units with a QF CAN app, the climate card shows both cabin
+temperatures, power, fan level and air direction, with ice flakes blowing while the A/C is on.
+The optional climate bar (Settings → Climate) slides up at the bottom of the home screen when the
+climate changes, and the same section can hide the head unit's own A/C popup.
+
+![Climate card](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.11.0/climate-card.png)
+
+**Reverse camera.** In reverse, a floating window over any app shows the rear camera next to the
+parking sensors, which turn green, amber or red as an obstacle gets closer. Captured on the
+emulator with its virtual camera (no CAN radar there, hence "No sensors").
+
+![Floating reverse camera with parking sensors](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.11.0/reverse-camera.png)
+
 ## [0.10.4] - 2026-10-27
 
 ### Fixed
@@ -331,7 +367,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.10.4...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.11.0...develop
+[0.11.0]: https://github.com/maldos23/open-car-project/compare/v0.10.4...v0.11.0
 [0.10.4]: https://github.com/maldos23/open-car-project/compare/v0.10.3...v0.10.4
 [0.10.3]: https://github.com/maldos23/open-car-project/compare/v0.10.2...v0.10.3
 [0.10.2]: https://github.com/maldos23/open-car-project/compare/v0.10.1...v0.10.2

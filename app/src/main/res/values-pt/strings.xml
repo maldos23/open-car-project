@@ -140,6 +140,23 @@
     <string name="assistant_style_sparkles">Brilhos</string>
     <string name="settings_assistant_glow">Borda colorida</string>
     <string name="settings_assistant_glow_desc">Halo e borda com as cores do Google ao redor do botão do assistente.</string>
+    <string name="settings_reverse_overlay">Câmera de ré</string>
+    <string name="settings_reverse_overlay_desc">Na ré, mostra a câmera traseira e os sensores de estacionamento em uma janela flutuante sobre qualquer app.</string>
+    <string name="settings_reverse_camera">Câmera</string>
+    <string name="settings_reverse_hide_system">Ocultar a câmera do sistema</string>
+    <string name="settings_reverse_hide_system_desc">Fecha a tela cheia de ré do rádio para que esta janela flutuante fique visível.</string>
+    <string name="reverse_camera_option">Câmera %1$s</string>
+    <string name="settings_reverse_permission">Permitir sobreposição a outros apps</string>
+    <string name="settings_reverse_test">Testar</string>
+    <string name="reverse_close">Fechar câmera de ré</string>
+    <string name="reverse_camera_unavailable">Câmera indisponível</string>
+    <string name="reverse_radar">Sensores de estacionamento</string>
+    <string name="reverse_no_radar">Sem sensores</string>
+    <string name="reverse_clear">Livre</string>
+    <string name="reverse_distance_cm">%1$d cm</string>
+    <string name="reverse_proximity_close">Muito perto</string>
+    <string name="reverse_proximity_medium">Perto</string>
+    <string name="reverse_proximity_far">Longe</string>
     <string name="settings_dock_icon_size">Tamanho dos ícones da barra</string>
     <string name="size_small">Pequeno</string>
     <string name="size_medium">Médio</string>
@@ -238,4 +255,30 @@
         <item>Toque meu podcast favorito</item>
         <item>Que restaurantes há por perto?</item>
     </string-array>
+
+    <!-- Climate module -->
+    <string name="module_climate">Clima</string>
+    <string name="climate_unavailable">Esta central não tem serviço de clima</string>
+    <string name="climate_power">Ligar/desligar clima</string>
+    <string name="climate_ac">A/C</string>
+    <string name="climate_auto">AUTO</string>
+    <string name="climate_recirculation">Recirc.</string>
+    <string name="climate_defrost_front">Desembaçador diant.</string>
+    <string name="climate_defrost_rear">Desembaçador tras.</string>
+    <string name="climate_mode">Ar</string>
+    <string name="climate_mode_face">Rosto</string>
+    <string name="climate_mode_face_feet">Rosto + pés</string>
+    <string name="climate_mode_feet">Pés</string>
+    <string name="climate_mode_windshield_feet">Para-brisa + pés</string>
+    <string name="climate_temp_low">LO</string>
+    <string name="climate_temp_high">HI</string>
+    <string name="climate_read_only">%1$s ainda não está mapeado: só leitura</string>
+    <string name="climate_off">Desligado</string>
+    <string name="climate_fan_level">Ventilação %1$d</string>
+    <string name="settings_climate">Clima</string>
+    <string name="settings_climate_native_popup">Painel de A/C do sistema</string>
+    <string name="settings_climate_native_popup_desc">A janela de A/C da central que aparece sobre qualquer tela quando o clima muda</string>
+    <string name="settings_climate_bar">Barra de clima</string>
+    <string name="settings_climate_bar_desc">Mostra a temperatura e a ventilação na parte de baixo da tela inicial por alguns segundos quando o clima muda</string>
+    <string name="climate_waiting">Aguardando o carro…</string>
 </resources>

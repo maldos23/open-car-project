@@ -1,0 +1,16 @@
+{
+  "packageName": "com.qf.vehicle",
+  "serviceAction": "com.qf.vehicle.service.ACTION_CAN_SERVICE",
+  "featureStub": "com.qf.vehicle.service.ICanBusServiceFeature$Stub",
+  "callbackStub": "com.qf.vehicle.service.ICanBusServiceCallback$Stub",
+  "settingTypeClass": "com.qf.vehicle.entity.AcState$SettingType",
+  "controlAction": "com.qf.vehicle.action.send_air_control_key",
+  "controlExtra": "extra_air_control_key",
+  "popupAction": "com.qf.vehicle.action.popup_enable",
+  "popupTypeExtra": "extra_popup_type",
+  "popupEnableExtra": "extra_popup_enable",
+  "acPopupType": 1,
+  "acPopupSetting": "KeyAcPopupWindow",
+  "carModeProperty": "persist.sys.car_mode",
+  "acFrameType": 1
+}

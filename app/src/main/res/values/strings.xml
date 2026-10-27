@@ -151,6 +151,23 @@
     <string name="assistant_style_sparkles">Sparkles</string>
     <string name="settings_assistant_glow">Colored border</string>
     <string name="settings_assistant_glow_desc">Google-colored halo and border around the assistant pill.</string>
+    <string name="settings_reverse_overlay">Reverse camera</string>
+    <string name="settings_reverse_overlay_desc">In reverse, shows the rear camera and the parking sensors in a floating window over any app.</string>
+    <string name="settings_reverse_camera">Camera</string>
+    <string name="settings_reverse_hide_system">Hide the system camera</string>
+    <string name="settings_reverse_hide_system_desc">Closes the head unit\'s full-screen reverse view so this floating window is visible.</string>
+    <string name="reverse_camera_option">Camera %1$s</string>
+    <string name="settings_reverse_permission">Allow display over other apps</string>
+    <string name="settings_reverse_test">Test</string>
+    <string name="reverse_close">Close reverse camera</string>
+    <string name="reverse_camera_unavailable">Camera unavailable</string>
+    <string name="reverse_radar">Parking sensors</string>
+    <string name="reverse_no_radar">No sensors</string>
+    <string name="reverse_clear">Clear</string>
+    <string name="reverse_distance_cm">%1$d cm</string>
+    <string name="reverse_proximity_close">Very close</string>
+    <string name="reverse_proximity_medium">Close</string>
+    <string name="reverse_proximity_far">Far</string>
     <string name="settings_dock_icon_size">Bar icon size</string>
     <string name="size_small">Small</string>
     <string name="size_medium">Medium</string>
@@ -261,4 +278,30 @@
         <item>Play my favorite podcast</item>
         <item>What restaurants are nearby?</item>
     </string-array>
+
+    <!-- Climate module -->
+    <string name="module_climate">Climate</string>
+    <string name="climate_unavailable">No climate service on this head unit</string>
+    <string name="climate_power">Climate on/off</string>
+    <string name="climate_ac">A/C</string>
+    <string name="climate_auto">AUTO</string>
+    <string name="climate_recirculation">Recirc.</string>
+    <string name="climate_defrost_front">Front defrost</string>
+    <string name="climate_defrost_rear">Rear defrost</string>
+    <string name="climate_mode">Air</string>
+    <string name="climate_mode_face">Face</string>
+    <string name="climate_mode_face_feet">Face + feet</string>
+    <string name="climate_mode_feet">Feet</string>
+    <string name="climate_mode_windshield_feet">Windshield + feet</string>
+    <string name="climate_temp_low">LO</string>
+    <string name="climate_temp_high">HI</string>
+    <string name="climate_read_only">%1$s isn\'t mapped yet: read only</string>
+    <string name="climate_off">Off</string>
+    <string name="climate_fan_level">Fan %1$d</string>
+    <string name="settings_climate">Climate</string>
+    <string name="settings_climate_native_popup">System AC popup</string>
+    <string name="settings_climate_native_popup_desc">The head unit\'s AC window that appears over every screen when the climate changes</string>
+    <string name="settings_climate_bar">Climate bar</string>
+    <string name="settings_climate_bar_desc">Shows the temperature and fan at the bottom of the home screen for a few seconds when the climate changes</string>
+    <string name="climate_waiting">Waiting for the car…</string>
 </resources>

@@ -140,6 +140,23 @@
     <string name="assistant_style_sparkles">Chispas</string>
     <string name="settings_assistant_glow">Borde de colores</string>
     <string name="settings_assistant_glow_desc">Halo y borde con los colores de Google alrededor del botón del asistente.</string>
+    <string name="settings_reverse_overlay">Cámara de reversa</string>
+    <string name="settings_reverse_overlay_desc">En reversa, muestra la cámara trasera y los sensores de estacionamiento en una ventana flotante sobre cualquier app.</string>
+    <string name="settings_reverse_camera">Cámara</string>
+    <string name="settings_reverse_hide_system">Ocultar la cámara del sistema</string>
+    <string name="settings_reverse_hide_system_desc">Cierra la vista de reversa a pantalla completa de la radio para que se vea esta ventana flotante.</string>
+    <string name="reverse_camera_option">Cámara %1$s</string>
+    <string name="settings_reverse_permission">Permitir mostrar sobre otras apps</string>
+    <string name="settings_reverse_test">Probar</string>
+    <string name="reverse_close">Cerrar cámara de reversa</string>
+    <string name="reverse_camera_unavailable">Cámara no disponible</string>
+    <string name="reverse_radar">Sensores de estacionamiento</string>
+    <string name="reverse_no_radar">Sin sensores</string>
+    <string name="reverse_clear">Libre</string>
+    <string name="reverse_distance_cm">%1$d cm</string>
+    <string name="reverse_proximity_close">Muy cerca</string>
+    <string name="reverse_proximity_medium">Cerca</string>
+    <string name="reverse_proximity_far">Lejos</string>
     <string name="settings_dock_icon_size">Tamaño de iconos de la barra</string>
     <string name="size_small">Chico</string>
     <string name="size_medium">Mediano</string>
@@ -238,4 +255,30 @@
         <item>Pon mi podcast favorito</item>
         <item>¿Qué restaurantes hay cerca?</item>
     </string-array>
+
+    <!-- Climate module -->
+    <string name="module_climate">Clima</string>
+    <string name="climate_unavailable">Este radio no tiene servicio de clima</string>
+    <string name="climate_power">Encender/apagar clima</string>
+    <string name="climate_ac">A/C</string>
+    <string name="climate_auto">AUTO</string>
+    <string name="climate_recirculation">Recirc.</string>
+    <string name="climate_defrost_front">Desempañador del.</string>
+    <string name="climate_defrost_rear">Desempañador tras.</string>
+    <string name="climate_mode">Aire</string>
+    <string name="climate_mode_face">Cara</string>
+    <string name="climate_mode_face_feet">Cara + pies</string>
+    <string name="climate_mode_feet">Pies</string>
+    <string name="climate_mode_windshield_feet">Parabrisas + pies</string>
+    <string name="climate_temp_low">LO</string>
+    <string name="climate_temp_high">HI</string>
+    <string name="climate_read_only">%1$s aún no está mapeado: solo lectura</string>
+    <string name="climate_off">Apagado</string>
+    <string name="climate_fan_level">Ventilador %1$d</string>
+    <string name="settings_climate">Clima</string>
+    <string name="settings_climate_native_popup">Panel de A/C del sistema</string>
+    <string name="settings_climate_native_popup_desc">La ventana de A/C del radio que aparece sobre cualquier pantalla al cambiar el clima</string>
+    <string name="settings_climate_bar">Barra de clima</string>
+    <string name="settings_climate_bar_desc">Muestra la temperatura y el ventilador abajo del escritorio unos segundos cuando cambia el clima</string>
+    <string name="climate_waiting">Esperando al auto…</string>
 </resources>
