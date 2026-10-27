@@ -102,6 +102,20 @@
   @keyframes r-fl{to{transform:scaleY(1.5)}}
   @keyframes r-st{0%,58%{opacity:0}85%,100%{opacity:1}}
 
+  /* 5. gradient background (10s): the gradient drifts, particles float up */
+  .g-bg{animation:g-bg 10s ease-in-out infinite alternate}
+  .g-p{opacity:0;animation:g-p 5s ease-out infinite}.g-p2{animation-delay:1.2s}.g-p3{animation-delay:2.5s}.g-p4{animation-delay:3.7s}
+  @keyframes g-bg{to{transform:translate(-120px,60px) rotate(40deg)}}
+  @keyframes g-p{15%{opacity:.9}100%{opacity:0;transform:translateY(-140px)}}
+
+  /* 6. dark mode (6s): the dark layer fades in while the sun becomes a moon */
+  .d-dk{opacity:0;animation:d-dk 6s infinite}
+  .d-sun{animation:d-sun 6s infinite}
+  .d-moon{opacity:0;animation:d-moon 6s infinite}
+  @keyframes d-dk{0%,30%{opacity:0}45%,80%{opacity:1}95%,100%{opacity:0}}
+  @keyframes d-sun{0%,30%{opacity:1;transform:none}45%,80%{opacity:0;transform:rotate(90deg) scale(.4)}95%,100%{opacity:1;transform:none}}
+  @keyframes d-moon{0%,30%{opacity:0;transform:scale(.4)}45%,80%{opacity:1;transform:none}95%,100%{opacity:0;transform:scale(.4)}}
+
   @media (prefers-reduced-motion:reduce){
     html.js .reveal{opacity:1;translate:none;transition:none}
     ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}
@@ -112,9 +126,9 @@
 </head>
 <body class="bg-background text-foreground font-sans antialiased">
 
-<!-- 0. sticky nav -->
-<header class="sticky top-3 z-50 px-4">
-  <nav class="mx-auto flex max-w-3xl items-center justify-between gap-2 rounded-full border border-border bg-background/70 py-1 pl-2 pr-1 backdrop-blur-md shadow-sm">
+<!-- 0. nav: no border or background, so it scrolls away instead of floating over content -->
+<header class="relative z-50 px-4 pt-3">
+  <nav class="mx-auto flex max-w-3xl items-center justify-between gap-2 py-1 pl-2 pr-1">
     <a href="#top" class="flex min-h-12 items-center gap-2 rounded-full pr-2 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
       <svg viewBox="21 21 66 66" class="h-9 w-9 shrink-0" aria-hidden="true"><rect x="21" y="21" width="66" height="66" rx="16" fill="#0B1220"/><path d="M66,33.215 A24,24 0 1,1 42,33.215" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M66,33.215 A24,24 0 0,1 76.553,62.208" fill="none" stroke="#00E5FF" stroke-width="6" stroke-linecap="round"/><path d="M31,54 L47,54 M61,54 L77,54 M54,61 L54,77" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/><circle cx="54" cy="54" r="8" fill="#fff"/></svg>
       <span class="hidden sm:inline">Open Car Project</span>
@@ -249,6 +263,38 @@
         <h3 class="mt-4 text-lg font-semibold" data-i18n="f4_t">Speed scene</h3>
         <p class="mt-1 text-muted-foreground" data-i18n="f4_d">A live skyline that speeds up with you. Floor it and the car turns into a rocket.</p>
       </article>
+
+      <article class="reveal lift rounded-card border border-border bg-card p-4" style="--i:0">
+        <svg class="anim w-full rounded-inner bg-muted" viewBox="0 0 320 200" role="img" data-i18n-aria="f5_a" aria-label="Animation: the home screen background is a slowly drifting gradient in the accent colors, with light particles floating up">
+          <defs>
+            <clipPath id="gscr"><rect x="16" y="16" width="288" height="168" rx="20"/></clipPath>
+            <linearGradient id="gbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00E5FF"/><stop offset=".5" stop-color="#7C4DFF"/><stop offset="1" stop-color="#FF4081"/></linearGradient>
+          </defs>
+          <g clip-path="url(#gscr)">
+            <rect class="g-bg" x="-140" y="-200" width="600" height="600" fill="url(#gbg)"/>
+            <g fill="#fff"><circle class="g-p" cx="60" cy="170" r="2.5"/><circle class="g-p g-p2" cx="130" cy="176" r="2"/><circle class="g-p g-p3" cx="210" cy="172" r="3"/><circle class="g-p g-p4" cx="270" cy="178" r="2"/></g>
+            <g fill="#fff" fill-opacity=".85"><rect x="36" y="40" width="112" height="96" rx="14"/><rect x="160" y="40" width="124" height="44" rx="14"/><rect x="160" y="92" width="124" height="44" rx="14"/><rect x="104" y="150" width="112" height="16" rx="8"/></g>
+          </g>
+          <rect x="16" y="16" width="288" height="168" rx="20" class="f-no s-bd" stroke-width="2"/>
+        </svg>
+        <h3 class="mt-4 text-lg font-semibold" data-i18n="f5_t">Gradient backgrounds</h3>
+        <p class="mt-1 text-muted-foreground" data-i18n="f5_d">An animated gradient in your accent color, with soft floating particles. Or use a solid color or your wallpaper.</p>
+      </article>
+
+      <article class="reveal lift rounded-card border border-border bg-card p-4" style="--i:1">
+        <svg class="anim w-full rounded-inner bg-muted" viewBox="0 0 320 200" role="img" data-i18n-aria="f6_a" aria-label="Animation: the screen switches from light to dark theme as the sun turns into a moon, then back">
+          <defs><clipPath id="dscr"><rect x="16" y="16" width="288" height="168" rx="20"/></clipPath></defs>
+          <g clip-path="url(#dscr)">
+            <g><rect x="16" y="16" width="288" height="168" fill="#F1F5F9"/><g fill="#fff" stroke="#E2E8F0" stroke-width="2"><rect x="36" y="56" width="112" height="108" rx="14"/><rect x="160" y="56" width="124" height="50" rx="14"/><rect x="160" y="114" width="124" height="50" rx="14"/></g></g>
+            <g class="d-dk"><rect x="16" y="16" width="288" height="168" fill="#0B1220"/><g fill="#162033" stroke="#1E293B" stroke-width="2"><rect x="36" y="56" width="112" height="108" rx="14"/><rect x="160" y="56" width="124" height="50" rx="14"/><rect x="160" y="114" width="124" height="50" rx="14"/></g></g>
+          </g>
+          <g class="d-sun" fill="#FFB300" stroke="#FFB300" stroke-width="3" stroke-linecap="round"><circle cx="270" cy="36" r="8"/><path d="M270 20v-3M270 52v3M254 36h-3M286 36h3M259 25l-2-2M281 47l2 2M281 25l2-2M259 47l-2 2" fill="none"/></g>
+          <path class="d-moon" fill="#E2E8F0" d="M274 25a11 11 0 1 0 6 19a9 9 0 1 1-6-19z"/>
+          <rect x="16" y="16" width="288" height="168" rx="20" class="f-no s-bd" stroke-width="2"/>
+        </svg>
+        <h3 class="mt-4 text-lg font-semibold" data-i18n="f6_t">Dark mode</h3>
+        <p class="mt-1 text-muted-foreground" data-i18n="f6_d">Light, dark or follow the system. Easy on the eyes when driving at night.</p>
+      </article>
     </div>
   </section>
 
@@ -266,8 +312,10 @@
       <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:1"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/site/edit-mode-resize.png" width="1600" height="1000" loading="lazy" decoding="async" data-i18n-alt="g8" alt="Resizing a card on the grid"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g8">Resizing a card on the grid</figcaption></figure>
       <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:2"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/site/app-drawer.png" width="1600" height="1000" loading="lazy" decoding="async" data-i18n-alt="g9" alt="App drawer with search"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g9">App drawer with search</figcaption></figure>
       <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:0"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/site/settings-sheet.png" width="1600" height="1000" loading="lazy" decoding="async" data-i18n-alt="g10" alt="Settings: language, zoom, theme, accent and background"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g10">Settings: language, zoom, theme, accent and background</figcaption></figure>
-      <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:1"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/releases/0.9.0/catalog-dark.png" width="1200" height="900" loading="lazy" decoding="async" data-i18n-alt="g11" alt="Follows light/dark"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g11">Follows light/dark</figcaption></figure>
+      <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:1"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/site/home-dark.png" width="1600" height="1000" loading="lazy" decoding="async" data-i18n-alt="g11" alt="Dark mode"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g11">Dark mode</figcaption></figure>
       <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:2"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/chinese.png" width="1600" height="1000" loading="lazy" decoding="async" data-i18n-alt="g12" alt="5 UI languages"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g12">5 UI languages</figcaption></figure>
+      <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:0"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/site/gradient-light.png" width="1600" height="1000" loading="lazy" decoding="async" data-i18n-alt="g13" alt="Animated gradient background"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g13">Animated gradient background</figcaption></figure>
+      <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:1"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/site/gradient-dark.png" width="1600" height="1000" loading="lazy" decoding="async" data-i18n-alt="g14" alt="Gradient background in dark mode"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g14">Gradient background in dark mode</figcaption></figure>
     </div>
   </section>
 
@@ -355,11 +403,15 @@ const T = {
     f3_a: 'Animation: light runs along the left edge on a left turn, the right edge on a right turn, the top when speeding up and flashes red at the bottom when braking, while a steering wheel turns',
     f4_t: 'Speed scene', f4_d: 'A live skyline that speeds up with you. Floor it and the car turns into a rocket.',
     f4_a: 'Animation: the skyline scrolls faster as the speed gauge fills, the car shakes and sparks, turns into a rocket and lifts off into the stars, then it all rewinds',
+    f5_t: 'Gradient backgrounds', f5_d: 'An animated gradient in your accent color, with soft floating particles. Or use a solid color or your wallpaper.',
+    f5_a: 'Animation: the home screen background is a slowly drifting gradient in the accent colors, with light particles floating up',
+    f6_t: 'Dark mode', f6_d: 'Light, dark or follow the system. Easy on the eyes when driving at night.',
+    f6_a: 'Animation: the screen switches from light to dark theme as the sun turns into a moon, then back',
     gal_t: 'See it running 📸',
     g1: 'Edge glow on a left turn', g2: 'Red glow when braking', g3: 'A message arrives in the notification bubble',
     g4: 'Past rocket speed the car becomes a rocket', g5: 'Flower-shaped cards and the sparkles assistant button',
     g6: 'Pick your assistant button style', g7: 'Edit mode: remove, resize and add anything', g8: 'Resizing a card on the grid',
-    g9: 'App drawer with search', g10: 'Settings: language, zoom, theme, accent and background', g11: 'Follows light/dark', g12: '5 UI languages',
+    g9: 'App drawer with search', g10: 'Settings: language, zoom, theme, accent and background', g11: 'Dark mode', g12: '5 UI languages', g13: 'Animated gradient background', g14: 'Gradient background in dark mode',
     build_t: 'Run it / build it 🛠🤖',
     s1_t: 'Clone and build', s1_d: 'Needs JDK 17+ and the Android SDK.',
     s2_t: 'Install and set as HOME', s2_d: 'Or skip the build: download the APK above.',
@@ -383,11 +435,15 @@ const T = {
     f3_a: 'Animación: una luz recorre el borde izquierdo al girar a la izquierda, el derecho al girar a la derecha, el superior al acelerar y el inferior parpadea en rojo al frenar, mientras gira un volante',
     f4_t: 'Escena de velocidad', f4_d: 'Una ciudad en vivo que acelera contigo. Písale a fondo y el coche se vuelve cohete.',
     f4_a: 'Animación: la ciudad pasa más rápido mientras se llena el velocímetro, el coche tiembla y echa chispas, se vuelve cohete y despega hacia las estrellas, y luego todo se rebobina',
+    f5_t: 'Fondos degradados', f5_d: 'Un degradado animado con tu color de acento y partículas suaves flotando. O usa un color sólido o tu fondo de pantalla.',
+    f5_a: 'Animación: el fondo de la pantalla de inicio es un degradado que se mueve despacio en los colores de acento, con partículas de luz que suben',
+    f6_t: 'Modo oscuro', f6_d: 'Claro, oscuro o según el sistema. Descansa la vista al manejar de noche.',
+    f6_a: 'Animación: la pantalla pasa del tema claro al oscuro mientras el sol se convierte en luna, y vuelve',
     gal_t: 'Míralo en marcha 📸',
     g1: 'Brillo en el borde al girar a la izquierda', g2: 'Brillo rojo al frenar', g3: 'Un mensaje llega a la burbuja de notificaciones',
     g4: 'Pasada la velocidad cohete, el coche se vuelve cohete', g5: 'Tarjetas con forma de flor y el botón de asistente con destellos',
     g6: 'Elige el estilo del botón de asistente', g7: 'Modo edición: quita, redimensiona y añade lo que quieras', g8: 'Redimensionando una tarjeta en la cuadrícula',
-    g9: 'Cajón de apps con búsqueda', g10: 'Ajustes: idioma, zoom, tema, color de acento y fondo', g11: 'Sigue el modo claro/oscuro', g12: '5 idiomas de interfaz',
+    g9: 'Cajón de apps con búsqueda', g10: 'Ajustes: idioma, zoom, tema, color de acento y fondo', g11: 'Modo oscuro', g12: '5 idiomas de interfaz', g13: 'Fondo degradado animado', g14: 'Fondo degradado en modo oscuro',
     build_t: 'Ejecútalo / compílalo 🛠🤖',
     s1_t: 'Clona y compila', s1_d: 'Necesitas JDK 17+ y el SDK de Android.',
     s2_t: 'Instala y ponlo como HOME', s2_d: 'O sáltate la compilación: descarga el APK de arriba.',
@@ -411,11 +467,15 @@ const T = {
     f3_a: '动画：左转时光沿左边缘流动，右转时沿右边缘，加速时沿顶部，刹车时底部闪红光，方向盘同步转动',
     f4_t: '速度场景', f4_d: '城市天际线随你加速。油门踩到底，汽车就变成火箭。',
     f4_a: '动画：速度表填满时天际线越滚越快，汽车抖动冒火花，变成火箭飞向星空，然后全部倒放',
+    f5_t: '渐变背景', f5_d: '以强调色呈现的动态渐变，伴有轻柔漂浮的粒子。也可使用纯色或系统壁纸。',
+    f5_a: '动画：主屏幕背景是以强调色缓慢流动的渐变，光点向上漂浮',
+    f6_t: '深色模式', f6_d: '浅色、深色或跟随系统。夜间驾驶更护眼。',
+    f6_a: '动画：太阳变成月亮，屏幕从浅色主题切换到深色主题，然后切回',
     gal_t: '看看实际效果 📸',
     g1: '左转时的边缘光效', g2: '刹车时的红色光效', g3: '消息出现在通知气泡中',
     g4: '超过火箭速度，汽车变成火箭', g5: '花朵形卡片和闪光助手按钮',
     g6: '选择助手按钮样式', g7: '编辑模式：随意删除、调整大小和添加', g8: '在网格上调整卡片大小',
-    g9: '带搜索的应用抽屉', g10: '设置：语言、缩放、主题、强调色和背景', g11: '跟随浅色/深色模式', g12: '5 种界面语言',
+    g9: '带搜索的应用抽屉', g10: '设置：语言、缩放、主题、强调色和背景', g11: '深色模式', g12: '5 种界面语言', g13: '动态渐变背景', g14: '深色模式下的渐变背景',
     build_t: '运行 / 构建 🛠🤖',
     s1_t: '克隆并构建', s1_d: '需要 JDK 17+ 和 Android SDK。',
     s2_t: '安装并设为主屏幕应用', s2_d: '或者跳过构建：直接下载上方的 APK。',
