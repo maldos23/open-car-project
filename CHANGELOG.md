@@ -6,6 +6,22 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-10-27
+
+### Fixed
+
+- The player no longer stays on "Nothing playing" when the car wakes up with music already
+  playing: some head units (seen on a Unisoc K706) skip the system's session-change event after
+  sleep, so the launcher now re-checks the active media session while it's on screen.
+
+### Screenshots
+
+**Player recovers after the car wakes up.** When the head unit wakes from sleep and the music app
+starts a new session without the system telling the launcher, the player card picks it up on its
+own within a few seconds instead of staying on "Nothing playing".
+
+![Player showing the current track after waking](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.11.1/player-after-wake.png)
+
 ## [0.11.0] - 2026-10-27
 
 ### Added
@@ -367,7 +383,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.11.0...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.11.1...develop
+[0.11.1]: https://github.com/maldos23/open-car-project/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/maldos23/open-car-project/compare/v0.10.4...v0.11.0
 [0.10.4]: https://github.com/maldos23/open-car-project/compare/v0.10.3...v0.10.4
 [0.10.3]: https://github.com/maldos23/open-car-project/compare/v0.10.2...v0.10.3
