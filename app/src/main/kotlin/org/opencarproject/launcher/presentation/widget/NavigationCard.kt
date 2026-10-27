@@ -368,7 +368,7 @@ private fun NavigateStage(
 
 // ---- Shared ----
 
-private class NavApp(val packageName: String, val label: String, val icon: ImageBitmap?)
+internal class NavApp(val packageName: String, val label: String, val icon: ImageBitmap?)
 
 @Composable
 private fun AppHeader(app: NavApp?, status: String?) {
@@ -400,7 +400,7 @@ private fun Context.appLabelAndIcon(packageName: String): NavApp? = runCatching 
  * if they chose none (Android would resolve to the chooser), the first installed one from
  * [LauncherNotificationListener.NAVIGATION_PACKAGES].
  */
-private fun Context.defaultNavigationApp(): NavApp? {
+internal fun Context.defaultNavigationApp(): NavApp? {
     val pm = packageManager
     val chosen = pm.resolveActivity(Intent(Intent.ACTION_VIEW, "geo:0,0".toUri()), PackageManager.MATCH_DEFAULT_ONLY)
         ?.activityInfo?.packageName
@@ -409,8 +409,14 @@ private fun Context.defaultNavigationApp(): NavApp? {
     return pkg?.let { appLabelAndIcon(it) }
 }
 
+/** Navigation apps from [LauncherNotificationListener.NAVIGATION_PACKAGES] that are installed. */
+internal fun Context.installedNavigationApps(): List<NavApp> =
+    LauncherNotificationListener.NAVIGATION_PACKAGES
+        .filter { packageManager.getLaunchIntentForPackage(it) != null }
+        .mapNotNull { appLabelAndIcon(it) }
+
 /** Opens the given app; if none is installed, delegates to `geo:` (Android offers a choice). */
-private fun Context.openNavigationApp(packageName: String?) {
+internal fun Context.openNavigationApp(packageName: String?) {
     val intent = packageName?.let { packageManager.getLaunchIntentForPackage(it) }
         ?: Intent(Intent.ACTION_VIEW, "geo:0,0".toUri())
     runCatching { startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }

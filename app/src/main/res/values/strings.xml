@@ -22,6 +22,14 @@
 
     <!-- Built-in modules -->
     <string name="module_navigation">Navigation</string>
+    <string name="module_embedded_map">Maps (embedded)</string>
+    <string name="embedded_map_connecting">Connecting to the head unit… If asked, allow USB debugging for this launcher.</string>
+    <string name="embedded_map_unavailable">Embedding needs root adb on port 9876, which isn’t available on this device.</string>
+    <string name="embedded_map_no_app">Google Maps or Waze isn’t installed.</string>
+    <string name="embedded_map_retry">Retry</string>
+    <string name="embedded_map_open">Open map</string>
+    <string name="settings_embedded_map_app">Embedded map app</string>
+    <string name="embedded_map_app_auto">Automatic</string>
     <string name="module_media">Player</string>
 
     <!-- Launcher -->

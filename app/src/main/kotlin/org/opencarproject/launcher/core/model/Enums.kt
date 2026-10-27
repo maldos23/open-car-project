@@ -59,6 +59,9 @@ enum class CatalogItemKind {
 
     /** Climate control of the car through the head unit's CAN service. */
     CLIMATE,
+
+    /** Maps app running inside the card on a virtual display (needs root adb on the device). */
+    EMBEDDED_MAP,
 }
 
 /** Weather condition (groups Open-Meteo WMO codes). */

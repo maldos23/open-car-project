@@ -122,6 +122,8 @@ data class LauncherSettings(
     val reverseCameraId: String = "1",
     /** Closes the system's own full-screen reverse view so the floating one is visible. */
     val hideSystemReverseView: Boolean = false,
+    /** Package the "Maps (embedded)" module runs; empty = the default navigation app. */
+    val embeddedMapApp: String = "",
 )
 
 /** Current weather for the dock. */
@@ -207,6 +209,7 @@ object BuiltinKeys {
     const val MEDIA = "builtin/media"
     const val NOTIFICATIONS = "builtin/notifications"
     const val CLIMATE = "builtin/climate"
+    const val EMBEDDED_MAP = "builtin/embedded_map"
 }
 
 /**
