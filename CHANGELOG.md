@@ -16,6 +16,13 @@ All notable changes to this project are documented here. The format follows
   is off), fan level as bars with the car's own number of levels, and the air direction icon.
 - Settings → Climate: switch the head unit's own AC popup on or off, and an optional climate bar
   at the bottom of the home screen with blue-to-red temperature bars.
+- Reverse camera overlay (Settings → Reverse camera, off by default): in reverse, a floating,
+  draggable window over any app shows the rear camera next to the CAN parking sensors (front,
+  rear and side bars plus the nearest rear distance). The camera is captured at its native
+  720x480 with high-quality edge and noise processing, sharper than the system's upscaled view.
+  Needs "display over other apps"; the settings row opens that permission and has a Test button.
+  "Hide the system camera" closes the head unit's own full-screen reverse view so the floating
+  one is visible; the floating camera reopens as soon as the system releases it.
 
 ## [0.10.4] - 2026-10-27
 

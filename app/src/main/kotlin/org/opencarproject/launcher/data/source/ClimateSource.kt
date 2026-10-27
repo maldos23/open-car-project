@@ -98,8 +98,8 @@ object ClimateSource {
 
     @Volatile private var cachedVendor: ClimateVendor? = null
 
-    /** The vendor integration points from the asset (read once). */
-    private fun vendor(context: Context): ClimateVendor? = cachedVendor ?: runCatching {
+    /** The vendor integration points from the asset (read once); also used by [ReverseSource]. */
+    fun vendor(context: Context): ClimateVendor? = cachedVendor ?: runCatching {
         context.assets.open(VENDOR_ASSET).bufferedReader().use { it.readText() }
     }.getOrNull()?.let(ClimateProtocol::decodeVendor)?.also { cachedVendor = it }
 
