@@ -38,6 +38,11 @@ git switch develop && git pull
 git switch -c release/X.Y.Z
 # bump versionName (and versionCode +1) in app/build.gradle.kts
 # move CHANGELOG "Unreleased" entries under "## [X.Y.Z] - YYYY-MM-DD", update compare links
+# screenshots (mandatory): capture each new feature on the emulator into
+# docs/screenshots/releases/X.Y.Z/ and add a "### Screenshots" block to that CHANGELOG
+# section: per feature a bold title, a short explanation and the image, using absolute
+# https://raw.githubusercontent.com/maldos23/open-car-project/main/... URLs (the release
+# notes are copied from this section, so relative links would break)
 git commit -am "chore(release): X.Y.Z"
 git push -u origin release/X.Y.Z && gh pr create --base main --title "chore(release): X.Y.Z"
 # after merge (merge commit, not squash):

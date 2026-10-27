@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-26
+
 ### Added
 
 - Speed scene: past the rocket speed the vehicle shakes and sparks, turns into a rocket and
@@ -16,6 +18,36 @@ All notable changes to this project are documented here. The format follows
   and jungle (the sky still follows the time and the weather).
 - More detail on vehicles (doors, mirrors, exhaust, brake light, night headlight beam), cats
   (stripes, whiskers, blinking) and dogs (spots, collar, flapping ear, tongue out when fast).
+
+### Screenshots
+
+**Rocket launch.** Past the rocket speed (Settings → Speed scene → Rocket from) the car
+shakes and throws sparks, a rocket grows out of it in the car's color, then it tilts and lifts
+off while the city fades into space. When you slow down it plays backwards and lands.
+
+![Vehicle turning into a rocket](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.9.0/rocket-launch.png)
+
+**Pixel cat and pixel art scenery.** An original 8-bit cat that runs with a waving rainbow and
+twinkling stars. Instead of a rocket it flies into space with a thicker rainbow. The pixel art
+city has a banded sky, blocky clouds and windows that blink at night.
+
+![Pixel cat on the pixel art city and flying in space](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.9.0/pixel-cat.png)
+
+**Silhouette catalog.** Settings → Speed scene → Silhouette is now a row of picture cards
+that you scroll sideways. It has 10 options, shown in the chosen color (the pixel cat keeps
+its own colors).
+
+![Silhouette catalog](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.9.0/silhouettes.png)
+
+**Scenery.** Pick where you drive: city (default), pixel art, countryside (windmill, trees,
+fence), beach (waves, palms, sailboat), desert (mesas, cacti, tumbleweed, heat haze), snow
+(peaks, pines, snowfall) or jungle (vines, fireflies at night). Each one scrolls with your speed.
+
+![Scenery catalog](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.9.0/sceneries.png)
+
+The catalogs follow the light and dark themes.
+
+![Catalogs in dark theme](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.9.0/catalog-dark.png)
 
 ## [0.8.0] - 2026-10-26
 
@@ -223,7 +255,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.8.0...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.9.0...develop
+[0.9.0]: https://github.com/maldos23/open-car-project/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/maldos23/open-car-project/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/maldos23/open-car-project/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/maldos23/open-car-project/compare/v0.6.0...v0.6.1
