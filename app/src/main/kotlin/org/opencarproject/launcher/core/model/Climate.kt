@@ -37,6 +37,8 @@ data class ClimateState(
     val airFace: Boolean,
     val airFeet: Boolean,
     val fanSpeed: Int,
+    /** Highest fan level this car reports (0 when it doesn't say). */
+    val maxFanSpeed: Int = 0,
     val leftTemp: ClimateTemp,
     val rightTemp: ClimateTemp,
 )
@@ -55,6 +57,13 @@ data class ClimateVendor(
     val settingTypeClass: String,
     val controlAction: String,
     val controlExtra: String,
+    /** Broadcast (and extras) the vendor SDK uses to switch its own popups on or off. */
+    val popupAction: String,
+    val popupTypeExtra: String,
+    val popupEnableExtra: String,
+    val acPopupType: Int,
+    /** `Settings.System` key where the vendor keeps it (0 = AC popup shown). */
+    val acPopupSetting: String,
     val carModeProperty: String,
     val acFrameType: Int,
 )

@@ -56,12 +56,13 @@ class SystemCatalogSource(
     fun listItems(): List<CatalogItem> =
         (builtinItems() + listWidgets() + listApps()).distinctBy { it.key }
 
-    /** Modules drawn by the launcher itself: always available. */
-    private fun builtinItems() = listOf(
+    /** Modules drawn by the launcher itself; climate only on head units with a compatible CAN app. */
+    private fun builtinItems() = listOfNotNull(
         builtin(CatalogItemKind.MAP, BuiltinKeys.MAP, "Navegación", "Próximo giro de Google Maps o Waze"),
         builtin(CatalogItemKind.MEDIA, BuiltinKeys.MEDIA, "Reproductor", "Controla la música en curso"),
         builtin(CatalogItemKind.NOTIFICATIONS, BuiltinKeys.NOTIFICATIONS, "Notificaciones", "Notificaciones activas"),
-        builtin(CatalogItemKind.CLIMATE, BuiltinKeys.CLIMATE, "Clima", "Temperatura y modos del aire acondicionado"),
+        builtin(CatalogItemKind.CLIMATE, BuiltinKeys.CLIMATE, "Clima", "Temperatura y modos del aire acondicionado")
+            .takeIf { ClimateSource.isAvailable(context) },
     )
 
     private fun builtin(kind: CatalogItemKind, key: String, title: String, description: String) = CatalogItem(

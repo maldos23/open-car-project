@@ -42,6 +42,7 @@ object ClimateProtocol {
             airFace = bit(2, 6),
             airFeet = bit(2, 5),
             fanSpeed = frame[DATA + 2].toInt() and 0x0F,
+            maxFanSpeed = frame.getOrNull(DATA + 19)?.let { (it.toInt() shr 4) and 0x0F } ?: 0,
             leftTemp = temp(frame[DATA + 5], fahrenheit),
             rightTemp = temp(frame[DATA + 6], fahrenheit),
         )
@@ -54,6 +55,33 @@ object ClimateProtocol {
         0xFE -> ClimateTemp.Unknown
         else -> ClimateTemp.Value(v / 2f, fahrenheit)
     }
+
+    /**
+     * Where a temperature sits between cold (0) and hot (1) for the blue-to-red bars: the
+     * usual car range is 16–32 °C (60–90 °F); Low and High are the ends, unknown is null.
+     */
+    fun warmth(temp: ClimateTemp): Float? = when (temp) {
+        ClimateTemp.Low -> 0f
+        ClimateTemp.High -> 1f
+        ClimateTemp.Unknown -> null
+        is ClimateTemp.Value ->
+            if (temp.fahrenheit) ((temp.degrees - 60f) / 30f).coerceIn(0f, 1f) else ((temp.degrees - 16f) / 16f).coerceIn(0f, 1f)
+    }
+
+    /**
+     * Air direction as the vendor names it (`up` windshield, `parallel` face, `down` feet), e.g.
+     * `parallel_down`; null when no direction is set.
+     */
+    fun airModeName(state: ClimateState): String? =
+        listOfNotNull("up".takeIf { blowsWindshield(state) }, "parallel".takeIf { state.airFace }, "down".takeIf { state.airFeet })
+            .takeIf { it.isNotEmpty() }?.joinToString("_")
+
+    /**
+     * Air goes to the windshield: its direction bit, or the front defroster when no other
+     * direction is reported (some cars send "FRONT" mode that way).
+     */
+    fun blowsWindshield(state: ClimateState): Boolean =
+        state.airWindshield || (state.frontDefrost && !state.airFace && !state.airFeet)
 
     /** Air direction cycle used by the card: face → face+feet → feet → windshield+feet. */
     val AirModeCycle = listOf("WindParallel", "WindParallelDown", "WindDown", "WindUpDown")

@@ -126,6 +126,9 @@ fun SettingsSheet(
     onElementVisibilityChange: (DockElement, Boolean) -> Unit,
     onGridChange: (GridSpec) -> Unit,
     onDismiss: () -> Unit,
+    /** The head unit's own AC popup (null: no vendor CAN app, the option is hidden). */
+    nativeAcPopup: Boolean?,
+    onNativeAcPopupChange: (Boolean) -> Unit,
     // Hoisted by the caller so the position survives closing and reopening (e.g. around "Test").
     scrollState: ScrollState = rememberScrollState(),
 ) {
@@ -481,6 +484,17 @@ fun SettingsSheet(
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium,
                     )
+                }
+            }
+
+            if (nativeAcPopup != null) {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text(stringResource(R.string.settings_climate), style = MaterialTheme.typography.titleMedium)
+                    // The value lives in the head unit (its CAN app); this switch only asks it to change.
+                    SwitchRow(stringResource(R.string.settings_climate_native_popup), stringResource(R.string.settings_climate_native_popup_desc), nativeAcPopup, onCheckedChange = onNativeAcPopupChange)
+                    SwitchRow(stringResource(R.string.settings_climate_bar), stringResource(R.string.settings_climate_bar_desc), settings.climateBar) { v ->
+                        onChange { it.copy(climateBar = v) }
+                    }
                 }
             }
 

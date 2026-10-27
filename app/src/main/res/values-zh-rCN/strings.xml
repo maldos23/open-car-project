@@ -239,12 +239,6 @@
     <string name="module_climate">空调</string>
     <string name="climate_unavailable">此车机没有空调服务</string>
     <string name="climate_power">开关空调</string>
-    <string name="climate_left_temp_up">主驾温度升高</string>
-    <string name="climate_left_temp_down">主驾温度降低</string>
-    <string name="climate_right_temp_up">副驾温度升高</string>
-    <string name="climate_right_temp_down">副驾温度降低</string>
-    <string name="climate_fan_up">风量加大</string>
-    <string name="climate_fan_down">风量减小</string>
     <string name="climate_ac">A/C</string>
     <string name="climate_auto">AUTO</string>
     <string name="climate_recirculation">内循环</string>
@@ -258,5 +252,12 @@
     <string name="climate_temp_low">LO</string>
     <string name="climate_temp_high">HI</string>
     <string name="climate_read_only">%1$s 尚未适配：只读</string>
+    <string name="climate_off">已关闭</string>
+    <string name="climate_fan_level">风量 %1$d</string>
+    <string name="settings_climate">空调</string>
+    <string name="settings_climate_native_popup">系统空调弹窗</string>
+    <string name="settings_climate_native_popup_desc">空调变化时车机在任何界面上弹出的空调窗口</string>
+    <string name="settings_climate_bar">空调条</string>
+    <string name="settings_climate_bar_desc">空调变化时在桌面底部显示几秒钟温度和风量</string>
     <string name="climate_waiting">等待车辆数据…</string>
 </resources>

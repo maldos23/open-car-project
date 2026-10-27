@@ -5,13 +5,21 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.database.ContentObserver
+import android.os.Handler
+import android.os.Looper
+import android.provider.Settings
 import android.os.IBinder
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -52,8 +60,7 @@ object ClimateSource {
         app = appContext
         scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         _status.value = ClimateStatus.Connecting
-        val vendor = runCatching { appContext.assets.open(VENDOR_ASSET).bufferedReader().use { it.readText() } }
-            .getOrNull()?.let(ClimateProtocol::decodeVendor)
+        val vendor = vendor(appContext)
         if (vendor == null) {
             _status.value = ClimateStatus.Unavailable
             return
@@ -89,6 +96,55 @@ object ClimateSource {
         _status.value = ClimateStatus.Connecting
     }
 
+    @Volatile private var cachedVendor: ClimateVendor? = null
+
+    /** The vendor integration points from the asset (read once). */
+    private fun vendor(context: Context): ClimateVendor? = cachedVendor ?: runCatching {
+        context.assets.open(VENDOR_ASSET).bufferedReader().use { it.readText() }
+    }.getOrNull()?.let(ClimateProtocol::decodeVendor)?.also { cachedVendor = it }
+
+    /** True only when this head unit has the vendor CAN app and its service can be bound. */
+    fun isAvailable(context: Context): Boolean {
+        val app = context.applicationContext
+        val vendor = vendor(app) ?: return false
+        return runCatching {
+            app.packageManager.queryIntentServices(Intent(vendor.serviceAction).setPackage(vendor.packageName), 0).isNotEmpty()
+        }.getOrDefault(false)
+    }
+
+    /**
+     * Whether the vendor shows its own AC popup over every screen, read live from the system
+     * setting it keeps; null when this head unit has no vendor CAN app.
+     */
+    fun nativePopup(context: Context): Flow<Boolean?> = callbackFlow {
+        val app = context.applicationContext
+        val vendor = vendor(app)
+        if (vendor == null || !isAvailable(app)) {
+            trySend(null)
+            awaitClose()
+            return@callbackFlow
+        }
+        // A unit whose vendor app never wrote the setting shows its popup (the vendor's default).
+        fun read() = Settings.System.getInt(app.contentResolver, vendor.acPopupSetting, 0) == 0
+        val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
+            override fun onChange(selfChange: Boolean) { trySend(read()) }
+        }
+        app.contentResolver.registerContentObserver(Settings.System.getUriFor(vendor.acPopupSetting), false, observer)
+        trySend(read())
+        awaitClose { app.contentResolver.unregisterContentObserver(observer) }
+    }.distinctUntilChanged()
+
+    /** Asks the vendor to show or hide its AC popup, with the same broadcast its SDK sends. */
+    fun setNativePopup(context: Context, enabled: Boolean) {
+        val vendor = vendor(context.applicationContext) ?: return
+        context.sendBroadcast(
+            Intent(vendor.popupAction)
+                .setPackage(vendor.packageName)
+                .putExtra(vendor.popupTypeExtra, vendor.acPopupType.toByte())
+                .putExtra(vendor.popupEnableExtra, enabled),
+        )
+    }
+
     /** Sends a vendor `SettingType` (e.g. `"Power"`); ignored when not connected. */
     fun send(settingType: String) {
         val context = app ?: return
@@ -120,6 +176,7 @@ object ClimateSource {
         bridge = b
 
         val cb = b.newCallback { frame ->
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "frame " + frame.joinToString(" ") { "%02x".format(it) })
             val state = ClimateProtocol.parseAcFrame(frame, vendor.acFrameType) ?: return@newCallback
             _status.update { if (it is ClimateStatus.Ready) it.copy(state = state) else it }
         }
@@ -131,7 +188,5 @@ object ClimateSource {
     /** Vendor `SettingType` names the card has buttons for. */
     private val CARD_COMMANDS = listOf(
         "Power", "Ac", "Auto", "Cycle", "FrontWindowFogClear", "BackWindowFogClear",
-        "LeftTempIncrease", "LeftTempDecrease", "RightTempIncrease", "RightTempDecrease",
-        "WindLevelIncrease", "WindLevelDecrease",
     ) + ClimateProtocol.AirModeCycle
 }
