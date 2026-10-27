@@ -6,14 +6,29 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-10-27
+
 ### Added
 
-- "Maps (embedded)" module: Google Maps (or Waze) runs live inside a home-screen card, with
-  touch and pinch. It needs a head unit whose adbd runs as root on TCP port 9876 (for example
+- "Maps (embedded)" module: Google Maps (or Waze) runs live inside a home-screen card and
+  responds to touch. It needs a head unit whose adbd runs as root on TCP port 9876 (for example
   the K706); the first time, allow USB debugging for the launcher in the system prompt. On
   other devices the card explains it isn't available and offers to open the map normally.
   Settings → "Embedded map app" picks Google Maps or Waze (Automatic uses the default
   navigation app).
+
+### Screenshots
+
+**Maps inside a card.** Add "Maps (embedded)" from "+" and Google Maps or Waze runs live in the
+card and responds to touch like the real app. Captured on a K706 head unit, where adb runs as
+root on port 9876.
+
+![Google Maps running inside a home-screen card](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.12.0/embedded-map.png)
+
+**Choose the map app.** Settings → "Embedded map app" switches the card between Google Maps and
+Waze; Automatic keeps the default navigation app.
+
+![Embedded map app picker in Settings](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.12.0/embedded-map-setting.png)
 
 ## [0.11.1] - 2026-10-27
 
@@ -392,7 +407,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.11.1...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.12.0...develop
+[0.12.0]: https://github.com/maldos23/open-car-project/compare/v0.11.1...v0.12.0
 [0.11.1]: https://github.com/maldos23/open-car-project/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/maldos23/open-car-project/compare/v0.10.4...v0.11.0
 [0.10.4]: https://github.com/maldos23/open-car-project/compare/v0.10.3...v0.10.4
