@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- "Maps (embedded)" module: Google Maps (or Waze) runs live inside a home-screen card, with
+  touch and pinch. It needs a head unit whose adbd runs as root on TCP port 9876 (for example
+  the K706); the first time, allow USB debugging for the launcher in the system prompt. On
+  other devices the card explains it isn't available and offers to open the map normally.
+  Settings → "Embedded map app" picks Google Maps or Waze (Automatic uses the default
+  navigation app).
+
 ## [0.11.1] - 2026-10-27
 
 ### Fixed

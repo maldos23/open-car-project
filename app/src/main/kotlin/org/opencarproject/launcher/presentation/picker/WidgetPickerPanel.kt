@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Navigation
+import androidx.compose.material.icons.rounded.Map
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.AcUnit
@@ -106,6 +107,7 @@ private fun CatalogTile(item: CatalogItem, onClick: () -> Unit) {
         CatalogItemKind.MEDIA -> stringResource(R.string.module_media)
         CatalogItemKind.NOTIFICATIONS -> stringResource(R.string.notifications)
         CatalogItemKind.CLIMATE -> stringResource(R.string.module_climate)
+        CatalogItemKind.EMBEDDED_MAP -> stringResource(R.string.module_embedded_map)
         else -> item.title
     }
     val appIcon = if (item.kind == CatalogItemKind.APP) rememberAppIcon(item.key) else null
@@ -135,6 +137,7 @@ private fun CatalogTile(item: CatalogItem, onClick: () -> Unit) {
                         CatalogItemKind.MEDIA -> Icons.Rounded.MusicNote
                         CatalogItemKind.NOTIFICATIONS -> Icons.Rounded.Notifications
                         CatalogItemKind.CLIMATE -> Icons.Rounded.AcUnit
+                        CatalogItemKind.EMBEDDED_MAP -> Icons.Rounded.Map
                         CatalogItemKind.WIDGET -> Icons.Rounded.Widgets
                         else -> Icons.Rounded.Apps
                     },

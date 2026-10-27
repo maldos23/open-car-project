@@ -88,6 +88,9 @@ dependencies {
     // JSON serialization of the layout (no annotation processors).
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
 
+    // adb client to the device's own adbd (embedded Maps module on root-adb head units).
+    implementation("dev.mobile:dadb:1.2.10")
+
     // Compose UI.
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
