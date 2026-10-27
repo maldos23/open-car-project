@@ -11,6 +11,7 @@ import android.media.session.MediaSessionManager
 import android.media.session.PlaybackState
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -48,6 +49,8 @@ data class QueueEntry(val id: Long, val title: String, val subtitle: String, val
  * access. [start]/[stop] are reference-counted: the first registers, the last releases.
  */
 object MediaSessionSource {
+
+    private const val TAG = "OCP.Media"
 
     private val _nowPlaying = MutableStateFlow<NowPlaying?>(null)
     val nowPlaying: StateFlow<NowPlaying?> = _nowPlaying.asStateFlow()
@@ -93,6 +96,16 @@ object MediaSessionSource {
         if (registered) attach(manager?.activeSessionsOrEmpty()) else register(context.applicationContext)
     }
 
+    /**
+     * The listener was unbound: the system may drop the sessions listener with it, so the next
+     * [onListenerConnected] registers from scratch instead of only re-reading the sessions.
+     */
+    fun onListenerDisconnected() {
+        if (!registered) return
+        registered = false
+        runCatching { manager?.removeOnActiveSessionsChangedListener(sessionsListener) }
+    }
+
     private fun register(app: Context) {
         if (registered) return
         val m = app.getSystemService(MediaSessionManager::class.java) ?: return
@@ -101,7 +114,7 @@ object MediaSessionSource {
         registered = runCatching {
             m.addOnActiveSessionsChangedListener(sessionsListener, listenerComponent, main)
             attach(m.activeSessionsOrEmpty())
-        }.isSuccess
+        }.onFailure { Log.w(TAG, "can't read media sessions", it) }.isSuccess
     }
 
     fun stop() {

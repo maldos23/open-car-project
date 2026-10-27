@@ -29,7 +29,9 @@ import org.opencarproject.launcher.di.AppContainer
 import org.opencarproject.launcher.presentation.launcher.LauncherScreen
 import org.opencarproject.launcher.presentation.launcher.LauncherViewModel
 import org.opencarproject.launcher.presentation.launcher.LauncherViewModelFactory
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import org.opencarproject.launcher.data.source.LauncherNotificationListener
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
@@ -163,6 +165,11 @@ class LauncherActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         container.widgetHost.startListening()
+        // Give a live listener time to reconnect after a process restart before forcing a rebind.
+        lifecycleScope.launch {
+            delay(2_000)
+            LauncherNotificationListener.ensureBound(this@LauncherActivity)
+        }
     }
 
     override fun onStop() {
