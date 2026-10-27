@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Settings: shape of the built-in module cards (navigation, media, notifications): rounded or
+  a wavy "flower" edge, with adjustable corners (0–32 dp).
+- Settings: assistant button style with live previews: the animated Google pill, a pill with
+  the default assistant app's logo, or just three animated sparkles in Google colors. The
+  pills' colored halo and border can be turned off.
+
 ## [0.9.0] - 2026-10-26
 
 ### Added

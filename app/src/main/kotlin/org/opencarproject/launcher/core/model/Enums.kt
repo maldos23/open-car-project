@@ -245,3 +245,24 @@ enum class GlowColor(val argb: Long?) {
     ORANGE(0xFFFF9100),
     WHITE(0xFFFFFFFF),
 }
+
+/** Outline of the built-in module cards (navigation, media, notifications). */
+enum class ModuleShape {
+    /** Plain rounded corners. */
+    ROUNDED,
+
+    /** Edge that waves inward like a flower. */
+    SCALLOPED,
+}
+
+/** Look of the voice assistant button in the bottom bar. */
+enum class AssistantStyle {
+    /** Pill with the animated Google-colored halo and audio bars. */
+    GOOGLE_ANIMATED,
+
+    /** Pill with the default assistant app's own logo. */
+    APP_LOGO,
+
+    /** Just three animated sparkles in Google colors, no text. */
+    SPARKLES,
+}

@@ -17,7 +17,22 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import android.content.ComponentName
+import android.provider.Settings
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Path
+import kotlin.math.PI
+import kotlin.math.sin
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import org.opencarproject.launcher.core.model.AssistantStyle
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -75,12 +90,21 @@ private fun googleFlow(angle: Float): Brush {
 }
 
 /**
- * AI-styled assistant button: a dark pill with a halo of Google colors that flow
- * and "breathe", animated voice bars, and rotating suggestions of what to ask.
- * Tapping it invokes the assistant.
+ * AI-styled assistant button in the chosen [style]. [AssistantStyle.GOOGLE_ANIMATED] is a dark
+ * pill with a halo of Google colors that flow and "breathe", animated voice bars, and rotating
+ * suggestions of what to ask; [AssistantStyle.APP_LOGO] swaps the bars for the default
+ * assistant's logo; [AssistantStyle.SPARKLES] is just three animated sparkles. [showGlow] toggles the
+ * pills' colored halo and border. Tapping it invokes the assistant.
  */
 @Composable
-fun GoogleAssistantButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun AssistantButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    style: AssistantStyle = AssistantStyle.GOOGLE_ANIMATED,
+    showGlow: Boolean = true,
+) {
+    if (style == AssistantStyle.SPARKLES) return AssistantSparkles(onClick, modifier)
+    val animated = style == AssistantStyle.GOOGLE_ANIMATED
     val transition = rememberInfiniteTransition(label = "assistant")
     // Animated values are read only while drawing: the pill redraws, it never recomposes.
     val angle = transition.animateFloat(
@@ -104,6 +128,7 @@ fun GoogleAssistantButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
             .height(64.dp)
             // Glow: increasingly wide and faint layers (cheap blur, works on API 26+).
             .drawBehind {
+                if (!showGlow) return@drawBehind
                 val flow = googleFlow(angle.value)
                 val glow = glow.value
                 for (layer in 1..4) {
@@ -121,6 +146,7 @@ fun GoogleAssistantButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
             .background(Color(0xFF111318))
             .drawWithContent {
                 drawContent()
+                if (!showGlow) return@drawWithContent
                 val stroke = 2.dp.toPx()
                 drawRoundRect(
                     brush = googleFlow(angle.value),
@@ -136,8 +162,13 @@ fun GoogleAssistantButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        // Four bars in Google colors that rise and fall like a speaking voice.
-        AudioBars(GoogleSweep.dropLast(1), Modifier.size(width = 30.dp, height = 28.dp))
+        val logo = if (animated) null else rememberAssistantLogo()
+        if (logo != null) {
+            Image(logo, contentDescription = null, modifier = Modifier.size(32.dp))
+        } else {
+            // Four bars in Google colors that rise and fall like a speaking voice.
+            AudioBars(GoogleSweep.dropLast(1), Modifier.size(width = 30.dp, height = 28.dp))
+        }
         Column {
             Text(
                 text = stringResource(R.string.assistant_talk),
@@ -165,6 +196,67 @@ fun GoogleAssistantButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
             }
         }
     }
+}
+
+/** Logo of the default assistant app (Google, Gemini, …), or `null` if there's none. */
+@Composable
+private fun rememberAssistantLogo(): ImageBitmap? {
+    val context = LocalContext.current
+    // "assistant" holds the default assistant's "package/service"; the app's icon is the logo.
+    val pkg = remember {
+        runCatching { Settings.Secure.getString(context.contentResolver, "assistant") }.getOrNull()
+            ?.let { ComponentName.unflattenFromString(it)?.packageName }
+    } ?: return null
+    return rememberAppIcon(pkg, sizePx = 96, withoutBackground = true)
+}
+
+/** Three four-pointed sparkles in Google colors that twinkle and slowly turn; no text. */
+@Composable
+private fun AssistantSparkles(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val transition = rememberInfiniteTransition(label = "sparkles")
+    val phase = transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(2400, easing = LinearEasing)),
+        label = "twinkle",
+    )
+    val label = stringResource(R.string.assistant_open)
+    Box(
+        modifier
+            .size(64.dp)
+            .semantics { contentDescription = label }
+            .clip(CircleShape)
+            .clickable(role = Role.Button, onClickLabel = label, onClick = onClick)
+            .drawBehind {
+                val unit = size.minDimension
+                // (center x, center y, radius) as fractions of the box, colors, twinkle offset.
+                SPARKLES.forEachIndexed { i, (fx, fy, fr) ->
+                    val t = phase.value + i / 3f
+                    val pulse = 0.75f + 0.25f * (0.5f + 0.5f * sin(2 * PI * t).toFloat())
+                    val c = Offset(unit * fx, unit * fy)
+                    val r = unit * fr * pulse
+                    rotate(15f * sin(2 * PI * t).toFloat(), c) {
+                        drawPath(
+                            sparklePath(c, r),
+                            Brush.linearGradient(SPARKLE_COLORS[i], c - Offset(r, r), c + Offset(r, r)),
+                        )
+                    }
+                }
+            },
+    )
+}
+
+private val SPARKLES = listOf(Triple(0.42f, 0.56f, 0.34f), Triple(0.76f, 0.26f, 0.16f), Triple(0.78f, 0.78f, 0.11f))
+private val SPARKLE_COLORS = listOf(listOf(GoogleBlue, GoogleRed), listOf(GoogleYellow, GoogleRed), listOf(GoogleGreen, GoogleBlue))
+
+/** Four-pointed star with concave sides (the classic "AI sparkle"). */
+private fun sparklePath(c: Offset, r: Float) = Path().apply {
+    moveTo(c.x, c.y - r)
+    quadraticTo(c.x, c.y, c.x + r, c.y)
+    quadraticTo(c.x, c.y, c.x, c.y + r)
+    quadraticTo(c.x, c.y, c.x - r, c.y)
+    quadraticTo(c.x, c.y, c.x, c.y - r)
+    close()
 }
 
 /** How long each suggestion stays visible. */

@@ -141,6 +141,16 @@
     <string name="settings_menu_icon_size">App menu icon size</string>
     <string name="settings_app_labels">App names</string>
     <string name="settings_app_labels_desc">Shows the name under the desktop app icons.</string>
+    <string name="settings_module_shape">Module shape</string>
+    <string name="module_shape_rounded">Rounded</string>
+    <string name="module_shape_scalloped">Flower</string>
+    <string name="settings_module_roundness">Module corners</string>
+    <string name="settings_assistant_style">Assistant style</string>
+    <string name="assistant_style_google">Google</string>
+    <string name="assistant_style_logo">App logo</string>
+    <string name="assistant_style_sparkles">Sparkles</string>
+    <string name="settings_assistant_glow">Colored border</string>
+    <string name="settings_assistant_glow_desc">Google-colored halo and border around the assistant pill.</string>
     <string name="settings_dock_icon_size">Bar icon size</string>
     <string name="size_small">Small</string>
     <string name="size_medium">Medium</string>
