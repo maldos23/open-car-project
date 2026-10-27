@@ -40,6 +40,8 @@
     <string name="drawer_search">搜索应用</string>
     <string name="drawer_clear_search">清除搜索</string>
     <string name="drawer_no_results">无结果</string>
+    <string name="drawer_uninstall">卸载</string>
+    <string name="drawer_uninstall_app">卸载%1$s</string>
     <string name="apps_back_home">返回主屏幕</string>
     <string name="apps_title">应用程序</string>
 
