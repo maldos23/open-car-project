@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-26
+
 ### Added
 
 - Long-press an app in the app drawer to enter edit mode: icons jiggle and a trash button
@@ -210,7 +212,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.7.0...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.8.0...develop
+[0.8.0]: https://github.com/maldos23/open-car-project/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/maldos23/open-car-project/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/maldos23/open-car-project/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/maldos23/open-car-project/compare/v0.5.0...v0.6.0
