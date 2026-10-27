@@ -110,7 +110,7 @@ import org.opencarproject.launcher.core.model.PanelState
 import org.opencarproject.launcher.core.ui.theme.Dimens
 import org.opencarproject.launcher.data.widget.LauncherAppWidgetHost
 import org.opencarproject.launcher.presentation.common.ClockText
-import org.opencarproject.launcher.presentation.common.GoogleAssistantButton
+import org.opencarproject.launcher.presentation.common.AssistantButton
 import org.opencarproject.launcher.presentation.common.DockFavorites
 import org.opencarproject.launcher.presentation.common.slotWidth
 import org.opencarproject.launcher.presentation.common.HotspotIndicator
@@ -124,7 +124,9 @@ import org.opencarproject.launcher.data.source.LauncherNotificationListener
 import org.opencarproject.launcher.data.source.MediaSessionSource
 import org.opencarproject.launcher.presentation.drawer.AppDrawerSheet
 import org.opencarproject.launcher.presentation.drawer.AppsPage
+import org.opencarproject.launcher.presentation.grid.LocalModuleShape
 import org.opencarproject.launcher.presentation.grid.LocalShowAppLabels
+import org.opencarproject.launcher.presentation.grid.moduleShapeOf
 import org.opencarproject.launcher.presentation.grid.WidgetGrid
 import org.opencarproject.launcher.presentation.picker.WidgetPickerPanel
 import org.opencarproject.launcher.presentation.settings.SettingsSheet
@@ -259,7 +261,13 @@ fun LauncherScreen(
                             )
                         }
                     } else {
-                        CompositionLocalProvider(LocalShowAppLabels provides settings.showAppLabels) {
+                        val moduleShape = remember(settings.moduleShape, settings.moduleCornerDp) {
+                            moduleShapeOf(settings.moduleShape, settings.moduleCornerDp)
+                        }
+                        CompositionLocalProvider(
+                            LocalShowAppLabels provides settings.showAppLabels,
+                            LocalModuleShape provides moduleShape,
+                        ) {
                             WidgetGrid(state = state, widgetHost = widgetHost, viewModel = viewModel)
                         }
                     }
@@ -273,7 +281,7 @@ fun LauncherScreen(
                 var leftFixed by remember { mutableIntStateOf(0) }
                 var rightFixed by remember { mutableIntStateOf(0) }
                 // Measured pill width (widest seen, so rotating hints don't make slots jitter).
-                var assistantWidth by remember { mutableIntStateOf(0) }
+                var assistantWidth by remember(settings.assistantStyle) { mutableIntStateOf(0) }
                 fun capacity(fixedPx: Int): Int = with(density) {
                     val centerReserve = (if (shown(DockElement.ASSISTANT)) assistantWidth / 2f else 0f) + 16.dp.toPx()
                     val free = dockWidth / 2f - centerReserve - fixedPx - 16.dp.toPx()
@@ -315,7 +323,7 @@ fun LauncherScreen(
                         exit = fadeOut() + scaleOut(targetScale = 0.9f),
                         modifier = Modifier.align(Alignment.Center).onSizeChanged { assistantWidth = maxOf(assistantWidth, it.width) },
                     ) {
-                        GoogleAssistantButton(onClick = {
+                        AssistantButton(style = settings.assistantStyle, showGlow = settings.assistantGlow, onClick = {
                             // System assist session: an overlay like long-press Home, no activity launch,
                             // so it opens fast and the launcher (and its widgets) stays started. The
                             // intent is only the fallback when no default assistant is set.

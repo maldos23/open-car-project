@@ -13,11 +13,13 @@ import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import org.opencarproject.launcher.core.model.AccentColor
 import org.opencarproject.launcher.core.model.AppLanguage
+import org.opencarproject.launcher.core.model.AssistantStyle
 import org.opencarproject.launcher.core.model.BackgroundStyle
 import org.opencarproject.launcher.core.model.AppMenuStyle
 import org.opencarproject.launcher.core.model.DockElement
 import org.opencarproject.launcher.core.model.DockIconSize
 import org.opencarproject.launcher.core.model.GlowColor
+import org.opencarproject.launcher.core.model.ModuleShape
 import org.opencarproject.launcher.core.model.MotionSource
 import org.opencarproject.launcher.core.model.LauncherSettings
 import org.opencarproject.launcher.core.model.SceneTheme
@@ -30,6 +32,7 @@ import org.opencarproject.launcher.core.model.TimeFormat
 import org.opencarproject.launcher.core.model.VehicleColor
 import org.opencarproject.launcher.core.model.VehicleShape
 import org.opencarproject.launcher.core.model.WeatherPosition
+import org.opencarproject.launcher.core.pure.ModuleCornerRange
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -73,6 +76,10 @@ class SettingsDataSource(private val context: Context) {
     private val motionGlowSmoothnessKey = floatPreferencesKey("motion_glow_smoothness")
     private val motionGlowColorKey = stringPreferencesKey("motion_glow_color")
     private val motionSourceKey = stringPreferencesKey("motion_source")
+    private val moduleShapeKey = stringPreferencesKey("module_shape")
+    private val moduleCornerKey = intPreferencesKey("module_corner_dp")
+    private val assistantStyleKey = stringPreferencesKey("assistant_style")
+    private val assistantGlowKey = booleanPreferencesKey("assistant_glow")
 
     val settingsFlow: Flow<LauncherSettings> = context.settingsDataStore.data.recoverIoErrors().map { it.toSettings() }
 
@@ -112,6 +119,10 @@ class SettingsDataSource(private val context: Context) {
             prefs[motionGlowSmoothnessKey] = next.motionGlowSmoothness
             prefs[motionGlowColorKey] = next.motionGlowColor.name
             prefs[motionSourceKey] = next.motionSource.name
+            prefs[moduleShapeKey] = next.moduleShape.name
+            prefs[moduleCornerKey] = next.moduleCornerDp
+            prefs[assistantStyleKey] = next.assistantStyle.name
+            prefs[assistantGlowKey] = next.assistantGlow
         }
     }
 
@@ -149,6 +160,10 @@ class SettingsDataSource(private val context: Context) {
         motionGlowSmoothness = this[motionGlowSmoothnessKey] ?: 0.5f,
         motionGlowColor = enumOr(this[motionGlowColorKey], GlowColor.ACCENT),
         motionSource = enumOr(this[motionSourceKey], MotionSource.SENSORS_AND_GPS),
+        moduleShape = enumOr(this[moduleShapeKey], ModuleShape.ROUNDED),
+        moduleCornerDp = (this[moduleCornerKey] ?: 12).coerceIn(ModuleCornerRange),
+        assistantStyle = enumOr(this[assistantStyleKey], AssistantStyle.GOOGLE_ANIMATED),
+        assistantGlow = this[assistantGlowKey] ?: true,
     )
 
     /** Stored value, or the default if missing or from a version that no longer exists. */

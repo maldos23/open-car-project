@@ -130,6 +130,16 @@
     <string name="settings_menu_icon_size">Tamanho dos ícones do menu</string>
     <string name="settings_app_labels">Nomes dos apps</string>
     <string name="settings_app_labels_desc">Mostra o nome abaixo do ícone dos apps da área de trabalho.</string>
+    <string name="settings_module_shape">Formato dos módulos</string>
+    <string name="module_shape_rounded">Arredondado</string>
+    <string name="module_shape_scalloped">Flor</string>
+    <string name="settings_module_roundness">Cantos dos módulos</string>
+    <string name="settings_assistant_style">Estilo do assistente</string>
+    <string name="assistant_style_google">Google</string>
+    <string name="assistant_style_logo">Logo do app</string>
+    <string name="assistant_style_sparkles">Brilhos</string>
+    <string name="settings_assistant_glow">Borda colorida</string>
+    <string name="settings_assistant_glow_desc">Halo e borda com as cores do Google ao redor do botão do assistente.</string>
     <string name="settings_dock_icon_size">Tamanho dos ícones da barra</string>
     <string name="size_small">Pequeno</string>
     <string name="size_medium">Médio</string>

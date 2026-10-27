@@ -108,6 +108,12 @@ data class LauncherSettings(
     val motionGlowColor: GlowColor = GlowColor.ACCENT,
     /** Where the glow reads turns from. */
     val motionSource: MotionSource = MotionSource.SENSORS_AND_GPS,
+    val moduleShape: ModuleShape = ModuleShape.ROUNDED,
+    /** Corner radius of the module cards, in dp. */
+    val moduleCornerDp: Int = 12,
+    val assistantStyle: AssistantStyle = AssistantStyle.GOOGLE_ANIMATED,
+    /** Colored halo and border around the assistant pill. */
+    val assistantGlow: Boolean = true,
 )
 
 /** Current weather for the dock. */

@@ -12,6 +12,9 @@ val MenuIconScaleRange = 0.75f..1.5f
 val MotionGlowSensitivityRange = 0.5f..2f
 val MotionGlowSmoothnessRange = 0f..1f
 
+/** Module card corner radius, in dp. */
+val ModuleCornerRange = 0..32
+
 /** Rocket threshold limits, in km/h. */
 val RocketKmhRange = 20..200
 

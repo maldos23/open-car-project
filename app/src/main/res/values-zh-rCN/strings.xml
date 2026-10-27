@@ -130,6 +130,16 @@
     <string name="settings_menu_icon_size">应用菜单图标大小</string>
     <string name="settings_app_labels">应用名称</string>
     <string name="settings_app_labels_desc">在桌面应用图标下方显示名称。</string>
+    <string name="settings_module_shape">模块形状</string>
+    <string name="module_shape_rounded">圆角</string>
+    <string name="module_shape_scalloped">花朵</string>
+    <string name="settings_module_roundness">模块圆角</string>
+    <string name="settings_assistant_style">助理样式</string>
+    <string name="assistant_style_google">Google</string>
+    <string name="assistant_style_logo">应用徽标</string>
+    <string name="assistant_style_sparkles">闪光</string>
+    <string name="settings_assistant_glow">彩色边框</string>
+    <string name="settings_assistant_glow_desc">助理按钮周围的 Google 配色光晕和边框。</string>
     <string name="settings_dock_icon_size">栏图标大小</string>
     <string name="size_small">小</string>
     <string name="size_medium">中</string>
