@@ -1,0 +1,31 @@
+name: Pages
+
+on:
+  push:
+    branches: [main]
+    paths: ['site/**', 'docs/screenshots/**', '.github/workflows/pages.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.d.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      # The site is one static file; screenshots are copied in (legacy/ skipped) instead of duplicated in git.
+      - run: mkdir _site && cp site/index.html _site/ && rsync -a --exclude legacy docs/screenshots/ _site/screenshots/
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+      - id: d
+        uses: actions/deploy-pages@v5

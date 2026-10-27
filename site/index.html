@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open Car Project</title>
+<meta name="description" content="Open Car Project: an open-source Android launcher for car head units. Download the latest APK, see it running and start contributing.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='21 21 66 66'%3E%3Crect x='21' y='21' width='66' height='66' rx='16' fill='%230B1220'/%3E%3Cpath d='M66,33.215 A24,24 0 1,1 42,33.215' fill='none' stroke='%23fff' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M66,33.215 A24,24 0 0,1 76.553,62.208' fill='none' stroke='%2300E5FF' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M31,54 L47,54 M61,54 L77,54 M54,61 L54,77' fill='none' stroke='%23fff' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='54' cy='54' r='8' fill='%23fff'/%3E%3C/svg%3E">
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>
+  const c = n => `hsl(var(--${n}) / <alpha-value>)`;
+  tailwind.config = {
+    darkMode: 'media',
+    theme: { extend: {
+      colors: { background: c('background'), foreground: c('foreground'), card: c('card'), muted: c('muted'),
+        'muted-foreground': c('muted-foreground'), border: c('border'), primary: c('primary'),
+        'primary-foreground': c('primary-foreground'), ring: c('ring'), brand: c('brand') },
+      borderRadius: { card: 'var(--radius)', inner: 'var(--radius-inner)' },
+      fontFamily: { sans: ['system-ui', '-apple-system', '"Segoe UI"', '"PingFang SC"', '"Microsoft YaHei"', 'sans-serif'] }
+    } }
+  };
+</script>
+<style>
+  :root{--background:0 0% 100%;--foreground:222 47% 11%;--card:0 0% 100%;--muted:210 40% 96%;--muted-foreground:215 16% 40%;
+    --border:214 32% 91%;--primary:222 47% 11%;--primary-foreground:210 40% 98%;--ring:186 100% 40%;--brand:186 100% 45%;
+    --danger:0 84% 60%;--radius:1.5rem;--radius-inner:1rem;color-scheme:light}
+  @media (prefers-color-scheme:dark){:root{--background:222 47% 6%;--foreground:210 40% 98%;--card:222 40% 9%;
+    --muted:217 33% 14%;--muted-foreground:215 20% 70%;--border:217 33% 18%;--primary:210 40% 98%;--primary-foreground:222 47% 11%;color-scheme:dark}}
+  body{background:hsl(var(--background));color:hsl(var(--foreground))}
+
+  /* scroll reveal: hidden only once JS has added .js, so the no-JS page is fully visible */
+  html.js .reveal{opacity:0;translate:0 12px;transition:opacity .6s,translate .6s cubic-bezier(.2,.8,.2,1),transform .2s,border-color .2s;transition-delay:calc(var(--i,0)*60ms),calc(var(--i,0)*60ms),0s,0s}
+  html.js .reveal.in{opacity:1;translate:0 0}
+  .lift{transition:transform .2s,border-color .2s}
+  .lift:hover{transform:translateY(-2px);border-color:hsl(var(--brand) / .4)}
+  button:active,a.pill:active{scale:.98}
+  ::view-transition-old(root),::view-transition-new(root){animation-duration:200ms}
+
+  /* SVG palette: fills and strokes come from the tokens */
+  .f-fg{fill:hsl(var(--foreground))}.f-mu{fill:hsl(var(--muted))}.f-mf{fill:hsl(var(--muted-foreground))}.f-cd{fill:hsl(var(--card))}
+  .f-br{fill:hsl(var(--brand))}.f-bs{fill:hsl(var(--brand) / .22)}.f-no{fill:none}
+  .s-bd{stroke:hsl(var(--border))}.s-fg{stroke:hsl(var(--foreground))}.s-br{stroke:hsl(var(--brand))}.s-dg{stroke:hsl(var(--danger))}.s-mf{stroke:hsl(var(--muted-foreground))}
+  .anim *{transform-box:fill-box;transform-origin:center}
+  html.js .anim:not(.playing) *{animation-play-state:paused!important}
+
+  /* 1. edit the grid (8s). Base styles = key pose: A moved and stretched, B pushed aside */
+  .e-a{transform:translateX(64px);animation:e-a 8s infinite}
+  .e-b{transform:translateX(128px);animation:e-b 8s infinite}
+  .e-aw{transform-origin:left center;transform:scaleX(2.143);animation:e-aw 8s infinite}
+  .e-h{animation:e-h 8s infinite}
+  .e-j{animation:e-j 8s infinite}
+  .e-f{transform:translate(156px,28px);animation:e-f 8s infinite}
+  .e-r{opacity:0;animation:e-r 8s infinite}
+  @keyframes e-a{0%,30%{transform:none}40%,88%{transform:translateX(64px)}96%,100%{transform:none}}
+  @keyframes e-b{0%,30%{transform:none}40%,55%{transform:translateX(64px)}68%,88%{transform:translateX(128px)}96%,100%{transform:none}}
+  @keyframes e-aw{0%,55%{transform:none}68%,88%{transform:scaleX(2.143)}96%,100%{transform:none}}
+  @keyframes e-h{0%,46%{opacity:0;transform:none}52%,55%{opacity:1;transform:none}68%,86%{opacity:1;transform:translateX(64px)}94%,100%{opacity:0;transform:translateX(64px)}}
+  @keyframes e-j{0%,14%,30%,100%{transform:none}17%,23%{transform:rotate(2deg)}20%,26%{transform:rotate(-2deg)}}
+  @keyframes e-f{0%{opacity:0;transform:none}6%,30%{opacity:1;transform:none}40%{opacity:1;transform:translateX(64px)}45%{opacity:0;transform:translateX(64px)}
+    48%{opacity:0;transform:translate(92px,28px)}52%,55%{opacity:1;transform:translate(92px,28px)}68%{opacity:1;transform:translate(156px,28px)}74%,100%{opacity:0;transform:translate(156px,28px)}}
+  @keyframes e-r{0%,6%{opacity:0;transform:scale(1)}8%{opacity:.7;transform:scale(1)}15%,100%{opacity:0;transform:scale(2)}}
+
+  /* 2. notification island (7s). Key pose: expanded card */
+  .n-c{transform-origin:50% 0;animation:n-c 7s infinite}
+  .n-p{opacity:0;animation:n-p 7s infinite}
+  .n-pr{opacity:0;animation:n-pr 7s infinite}
+  .n-f1{opacity:0;animation:n-f1 7s infinite}.n-f2{opacity:0;animation:n-f2 7s infinite}
+  @keyframes n-c{0%,28%{opacity:0;transform:scale(.33,.2)}36%,66%{opacity:1;transform:none}76%,100%{opacity:0;transform:scale(.33,.2)}}
+  @keyframes n-p{0%,28%{opacity:1}32%,72%{opacity:0}78%,100%{opacity:1}}
+  @keyframes n-pr{0%{opacity:.8;transform:none}10%{opacity:0;transform:scale(1.35,1.6)}11%{opacity:.8;transform:none}21%,100%{opacity:0;transform:scale(1.35,1.6)}}
+  @keyframes n-f1{0%,17%{opacity:0;transform:none}21%{opacity:1;transform:none}25%{opacity:1;transform:scale(.75)}30%,100%{opacity:0;transform:scale(.75)}}
+  @keyframes n-f2{0%,59%{opacity:0;transform:none}63%{opacity:1;transform:none}67%{opacity:1;transform:scale(.75)}72%,100%{opacity:0;transform:scale(.75)}}
+
+  /* 3. motion glow (8s): left, right, top, bottom (brake). Key pose: left edge lit, wheel turned left */
+  .m-e{opacity:0;stroke-dasharray:30 100}
+  /* CSS glow, not an SVG filter: the filter rendered a black square in Chrome at some phases */
+  .m-e.s-br{filter:drop-shadow(0 0 3px hsl(var(--brand)))}.m-e.s-dg{filter:drop-shadow(0 0 3px hsl(var(--danger)))}
+  .m-l{opacity:1;stroke-dashoffset:-35}
+  .m-run{animation:m-run 8s infinite both}
+  .m-r{animation-delay:2s}.m-t{animation-delay:4s}
+  .m-b{stroke-dasharray:none;animation:m-flash 8s 6s infinite both}
+  .m-w{transform:rotate(-60deg);animation:m-w 8s infinite}
+  @keyframes m-run{0%{opacity:0;stroke-dashoffset:30}3%,21%{opacity:1}25%,100%{opacity:0;stroke-dashoffset:-100}}
+  @keyframes m-flash{0%{opacity:0}4%,9%,16%,21%{opacity:1}6%,13%{opacity:.35}25%,100%{opacity:0}}
+  @keyframes m-w{0%,100%{transform:none}5%,20%{transform:rotate(-60deg)}25%{transform:none}30%,45%{transform:rotate(60deg)}50%{transform:none}}
+
+  /* 4. speed scene -> rocket (4s, alternate = reverses). Key pose: rocket lifting off into stars */
+  .r-s{transform-origin:0 0;animation:r-s 4s infinite alternate}
+  .r-g{stroke-dasharray:100;stroke-dashoffset:0;animation:r-g 4s infinite alternate}
+  .r-c{animation:r-c 4s infinite alternate}
+  .r-cm{opacity:0;animation:r-cm 4s infinite alternate}
+  .r-k{opacity:0;animation:r-k 4s infinite alternate}
+  .r-r{transform:translateY(-40px);animation:r-r 4s infinite alternate}
+  .r-fl{transform-origin:50% 0;animation:r-fl .25s infinite alternate}
+  .r-st{animation:r-st 4s infinite alternate}
+  @keyframes r-s{0%{transform:none;animation-timing-function:cubic-bezier(.5,0,1,1)}55%,100%{transform:translateX(-640px)}}
+  @keyframes r-g{0%{stroke-dashoffset:100}50%,100%{stroke-dashoffset:0}}
+  @keyframes r-c{0%,40%{transform:none}42%{transform:translate(-2px,1px)}44%{transform:translate(2px,-1px)}46%{transform:translate(-2px,-1px)}48%{transform:translate(2px,1px)}50%{transform:translate(-1px,0)}52%,100%{transform:none}}
+  @keyframes r-cm{0%,52%{opacity:1;transform:none}60%,100%{opacity:0;transform:scale(.5)}}
+  @keyframes r-k{0%,40%{opacity:0}43%,49%{opacity:1}46%,52%{opacity:.2}58%,100%{opacity:0}}
+  @keyframes r-r{0%,54%{opacity:0;transform:scale(.5)}62%{opacity:1;transform:none}100%{opacity:1;transform:translateY(-70px)}}
+  @keyframes r-fl{to{transform:scaleY(1.5)}}
+  @keyframes r-st{0%,58%{opacity:0}85%,100%{opacity:1}}
+
+  @media (prefers-reduced-motion:reduce){
+    html.js .reveal{opacity:1;translate:none;transition:none}
+    ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}
+    .anim *{animation:none!important}
+    .lift,.lift:hover{transition:none;transform:none}
+  }
+</style>
+</head>
+<body class="bg-background text-foreground font-sans antialiased">
+
+<!-- 0. sticky nav -->
+<header class="sticky top-3 z-50 px-4">
+  <nav class="mx-auto flex max-w-3xl items-center justify-between gap-2 rounded-full border border-border bg-background/70 py-1 pl-2 pr-1 backdrop-blur-md shadow-sm">
+    <a href="#top" class="flex min-h-12 items-center gap-2 rounded-full pr-2 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+      <svg viewBox="21 21 66 66" class="h-9 w-9 shrink-0" aria-hidden="true"><rect x="21" y="21" width="66" height="66" rx="16" fill="#0B1220"/><path d="M66,33.215 A24,24 0 1,1 42,33.215" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M66,33.215 A24,24 0 0,1 76.553,62.208" fill="none" stroke="#00E5FF" stroke-width="6" stroke-linecap="round"/><path d="M31,54 L47,54 M61,54 L77,54 M54,61 L54,77" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/><circle cx="54" cy="54" r="8" fill="#fff"/></svg>
+      <span class="hidden sm:inline">Open Car Project</span>
+    </a>
+    <div class="flex items-center gap-1">
+      <div class="flex rounded-full bg-muted p-1" role="group" data-i18n-aria="lang" aria-label="Language">
+        <button data-lang="en" aria-pressed="true" class="min-h-12 rounded-full px-3 text-sm font-medium text-muted-foreground aria-pressed:bg-background aria-pressed:text-foreground aria-pressed:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">EN</button>
+        <button data-lang="es" aria-pressed="false" class="min-h-12 rounded-full px-3 text-sm font-medium text-muted-foreground aria-pressed:bg-background aria-pressed:text-foreground aria-pressed:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">ES</button>
+        <button data-lang="zh" aria-pressed="false" class="min-h-12 rounded-full px-3 text-sm font-medium text-muted-foreground aria-pressed:bg-background aria-pressed:text-foreground aria-pressed:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">中文</button>
+      </div>
+      <a href="https://github.com/maldos23/open-car-project" class="grid min-h-12 min-w-12 place-items-center rounded-full hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-i18n-aria="nav_gh" aria-label="Open Car Project on GitHub">
+        <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg>
+      </a>
+    </div>
+  </nav>
+</header>
+
+<main id="top" class="mx-auto max-w-6xl px-4">
+
+  <!-- 1. hero -->
+  <section class="pt-16 pb-20 text-center sm:pt-24">
+    <h1 class="reveal mx-auto max-w-3xl text-4xl font-bold tracking-tight sm:text-6xl" data-i18n="hero_t">Open the car you already own.</h1>
+    <p class="reveal mx-auto mt-5 max-w-xl text-lg text-muted-foreground" style="--i:1" data-i18n="hero_s">An open-source Android launcher for car head units.</p>
+    <div class="reveal mt-8 flex flex-wrap items-center justify-center gap-3" style="--i:2">
+      <a id="apk" href="https://github.com/maldos23/open-car-project/releases/latest" class="pill inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 font-semibold text-primary-foreground shadow-lg shadow-brand/20 transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+        <span aria-hidden="true">⬇</span><span data-i18n="dl">Download APK</span><span id="ver" class="text-sm font-normal opacity-70"></span>
+      </a>
+      <a href="https://github.com/maldos23/open-car-project" class="pill inline-flex min-h-12 items-center rounded-full border border-border px-6 font-semibold transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-i18n="gh">GitHub</a>
+    </div>
+    <a id="sha" href="https://github.com/maldos23/open-car-project/releases/latest" class="reveal mt-2 inline-flex min-h-12 items-center rounded-full px-3 text-sm text-muted-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" style="--i:3" data-i18n="sha">SHA-256</a>
+
+    <div class="reveal relative mx-auto mt-10 max-w-5xl" style="--i:4">
+      <div class="absolute inset-6 -z-10 rounded-full bg-brand/30 blur-3xl" aria-hidden="true"></div>
+      <div class="rounded-card border border-border bg-card p-2 shadow-2xl sm:p-3">
+        <picture><source media="(prefers-color-scheme: dark)" srcset="screenshots/site/home-dark.png"><img class="w-full rounded-inner" src="screenshots/site/home-light.png" width="1600" height="1000" fetchpriority="high" decoding="async" data-i18n-alt="hero_alt" alt="Open Car Project home screen with weather, music, speed scene, navigation and dock"></picture>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. what it does -->
+  <section id="features" class="py-16">
+    <h2 class="reveal text-center text-3xl font-bold tracking-tight" data-i18n="feat_t">What it does 🚗</h2>
+    <div class="mt-10 grid gap-4 md:grid-cols-2">
+
+      <article class="reveal lift rounded-card border border-border bg-card p-4" style="--i:0">
+        <svg class="anim w-full rounded-inner bg-muted" viewBox="0 0 320 200" role="img" data-i18n-aria="f1_a" aria-label="Animation: a finger long-presses a tile, drags it, pushes its neighbour aside and stretches it to two columns">
+          <rect x="16" y="16" width="288" height="168" rx="20" class="f-cd s-bd" stroke-width="2"/>
+          <g class="f-no s-bd" stroke-width="2" stroke-dasharray="4 4">
+            <rect x="36" y="44" width="56" height="56" rx="12"/><rect x="100" y="44" width="56" height="56" rx="12"/>
+            <rect x="164" y="44" width="56" height="56" rx="12"/><rect x="228" y="44" width="56" height="56" rx="12"/>
+          </g>
+          <rect class="e-j f-mu s-bd" stroke-width="2" x="36" y="108" width="120" height="56" rx="12"/>
+          <rect class="e-j f-mu s-bd" stroke-width="2" x="164" y="108" width="56" height="56" rx="12"/>
+          <rect class="e-j f-mu s-bd" stroke-width="2" x="228" y="108" width="56" height="56" rx="12"/>
+          <g class="e-b"><rect class="e-j f-mu s-mf" stroke-width="2" x="100" y="44" width="56" height="56" rx="12"/></g>
+          <g class="e-a">
+            <g class="e-j"><rect class="e-aw f-bs s-br" stroke-width="2.5" x="36" y="44" width="56" height="56" rx="12"/></g>
+            <circle class="e-h f-br" cx="90" cy="98" r="5"/>
+          </g>
+          <g class="e-f"><circle class="e-r f-no s-fg" stroke-width="2" cx="64" cy="72" r="12"/><circle class="f-fg" cx="64" cy="72" r="9" opacity=".35"/><circle class="f-no s-fg" cx="64" cy="72" r="9" stroke-width="2"/></g>
+        </svg>
+        <h3 class="mt-4 text-lg font-semibold" data-i18n="f1_t">Your dashboard, your grid</h3>
+        <p class="mt-1 text-muted-foreground" data-i18n="f1_d">Long-press to move, push and resize cards, apps and widgets.</p>
+      </article>
+
+      <article class="reveal lift rounded-card border border-border bg-card p-4" style="--i:1">
+        <svg class="anim w-full rounded-inner bg-muted" viewBox="0 0 320 200" role="img" data-i18n-aria="f2_a" aria-label="Animation: a notification bubble pulses at the top, a tap expands it into a card with reply actions, a tap outside collapses it">
+          <rect x="16" y="16" width="288" height="168" rx="20" class="f-cd s-bd" stroke-width="2"/>
+          <g class="f-mu"><rect x="36" y="130" width="110" height="38" rx="12"/><rect x="154" y="130" width="130" height="38" rx="12"/><rect x="36" y="60" width="248" height="62" rx="12" opacity=".6"/></g>
+          <g class="n-p"><rect class="n-pr f-no s-br" stroke-width="2" x="130" y="26" width="60" height="18" rx="9"/><rect class="f-fg" x="130" y="26" width="60" height="18" rx="9"/><circle class="f-br" cx="140" cy="35" r="4"/><rect class="f-mf" x="149" y="33" width="32" height="4" rx="2"/></g>
+          <g class="n-c">
+            <rect class="f-cd s-bd" stroke-width="2" x="70" y="26" width="180" height="92" rx="20"/>
+            <circle class="f-bs s-br" stroke-width="2" cx="96" cy="52" r="12"/>
+            <rect class="f-fg" x="116" y="44" width="100" height="8" rx="4" opacity=".75"/><rect class="f-mf" x="116" y="58" width="70" height="6" rx="3"/>
+            <rect class="f-bs s-br" stroke-width="2" x="86" y="84" width="70" height="22" rx="11"/><rect class="f-mu s-bd" stroke-width="2" x="164" y="84" width="70" height="22" rx="11"/>
+          </g>
+          <g class="n-f1"><circle class="f-fg" cx="160" cy="35" r="9" opacity=".35"/><circle class="f-no s-fg" stroke-width="2" cx="160" cy="35" r="9"/></g>
+          <g class="n-f2"><circle class="f-fg" cx="250" cy="155" r="9" opacity=".35"/><circle class="f-no s-fg" stroke-width="2" cx="250" cy="155" r="9"/></g>
+        </svg>
+        <h3 class="mt-4 text-lg font-semibold" data-i18n="f2_t">Notification island</h3>
+        <p class="mt-1 text-muted-foreground" data-i18n="f2_d">Messages land in a bubble: tap to read and reply, tap outside to hide it.</p>
+      </article>
+
+      <article class="reveal lift rounded-card border border-border bg-card p-4" style="--i:2">
+        <svg class="anim w-full rounded-inner bg-muted" viewBox="0 0 320 200" role="img" data-i18n-aria="f3_a" aria-label="Animation: light runs along the left edge on a left turn, the right edge on a right turn, the top when speeding up and flashes red at the bottom when braking, while a steering wheel turns">
+          <rect x="24" y="24" width="272" height="152" rx="18" class="f-cd s-bd" stroke-width="2"/>
+          <g stroke-width="5" stroke-linecap="round">
+            <line class="m-e m-run m-l s-br" pathLength="100" x1="24" y1="44" x2="24" y2="156"/>
+            <line class="m-e m-run m-r s-br" pathLength="100" x1="296" y1="44" x2="296" y2="156"/>
+            <line class="m-e m-run m-t s-br" pathLength="100" x1="44" y1="24" x2="276" y2="24"/>
+            <line class="m-e m-b s-dg" pathLength="100" x1="44" y1="176" x2="276" y2="176"/>
+          </g>
+          <g class="m-w f-no s-fg" stroke-width="6" stroke-linecap="round">
+            <circle cx="160" cy="100" r="36"/><path d="M124 100h26M170 100h26M160 110v26"/><circle class="f-fg" cx="160" cy="100" r="8" stroke="none"/>
+            <path class="s-br" d="M146 66a36 36 0 0 1 28 0" stroke-width="6"/>
+          </g>
+        </svg>
+        <h3 class="mt-4 text-lg font-semibold" data-i18n="f3_t">Motion glow</h3>
+        <p class="mt-1 text-muted-foreground" data-i18n="f3_d">The screen edge lights up as you turn, speed up or brake.</p>
+      </article>
+
+      <article class="reveal lift rounded-card border border-border bg-card p-4" style="--i:3">
+        <svg class="anim w-full rounded-inner bg-muted" viewBox="0 0 320 200" role="img" data-i18n-aria="f4_a" aria-label="Animation: the skyline scrolls faster as the speed gauge fills, the car shakes and sparks, turns into a rocket and lifts off into the stars, then it all rewinds">
+          <defs><clipPath id="scr"><rect x="16" y="16" width="288" height="168" rx="20"/></clipPath></defs>
+          <rect x="16" y="16" width="288" height="168" rx="20" class="f-cd s-bd" stroke-width="2"/>
+          <g clip-path="url(#scr)">
+            <g class="r-st f-fg"><circle cx="70" cy="40" r="1.6"/><circle cx="120" cy="64" r="1.2"/><circle cx="200" cy="36" r="1.8"/><circle cx="250" cy="70" r="1.2"/><circle cx="280" cy="44" r="1.6"/><circle cx="160" cy="28" r="1.2"/><circle cx="96" cy="90" r="1"/><circle cx="226" cy="100" r="1"/></g>
+            <g class="r-s f-mf" opacity=".35">
+              <rect x="16" y="104" width="26" height="46"/><rect x="46" y="84" width="20" height="66"/><rect x="70" y="112" width="30" height="38"/><rect x="104" y="92" width="18" height="58"/><rect x="126" y="120" width="34" height="30"/><rect x="164" y="76" width="22" height="74"/><rect x="190" y="108" width="28" height="42"/><rect x="222" y="96" width="20" height="54"/><rect x="246" y="116" width="32" height="34"/><rect x="282" y="88" width="24" height="62"/>
+              <rect x="336" y="104" width="26" height="46"/><rect x="366" y="84" width="20" height="66"/><rect x="390" y="112" width="30" height="38"/><rect x="424" y="92" width="18" height="58"/><rect x="446" y="120" width="34" height="30"/><rect x="484" y="76" width="22" height="74"/><rect x="510" y="108" width="28" height="42"/><rect x="542" y="96" width="20" height="54"/><rect x="566" y="116" width="32" height="34"/><rect x="602" y="88" width="24" height="62"/>
+              <rect x="656" y="104" width="26" height="46"/><rect x="686" y="84" width="20" height="66"/><rect x="710" y="112" width="30" height="38"/><rect x="744" y="92" width="18" height="58"/><rect x="766" y="120" width="34" height="30"/><rect x="804" y="76" width="22" height="74"/><rect x="830" y="108" width="28" height="42"/><rect x="862" y="96" width="20" height="54"/><rect x="886" y="116" width="32" height="34"/><rect x="922" y="88" width="24" height="62"/>
+              <rect x="976" y="104" width="26" height="46"/><rect x="1006" y="84" width="20" height="66"/>
+            </g>
+            <line x1="16" y1="150" x2="304" y2="150" class="s-bd" stroke-width="2"/>
+            <g class="r-c"><g class="r-cm">
+              <path class="f-fg" d="M126 144v-10q0-6 6-7l10-1 10-9h20l12 9 10 1q6 1 6 7v10z"/>
+              <path class="f-br" d="M154 119h16l8 7h-30z" opacity=".7"/>
+              <circle class="f-mf s-fg" stroke-width="3" cx="144" cy="145" r="7"/><circle class="f-mf s-fg" stroke-width="3" cx="182" cy="145" r="7"/>
+            </g></g>
+            <g class="r-k f-br"><circle cx="120" cy="146" r="2.5"/><circle cx="112" cy="140" r="1.8"/><circle cx="116" cy="132" r="1.4"/><circle cx="198" cy="146" r="2"/></g>
+            <g class="r-r">
+              <path class="r-fl f-br" d="M154 140h12l-6 18z" opacity=".85"/>
+              <path class="f-fg" d="M160 76q14 14 12 50l-24 0q-2-36 12-50z"/>
+              <path class="f-mf" d="M148 114l-10 18 12-4zM172 114l10 18-12-4z"/>
+              <circle class="f-cd s-br" stroke-width="3" cx="160" cy="102" r="6"/>
+              <rect class="f-fg" x="150" y="126" width="20" height="14" rx="3"/>
+            </g>
+          </g>
+          <path class="f-no s-bd" stroke-width="6" stroke-linecap="round" d="M34 64a24 24 0 1 1 48 0"/>
+          <path class="r-g f-no s-br" stroke-width="6" stroke-linecap="round" pathLength="100" d="M34 64a24 24 0 1 1 48 0"/>
+        </svg>
+        <h3 class="mt-4 text-lg font-semibold" data-i18n="f4_t">Speed scene</h3>
+        <p class="mt-1 text-muted-foreground" data-i18n="f4_d">A live skyline that speeds up with you. Floor it and the car turns into a rocket.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- 3. gallery -->
+  <section id="shots" class="py-16">
+    <h2 class="reveal text-center text-3xl font-bold tracking-tight" data-i18n="gal_t">See it running 📸</h2>
+    <div class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:0"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/motion-glow-turn.png" width="1600" height="1000" loading="lazy" decoding="async" data-i18n-alt="g1" alt="Edge glow on a left turn"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g1">Edge glow on a left turn</figcaption></figure>
+      <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:1"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/motion-glow-brake.png" width="1600" height="1000" loading="lazy" decoding="async" data-i18n-alt="g2" alt="Red glow when braking"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g2">Red glow when braking</figcaption></figure>
+      <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:2"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/notification-bubble.png" width="1600" height="1000" loading="lazy" decoding="async" data-i18n-alt="g3" alt="A message arrives in the notification bubble"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g3">A message arrives in the notification bubble</figcaption></figure>
+      <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:0"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/releases/0.9.0/rocket-launch.png" width="660" height="773" loading="lazy" decoding="async" data-i18n-alt="g4" alt="Past rocket speed the car becomes a rocket"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g4">Past rocket speed the car becomes a rocket</figcaption></figure>
+      <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:1"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/releases/0.10.0/flower-sparkles.png" width="1280" height="800" loading="lazy" decoding="async" data-i18n-alt="g5" alt="Flower-shaped cards and the sparkles assistant button"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g5">Flower-shaped cards and the sparkles assistant button</figcaption></figure>
+      <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:2"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/releases/0.10.0/assistant-styles.png" width="1280" height="800" loading="lazy" decoding="async" data-i18n-alt="g6" alt="Pick your assistant button style"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g6">Pick your assistant button style</figcaption></figure>
+      <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:0"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/site/edit-mode.png" width="1600" height="1000" loading="lazy" decoding="async" data-i18n-alt="g7" alt="Edit mode: remove, resize and add anything"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g7">Edit mode: remove, resize and add anything</figcaption></figure>
+      <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:1"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/site/edit-mode-resize.png" width="1600" height="1000" loading="lazy" decoding="async" data-i18n-alt="g8" alt="Resizing a card on the grid"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g8">Resizing a card on the grid</figcaption></figure>
+      <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:2"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/site/app-drawer.png" width="1600" height="1000" loading="lazy" decoding="async" data-i18n-alt="g9" alt="App drawer with search"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g9">App drawer with search</figcaption></figure>
+      <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:0"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/site/settings-sheet.png" width="1600" height="1000" loading="lazy" decoding="async" data-i18n-alt="g10" alt="Settings: language, zoom, theme, accent and background"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g10">Settings: language, zoom, theme, accent and background</figcaption></figure>
+      <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:1"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/releases/0.9.0/catalog-dark.png" width="1200" height="900" loading="lazy" decoding="async" data-i18n-alt="g11" alt="Follows light/dark"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g11">Follows light/dark</figcaption></figure>
+      <figure class="reveal lift rounded-card border border-border bg-card p-2" style="--i:2"><img class="aspect-[16/10] w-full rounded-inner bg-muted object-contain" src="screenshots/chinese.png" width="1600" height="1000" loading="lazy" decoding="async" data-i18n-alt="g12" alt="5 UI languages"><figcaption class="px-2 py-3 text-sm text-muted-foreground" data-i18n="g12">5 UI languages</figcaption></figure>
+    </div>
+  </section>
+
+  <!-- 4. run it / build it -->
+  <section id="build" class="py-16">
+    <h2 class="reveal text-center text-3xl font-bold tracking-tight" data-i18n="build_t">Run it / build it 🛠🤖</h2>
+    <div class="mt-10 grid gap-4 lg:grid-cols-3">
+      <div class="reveal lift flex min-w-0 flex-col rounded-card border border-border bg-card p-5" style="--i:0">
+        <div class="flex items-center justify-between gap-2"><h3 class="font-semibold"><span class="mr-2 inline-grid h-7 w-7 place-items-center rounded-full bg-muted text-sm">1</span><span data-i18n="s1_t">Clone and build</span></h3><button class="copy inline-flex min-h-12 shrink-0 items-center gap-1.5 rounded-full border border-border px-4 text-sm font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-copy="c1"><span aria-hidden="true">⧉</span><span>Copy</span></button></div>
+        <p class="mt-2 text-sm text-muted-foreground" data-i18n="s1_d">Needs JDK 17+ and the Android SDK.</p>
+        <pre id="c1" class="mt-3 overflow-x-auto rounded-inner bg-muted p-4 text-xs leading-relaxed"><code>git clone https://github.com/&lt;you&gt;/open-car-project.git
+cd open-car-project                      # default branch is develop
+git remote add upstream https://github.com/maldos23/open-car-project.git
+git config core.hooksPath .githooks      # rejects bad commit messages locally
+export ANDROID_HOME=/path/to/android-sdk # or sdk.dir=... in local.properties (never commit it)
+./gradlew test lintDebug assembleDebug   # same checks CI runs; first run downloads Gradle</code></pre>
+      </div>
+      <div class="reveal lift flex min-w-0 flex-col rounded-card border border-border bg-card p-5" style="--i:1">
+        <div class="flex items-center justify-between gap-2"><h3 class="font-semibold"><span class="mr-2 inline-grid h-7 w-7 place-items-center rounded-full bg-muted text-sm">2</span><span data-i18n="s2_t">Install and set as HOME</span></h3><button class="copy inline-flex min-h-12 shrink-0 items-center gap-1.5 rounded-full border border-border px-4 text-sm font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-copy="c2"><span aria-hidden="true">⧉</span><span>Copy</span></button></div>
+        <p class="mt-2 text-sm text-muted-foreground" data-i18n="s2_d">Or skip the build: download the APK above.</p>
+        <pre id="c2" class="mt-3 overflow-x-auto rounded-inner bg-muted p-4 text-xs leading-relaxed"><code>./gradlew installDebug
+adb shell cmd role add-role-holder android.app.role.HOME org.opencarproject.launcher</code></pre>
+      </div>
+      <div class="reveal lift flex min-w-0 flex-col rounded-card border border-border bg-card p-5" style="--i:2">
+        <div class="flex items-center justify-between gap-2"><h3 class="font-semibold"><span class="mr-2 inline-grid h-7 w-7 place-items-center rounded-full bg-muted text-sm">3</span><span data-i18n="s3_t">Grant notification access</span></h3><button class="copy inline-flex min-h-12 shrink-0 items-center gap-1.5 rounded-full border border-border px-4 text-sm font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-copy="c3"><span aria-hidden="true">⧉</span><span>Copy</span></button></div>
+        <p class="mt-2 text-sm text-muted-foreground" data-i18n="s3_d">Powers the media card, notifications and next-turn hints.</p>
+        <pre id="c3" class="mt-3 overflow-x-auto rounded-inner bg-muted p-4 text-xs leading-relaxed"><code>PKG=org.opencarproject.launcher
+adb shell cmd notification allow_listener $PKG/$PKG.data.source.LauncherNotificationListener</code></pre>
+      </div>
+    </div>
+
+    <div class="reveal lift mt-4 min-w-0 rounded-card border border-border bg-card p-5">
+      <div class="flex items-center justify-between gap-2"><h3 class="font-semibold" data-i18n="p_t">🛠️ Let an AI assistant set up your machine</h3><button class="copy inline-flex min-h-12 shrink-0 items-center gap-1.5 rounded-full border border-border px-4 text-sm font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-copy="p1"><span aria-hidden="true">⧉</span><span>Copy</span></button></div>
+      <p class="mt-2 text-sm text-muted-foreground" data-i18n="p_d">Open the repo in Claude Code and paste this. You approve every command it runs.</p>
+      <pre id="p1" class="mt-3 overflow-x-auto rounded-inner bg-muted p-4 text-xs leading-relaxed" style="overflow-x:auto"><code>I want to contribute to Open Car Project. Read CLAUDE.md and docs/DEVELOPMENT.md first.
+Then, step by step, asking before you install or download anything:
+1. Detect my OS/CPU and check JDK 17+, ANDROID_HOME (or sdk.dir in local.properties) and the SDK packages
+   platforms;android-37.0, build-tools;37.0.0, platform-tools, emulator. List what is missing with the exact fix command.
+2. Run `git config core.hooksPath .githooks` and confirm I'm on an up-to-date develop.
+3. Use the run-tests skill to run `./gradlew test lintDebug assembleDebug` and explain any failure in plain words
+   (test name + assertion, lint file:line). Don't fix anything without my OK.
+Never commit local.properties, push, or change GitHub settings. End with a checklist: ready / still needs me.</code></pre>
+      <p class="mt-5 text-sm font-medium" data-i18n="chips_t">Skills and agents that ship with the repo</p>
+      <ul class="mt-3 flex flex-wrap gap-2 text-sm">
+        <li class="rounded-full border border-border bg-muted px-3 py-1.5">🌿 git-workflow</li>
+        <li class="rounded-full border border-border bg-muted px-3 py-1.5">📱 run-on-emulator</li>
+        <li class="rounded-full border border-border bg-muted px-3 py-1.5">🧪 run-tests</li>
+        <li class="rounded-full border border-border bg-muted px-3 py-1.5">🎛️ debug-tools</li>
+        <li class="rounded-full border border-border bg-muted px-3 py-1.5">🧱 add-builtin-module</li>
+        <li class="rounded-full border border-border bg-muted px-3 py-1.5">⚙️ add-setting</li>
+        <li class="rounded-full border border-border bg-muted px-3 py-1.5">🔍 android-reviewer</li>
+        <li class="rounded-full border border-border bg-muted px-3 py-1.5">👀 emulator-verifier</li>
+        <li class="rounded-full border border-border bg-muted px-3 py-1.5">🌐 docs-translator</li>
+      </ul>
+      <a data-contrib href="https://github.com/maldos23/open-car-project/blob/develop/CONTRIBUTING.md#ai-assisted-contributions" class="mt-4 inline-flex min-h-12 items-center rounded-full px-1 font-semibold underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-i18n="more">All prompts &amp; what each skill does →</a>
+    </div>
+  </section>
+</main>
+
+<!-- 5. footer -->
+<footer class="mt-8 border-t border-border">
+  <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-10 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+    <p><span data-i18n="foot_lic">Apache-2.0 licensed.</span> <span data-i18n="foot_w">Weather data by</span> <a class="inline-flex min-h-12 items-center rounded-full underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href="https://open-meteo.com/">Open-Meteo.com</a> (CC BY 4.0).</p>
+    <p class="flex flex-wrap items-center gap-1"><span data-i18n="foot_c">Contributing guide:</span>
+      <a class="inline-flex min-h-12 items-center rounded-full px-2 underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href="https://github.com/maldos23/open-car-project/blob/develop/CONTRIBUTING.md">EN</a>
+      <a class="inline-flex min-h-12 items-center rounded-full px-2 underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href="https://github.com/maldos23/open-car-project/blob/develop/CONTRIBUTING.es.md">ES</a>
+      <a class="inline-flex min-h-12 items-center rounded-full px-2 underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href="https://github.com/maldos23/open-car-project/blob/develop/CONTRIBUTING.zh-CN.md">中文</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+const T = {
+  en: {
+    lang: 'Language', nav_gh: 'Open Car Project on GitHub',
+    hero_t: 'Open the car you already own.', hero_s: 'An open-source Android launcher for car head units.',
+    dl: 'Download APK', sha: 'SHA-256', gh: 'GitHub',
+    hero_alt: 'Open Car Project home screen with weather, music, speed scene, navigation and dock',
+    feat_t: 'What it does 🚗',
+    f1_t: 'Your dashboard, your grid', f1_d: 'Long-press to move, push and resize cards, apps and widgets.',
+    f1_a: 'Animation: a finger long-presses a tile, drags it, pushes its neighbour aside and stretches it to two columns',
+    f2_t: 'Notification island', f2_d: 'Messages land in a bubble: tap to read and reply, tap outside to hide it.',
+    f2_a: 'Animation: a notification bubble pulses at the top, a tap expands it into a card with reply actions, a tap outside collapses it',
+    f3_t: 'Motion glow', f3_d: 'The screen edge lights up as you turn, speed up or brake.',
+    f3_a: 'Animation: light runs along the left edge on a left turn, the right edge on a right turn, the top when speeding up and flashes red at the bottom when braking, while a steering wheel turns',
+    f4_t: 'Speed scene', f4_d: 'A live skyline that speeds up with you. Floor it and the car turns into a rocket.',
+    f4_a: 'Animation: the skyline scrolls faster as the speed gauge fills, the car shakes and sparks, turns into a rocket and lifts off into the stars, then it all rewinds',
+    gal_t: 'See it running 📸',
+    g1: 'Edge glow on a left turn', g2: 'Red glow when braking', g3: 'A message arrives in the notification bubble',
+    g4: 'Past rocket speed the car becomes a rocket', g5: 'Flower-shaped cards and the sparkles assistant button',
+    g6: 'Pick your assistant button style', g7: 'Edit mode: remove, resize and add anything', g8: 'Resizing a card on the grid',
+    g9: 'App drawer with search', g10: 'Settings: language, zoom, theme, accent and background', g11: 'Follows light/dark', g12: '5 UI languages',
+    build_t: 'Run it / build it 🛠🤖',
+    s1_t: 'Clone and build', s1_d: 'Needs JDK 17+ and the Android SDK.',
+    s2_t: 'Install and set as HOME', s2_d: 'Or skip the build: download the APK above.',
+    s3_t: 'Grant notification access', s3_d: 'Powers the media card, notifications and next-turn hints.',
+    p_t: '🛠️ Let an AI assistant set up your machine', p_d: 'Open the repo in Claude Code and paste this. You approve every command it runs.',
+    chips_t: 'Skills and agents that ship with the repo', more: 'All prompts & what each skill does →',
+    copy: 'Copy', copied: 'Copied',
+    foot_lic: 'Apache-2.0 licensed.', foot_w: 'Weather data by', foot_c: 'Contributing guide:'
+  },
+  es: {
+    lang: 'Idioma', nav_gh: 'Open Car Project en GitHub',
+    hero_t: 'Abre el coche que ya tienes.', hero_s: 'Un launcher Android de código abierto para pantallas de coche.',
+    dl: 'Descargar APK', sha: 'SHA-256', gh: 'GitHub',
+    hero_alt: 'Pantalla de inicio de Open Car Project con clima, música, escena de velocidad, navegación y dock',
+    feat_t: 'Qué hace 🚗',
+    f1_t: 'Tu tablero, tu cuadrícula', f1_d: 'Mantén pulsado para mover, empujar y redimensionar tarjetas, apps y widgets.',
+    f1_a: 'Animación: un dedo mantiene pulsado un bloque, lo arrastra, empuja al vecino y lo estira a dos columnas',
+    f2_t: 'Isla de notificaciones', f2_d: 'Los mensajes llegan en una burbuja: tócala para leer y responder, toca fuera para ocultarla.',
+    f2_a: 'Animación: una burbuja de notificación late arriba, un toque la abre en una tarjeta con acciones, un toque fuera la cierra',
+    f3_t: 'Brillo de movimiento', f3_d: 'El borde de la pantalla se ilumina al girar, acelerar o frenar.',
+    f3_a: 'Animación: una luz recorre el borde izquierdo al girar a la izquierda, el derecho al girar a la derecha, el superior al acelerar y el inferior parpadea en rojo al frenar, mientras gira un volante',
+    f4_t: 'Escena de velocidad', f4_d: 'Una ciudad en vivo que acelera contigo. Písale a fondo y el coche se vuelve cohete.',
+    f4_a: 'Animación: la ciudad pasa más rápido mientras se llena el velocímetro, el coche tiembla y echa chispas, se vuelve cohete y despega hacia las estrellas, y luego todo se rebobina',
+    gal_t: 'Míralo en marcha 📸',
+    g1: 'Brillo en el borde al girar a la izquierda', g2: 'Brillo rojo al frenar', g3: 'Un mensaje llega a la burbuja de notificaciones',
+    g4: 'Pasada la velocidad cohete, el coche se vuelve cohete', g5: 'Tarjetas con forma de flor y el botón de asistente con destellos',
+    g6: 'Elige el estilo del botón de asistente', g7: 'Modo edición: quita, redimensiona y añade lo que quieras', g8: 'Redimensionando una tarjeta en la cuadrícula',
+    g9: 'Cajón de apps con búsqueda', g10: 'Ajustes: idioma, zoom, tema, color de acento y fondo', g11: 'Sigue el modo claro/oscuro', g12: '5 idiomas de interfaz',
+    build_t: 'Ejecútalo / compílalo 🛠🤖',
+    s1_t: 'Clona y compila', s1_d: 'Necesitas JDK 17+ y el SDK de Android.',
+    s2_t: 'Instala y ponlo como HOME', s2_d: 'O sáltate la compilación: descarga el APK de arriba.',
+    s3_t: 'Da acceso a notificaciones', s3_d: 'Activa la tarjeta multimedia, las notificaciones y los avisos del próximo giro.',
+    p_t: '🛠️ Deja que una IA prepare tu equipo', p_d: 'Abre el repo en Claude Code y pega esto; tú apruebas cada comando. Puedes escribir el prompt en español; el asistente responde en tu idioma.',
+    chips_t: 'Skills y agentes incluidos en el repo', more: 'Todos los prompts y qué hace cada skill →',
+    copy: 'Copiar', copied: 'Copiado',
+    foot_lic: 'Licencia Apache-2.0.', foot_w: 'Datos del clima de', foot_c: 'Guía para contribuir:'
+  },
+  zh: {
+    lang: '语言', nav_gh: 'GitHub 上的 Open Car Project',
+    hero_t: '让你现在的车焕然一新。', hero_s: '面向车机的开源 Android 启动器。',
+    dl: '下载 APK', sha: 'SHA-256', gh: 'GitHub',
+    hero_alt: 'Open Car Project 主屏幕：天气、音乐、速度场景、导航和程序坞',
+    feat_t: '它能做什么 🚗',
+    f1_t: '你的仪表盘，你的网格', f1_d: '长按即可移动、挤开和调整卡片、应用与小组件的大小。',
+    f1_a: '动画：手指长按一个方块，拖动它、挤开旁边的方块，再把它拉伸为两列',
+    f2_t: '通知岛', f2_d: '消息以气泡出现：点一下阅读并回复，点外面即可收起。',
+    f2_a: '动画：顶部的通知气泡闪动，点击后展开为带操作按钮的卡片，点击外部后收起',
+    f3_t: '动态光效', f3_d: '转弯、加速或刹车时，屏幕边缘会亮起。',
+    f3_a: '动画：左转时光沿左边缘流动，右转时沿右边缘，加速时沿顶部，刹车时底部闪红光，方向盘同步转动',
+    f4_t: '速度场景', f4_d: '城市天际线随你加速。油门踩到底，汽车就变成火箭。',
+    f4_a: '动画：速度表填满时天际线越滚越快，汽车抖动冒火花，变成火箭飞向星空，然后全部倒放',
+    gal_t: '看看实际效果 📸',
+    g1: '左转时的边缘光效', g2: '刹车时的红色光效', g3: '消息出现在通知气泡中',
+    g4: '超过火箭速度，汽车变成火箭', g5: '花朵形卡片和闪光助手按钮',
+    g6: '选择助手按钮样式', g7: '编辑模式：随意删除、调整大小和添加', g8: '在网格上调整卡片大小',
+    g9: '带搜索的应用抽屉', g10: '设置：语言、缩放、主题、强调色和背景', g11: '跟随浅色/深色模式', g12: '5 种界面语言',
+    build_t: '运行 / 构建 🛠🤖',
+    s1_t: '克隆并构建', s1_d: '需要 JDK 17+ 和 Android SDK。',
+    s2_t: '安装并设为主屏幕应用', s2_d: '或者跳过构建：直接下载上方的 APK。',
+    s3_t: '授予通知访问权限', s3_d: '用于媒体卡片、通知和下一转弯提示。',
+    p_t: '🛠️ 让 AI 助手配置你的电脑', p_d: '在 Claude Code 中打开仓库并粘贴以下内容；每条命令都需要你批准。你可以用中文写提示词，助手会用你的语言回复。',
+    chips_t: '仓库自带的技能和代理', more: '全部提示词及各技能说明 →',
+    copy: '复制', copied: '已复制',
+    foot_lic: 'Apache-2.0 许可。', foot_w: '天气数据来自', foot_c: '贡献指南：'
+  }
+};
+const CONTRIB = {
+  en: 'CONTRIBUTING.md#ai-assisted-contributions',
+  es: 'CONTRIBUTING.es.md#contribuciones-asistidas-por-ia',
+  zh: 'CONTRIBUTING.zh-CN.md#ai-辅助贡献'
+};
+const root = document.documentElement;
+root.classList.add('js');
+const store = { get: k => { try { return localStorage.getItem(k) } catch { return null } },
+                set: (k, v) => { try { localStorage.setItem(k, v) } catch {} } };
+let lang;
+
+// ponytail: local review via file:// (pages.yml serves docs/screenshots as ./screenshots)
+if (location.protocol === 'file:') document.querySelectorAll('img[src^="screenshots/"], source[srcset^="screenshots/"]').forEach(i => i.tagName === 'IMG' ? i.src = '../docs/' + i.getAttribute('src') : i.srcset = '../docs/' + i.getAttribute('srcset'));
+
+function applyLang() {
+  const t = T[lang];
+  root.lang = lang === 'zh' ? 'zh-CN' : lang;
+  document.querySelectorAll('[data-i18n]').forEach(e => e.textContent = t[e.dataset.i18n]);
+  document.querySelectorAll('[data-i18n-alt]').forEach(e => e.alt = t[e.dataset.i18nAlt]);
+  document.querySelectorAll('[data-i18n-aria]').forEach(e => e.setAttribute('aria-label', t[e.dataset.i18nAria]));
+  document.querySelectorAll('[data-lang]').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === lang));
+  document.querySelectorAll('[data-contrib]').forEach(a => a.href = 'https://github.com/maldos23/open-car-project/blob/develop/' + CONTRIB[lang]);
+  document.querySelectorAll('.copy').forEach(b => { if (!b.dataset.busy) b.lastChild.textContent = t.copy });
+}
+function setLang(l) {
+  if (!T[l] || l === lang) return;
+  lang = l; store.set('lang', l);
+  document.startViewTransition ? document.startViewTransition(applyLang) : applyLang();
+}
+
+
+// copy buttons
+document.querySelectorAll('.copy').forEach(b => {
+  b.onclick = () => navigator.clipboard.writeText(document.getElementById(b.dataset.copy).textContent).then(() => {
+    b.dataset.busy = 1; b.firstChild.textContent = '✓'; b.lastChild.textContent = T[lang].copied;
+    setTimeout(() => { delete b.dataset.busy; b.firstChild.textContent = '⧉'; b.lastChild.textContent = T[lang].copy }, 1200);
+  }).catch(() => {});
+});
+
+document.querySelectorAll('[data-lang]').forEach(b => b.onclick = () => setLang(b.dataset.lang));
+const q = new URLSearchParams(location.search).get('lang'), nav = (navigator.language || '').toLowerCase();
+lang = T[q] ? q : T[store.get('lang')] ? store.get('lang') : nav.startsWith('es') ? 'es' : nav.startsWith('zh') ? 'zh' : 'en';
+applyLang();
+
+// one observer: reveal once, keep SVG cards observed to pause them off screen
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.target.classList.contains('anim')) e.target.classList.toggle('playing', e.isIntersecting);
+  else if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) }
+}), { threshold: .15 });
+document.querySelectorAll('.reveal, .anim').forEach(e => io.observe(e));
+
+// ponytail: static href = /releases/latest; the API only enriches it (60 req/h/IP unauthenticated)
+fetch('https://api.github.com/repos/maldos23/open-car-project/releases/latest', { signal: AbortSignal.timeout?.(4000) })
+  .then(r => r.ok ? r.json() : Promise.reject())
+  .then(r => {
+    const a = r.assets.find(x => x.name.endsWith('.apk')); if (!a) return;
+    const s = r.assets.find(x => x.name === a.name + '.sha256');
+    apk.href = a.browser_download_url;
+    ver.textContent = r.tag_name + ' · ' + new Intl.NumberFormat(root.lang, { maximumFractionDigits: 1 }).format(a.size / 1048576) + ' MB';
+    if (s) sha.href = s.browser_download_url;
+  })
+  .catch(() => {});
+</script>
+</body>
+</html>
