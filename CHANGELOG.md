@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Project website (GitHub Pages) in English, Spanish and Chinese with a download button for the
+  latest APK, plus a friendlier contributor guide with ready-to-paste AI prompts and a
+  skills/agents reference.
+
 ## [0.10.0] - 2026-10-26
 
 ### Added
