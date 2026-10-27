@@ -79,11 +79,34 @@ object MediaSessionSource {
     private var listenerComponent: ComponentName? = null
 
     private var registered = false
+    private var app: Context? = null
 
     /** Registers the listener; if notification access wasn't granted yet, retries on every call. */
     fun start(context: Context) {
         users++
+        app = context.applicationContext
         register(context.applicationContext)
+    }
+
+    /**
+     * Safety net for missed `OnActiveSessionsChanged` callbacks: some head-unit ROMs (seen on a
+     * Unisoc K706) never deliver them after the car wakes from sleep, so a player that starts a
+     * new session leaves the card on "Nothing playing". Re-reads the sessions and, if the one we
+     * would pick isn't the one we follow, registers the listener again and switches to it.
+     */
+    fun resync() {
+        if (users == 0) return
+        val context = app ?: return
+        if (!registered) return register(context)
+        val m = manager ?: return
+        val sessions = m.activeSessionsOrEmpty()
+        if (pick(sessions)?.sessionToken == controller?.sessionToken) return
+        Log.i(TAG, "missed session change, resyncing")
+        runCatching {
+            m.removeOnActiveSessionsChangedListener(sessionsListener)
+            m.addOnActiveSessionsChangedListener(sessionsListener, listenerComponent, main)
+        }.onFailure { Log.w(TAG, "can't re-register sessions listener", it) }
+        attach(sessions)
     }
 
     /**
@@ -136,12 +159,16 @@ object MediaSessionSource {
      * Ignores those in error/stopped with no track (e.g. "Bluetooth disconnected").
      */
     private fun attach(sessions: List<MediaController>?) {
-        val usable = sessions.orEmpty().filter { it.isUsable() }
-        val pick = usable.firstOrNull { it.playbackState?.state == PlaybackState.STATE_PLAYING } ?: usable.firstOrNull()
+        val pick = pick(sessions)
         if (pick?.sessionToken == controller?.sessionToken) return publish()
         controller?.unregisterCallback(callback)
         controller = pick?.also { it.registerCallback(callback, main) }
         publish()
+    }
+
+    private fun pick(sessions: List<MediaController>?): MediaController? {
+        val usable = sessions.orEmpty().filter { it.isUsable() }
+        return usable.firstOrNull { it.playbackState?.state == PlaybackState.STATE_PLAYING } ?: usable.firstOrNull()
     }
 
     private fun MediaController.isUsable(): Boolean {
