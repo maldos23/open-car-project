@@ -6,11 +6,21 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.10.4] - 2026-10-27
+
 ### Fixed
 
 - Notifications and the media player no longer stay empty or frozen on head units whose system
   kills the launcher and never reconnects its notification listener (seen on a Unisoc K706):
   the launcher now detects the dropped listener and binds it again.
+
+### Screenshots
+
+**Player and notifications keep working after a restart.** When the system kills the launcher in
+the background, the player card, the notifications card and the island reconnect on their own
+instead of staying on "Nothing playing" until the head unit reboots.
+
+![Player and notifications after the launcher restarts](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.10.4/media-after-restart.png)
 
 ## [0.10.3] - 2026-10-26
 
@@ -321,7 +331,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.10.3...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.10.4...develop
+[0.10.4]: https://github.com/maldos23/open-car-project/compare/v0.10.3...v0.10.4
 [0.10.3]: https://github.com/maldos23/open-car-project/compare/v0.10.2...v0.10.3
 [0.10.2]: https://github.com/maldos23/open-car-project/compare/v0.10.1...v0.10.2
 [0.10.1]: https://github.com/maldos23/open-car-project/compare/v0.10.0...v0.10.1
