@@ -65,6 +65,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.semantics.Role
 import org.opencarproject.launcher.core.pure.GridColumnsRange
+import org.opencarproject.launcher.core.pure.ModuleCornerRange
+import org.opencarproject.launcher.core.model.AssistantStyle
+import org.opencarproject.launcher.core.model.ModuleShape
+import org.opencarproject.launcher.presentation.common.AssistantButton
+import org.opencarproject.launcher.presentation.grid.moduleShapeOf
+import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.ui.draw.scale
 import org.opencarproject.launcher.core.pure.GridRowsRange
 import org.opencarproject.launcher.core.pure.MenuIconScaleRange
 import org.opencarproject.launcher.core.pure.MotionGlowSensitivityRange
@@ -377,6 +384,23 @@ fun SettingsSheet(
                 onChange { it.copy(showAppLabels = v) }
             }
 
+            Catalog(
+                title = stringResource(R.string.settings_module_shape),
+                options = listOf(
+                    ModuleShape.ROUNDED to stringResource(R.string.module_shape_rounded),
+                    ModuleShape.SCALLOPED to stringResource(R.string.module_shape_scalloped),
+                ),
+                selected = settings.moduleShape,
+                onSelect = { v -> onChange { it.copy(moduleShape = v) } },
+            ) { shape, preview ->
+                Box(preview.background(MaterialTheme.colorScheme.surfaceContainerHighest), contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(96.dp, 48.dp).background(MaterialTheme.colorScheme.primaryContainer, moduleShapeOf(shape, settings.moduleCornerDp)))
+                }
+            }
+            Stepper(stringResource(R.string.settings_module_roundness), settings.moduleCornerDp, ModuleCornerRange, step = 4) { v ->
+                onChange { it.copy(moduleCornerDp = v.coerceIn(ModuleCornerRange)) }
+            }
+
             Choice(
                 title = stringResource(R.string.settings_dock_icon_size),
                 options = listOf(DockIconSize.SMALL to stringResource(R.string.size_small), DockIconSize.MEDIUM to stringResource(R.string.size_medium), DockIconSize.LARGE to stringResource(R.string.size_large)),
@@ -404,6 +428,36 @@ fun SettingsSheet(
                             )
                         }
                         if (pair.size == 1) Spacer(Modifier.weight(1f))
+                    }
+                }
+            }
+
+            AnimatedVisibility(DockElement.ASSISTANT !in settings.hiddenElements) {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Catalog(
+                        title = stringResource(R.string.settings_assistant_style),
+                        options = listOf(
+                            AssistantStyle.GOOGLE_ANIMATED to stringResource(R.string.assistant_style_google),
+                            AssistantStyle.APP_LOGO to stringResource(R.string.assistant_style_logo),
+                            AssistantStyle.SPARKLES to stringResource(R.string.assistant_style_sparkles),
+                        ),
+                        selected = settings.assistantStyle,
+                        onSelect = { v -> onChange { it.copy(assistantStyle = v) } },
+                    ) { style, preview ->
+                        // The real button, scaled down; tapping it selects the style instead of opening the assistant.
+                        Box(preview.background(MaterialTheme.colorScheme.surfaceContainerHighest), contentAlignment = Alignment.Center) {
+                            AssistantButton(
+                                style = style,
+                                showGlow = settings.assistantGlow,
+                                onClick = { onChange { it.copy(assistantStyle = style) } },
+                                modifier = if (style == AssistantStyle.SPARKLES) Modifier.scale(0.9f) else Modifier.requiredWidth(280.dp).scale(0.4f),
+                            )
+                        }
+                    }
+                    AnimatedVisibility(settings.assistantStyle != AssistantStyle.SPARKLES) {
+                        SwitchRow(stringResource(R.string.settings_assistant_glow), stringResource(R.string.settings_assistant_glow_desc), settings.assistantGlow) { v ->
+                            onChange { it.copy(assistantGlow = v) }
+                        }
                     }
                 }
             }

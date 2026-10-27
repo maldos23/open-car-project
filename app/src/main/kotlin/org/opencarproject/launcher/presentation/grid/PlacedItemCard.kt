@@ -66,12 +66,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Shape
 import org.opencarproject.launcher.core.model.CatalogItemKind
 import org.opencarproject.launcher.core.model.Cell
 import org.opencarproject.launcher.core.model.GridSpec
 import org.opencarproject.launcher.core.model.LayoutMode
+import org.opencarproject.launcher.core.model.ModuleShape
 import org.opencarproject.launcher.core.model.PlacedItem
 import org.opencarproject.launcher.core.pure.GridMath
+import org.opencarproject.launcher.core.ui.ScallopedShape
 import org.opencarproject.launcher.core.ui.theme.Dimens
 import org.opencarproject.launcher.data.widget.LauncherAppWidgetHost
 import org.opencarproject.launcher.presentation.common.rememberAppIcon
@@ -188,6 +191,11 @@ fun PlacedItemCard(
         )
     }
 
+    // Built-in modules take the shape chosen in Settings; widgets and apps keep their own.
+    val cardShape = when (item.kind) {
+        CatalogItemKind.WIDGET, CatalogItemKind.APP -> RoundedCornerShape(Dimens.ItemCorner)
+        else -> LocalModuleShape.current
+    }
     Box(
         modifier
             .graphicsLayer {
@@ -196,7 +204,7 @@ fun PlacedItemCard(
                 scaleY = scale * (0.85f + 0.15f * p)
                 alpha = p
                 shadowElevation = elevation.toPx()
-                shape = RoundedCornerShape(Dimens.ItemCorner)
+                shape = cardShape
                 clip = false
             }
             .then(tapGesture),
@@ -207,9 +215,9 @@ fun PlacedItemCard(
                 .border(
                     width = 3.dp,
                     color = MaterialTheme.colorScheme.error.copy(alpha = errorBorder),
-                    shape = RoundedCornerShape(Dimens.ItemCorner),
+                    shape = cardShape,
                 ),
-            shape = RoundedCornerShape(Dimens.ItemCorner),
+            shape = cardShape,
             // System widgets bring their own design: no launcher background card.
             // Apps: just icon and name (no card), like a regular launcher.
             colors = if (item.kind == CatalogItemKind.WIDGET || item.kind == CatalogItemKind.APP) {
@@ -400,6 +408,15 @@ private fun AppContent(item: PlacedItem, span: Cell) {
         val icon = rememberAppIcon(item.componentKey, sizePx = with(LocalDensity.current) { iconSize.roundToPx() }, withoutBackground = true)
         AppIconAndLabel(item, icon, iconSize, showLabel)
     }
+}
+
+/** Outline of the built-in module cards (Settings). */
+val LocalModuleShape = staticCompositionLocalOf<Shape> { RoundedCornerShape(Dimens.ItemCorner) }
+
+/** Shape for the module cards: rounded or scalloped ("flower") with [cornerDp] corners. */
+fun moduleShapeOf(shape: ModuleShape, cornerDp: Int): Shape = when (shape) {
+    ModuleShape.ROUNDED -> RoundedCornerShape(cornerDp.dp)
+    ModuleShape.SCALLOPED -> ScallopedShape(cornerDp.dp)
 }
 
 /** Whether home screen apps show their name below the icon (Settings). */
