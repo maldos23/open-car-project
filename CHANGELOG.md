@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-10-26
+
 ### Added
 
 - Settings: shape of the built-in module cards (navigation, media, notifications): rounded or
@@ -13,6 +15,20 @@ All notable changes to this project are documented here. The format follows
 - Settings: assistant button style with live previews: the animated Google pill, a pill with
   the default assistant app's logo, or just three animated sparkles in Google colors. The
   pills' colored halo and border can be turned off.
+
+### Screenshots
+
+**Flower-shaped modules.** Settings → Module shape → Flower gives the navigation, media and
+notification cards a wavy edge; Module corners sets how round their corners are (0–32 dp).
+The bottom bar shows the new sparkles assistant button.
+
+![Module cards with the flower edge and the sparkles assistant button](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.10.0/flower-sparkles.png)
+
+**Assistant style.** Settings → Assistant style picks the animated Google pill, a pill with
+the default assistant's logo, or three animated sparkles, each with a live preview. Colored
+border turns the pills' Google-colored halo and border on or off.
+
+![Assistant style catalog with live previews and the colored border switch](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.10.0/assistant-styles.png)
 
 ## [0.9.0] - 2026-10-26
 
@@ -263,7 +279,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.9.0...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.10.0...develop
+[0.10.0]: https://github.com/maldos23/open-car-project/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/maldos23/open-car-project/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/maldos23/open-car-project/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/maldos23/open-car-project/compare/v0.6.1...v0.7.0
