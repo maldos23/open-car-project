@@ -4,6 +4,8 @@
 
 [English](README.md) · [Español](README.es.md) · **简体中文**
 
+🌐 **[网站](https://maldos23.github.io/open-car-project/)** · ⬇️ [下载最新 APK](https://github.com/maldos23/open-car-project/releases/latest)
+
 > **解锁你已经拥有的汽车。** 如今的车机硬件已经足够强大，足以运行那些被汽车厂商锁定或按订阅收费的功能。Open Car Project 的目标是让车载信息娱乐系统走向开放与普及：开放的软件、公开的开发，让每位车主自己决定屏幕能做什么。
 >
 > 我们相信，选择爱车的样子、按自己的心意让它焕然一新，而不必为此购买新车，应当是每个人的权利——并不是每个人都有这样的经济能力。堵在路上的时光，在一个由自己亲手打造、让人自在的空间里度过，会好得多。

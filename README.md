@@ -4,6 +4,8 @@
 
 **English** · [Español](README.es.md) · [简体中文](README.zh-CN.md)
 
+🌐 **[Website](https://maldos23.github.io/open-car-project/)** · ⬇️ [Download the latest APK](https://github.com/maldos23/open-car-project/releases/latest)
+
 > **Open the car you already own.** Today's head units carry hardware powerful enough to run
 > features that carmakers lock away or sell as subscriptions. Open Car Project exists to
 > democratize the car's infotainment system: open software, built in the open, so drivers decide
