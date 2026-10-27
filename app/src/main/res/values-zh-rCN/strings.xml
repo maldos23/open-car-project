@@ -15,6 +15,14 @@
     <string name="widget_media_next_track">下一首</string>
 
     <string name="module_navigation">导航</string>
+    <string name="module_embedded_map">内嵌地图</string>
+    <string name="embedded_map_connecting">正在连接车机… 如有提示，请允许此启动器进行 USB 调试。</string>
+    <string name="embedded_map_unavailable">内嵌地图需要端口 9876 上的 root adb，此设备不可用。</string>
+    <string name="embedded_map_no_app">未安装 Google 地图或 Waze。</string>
+    <string name="embedded_map_retry">重试</string>
+    <string name="embedded_map_open">打开地图</string>
+    <string name="settings_embedded_map_app">内嵌地图应用</string>
+    <string name="embedded_map_app_auto">自动</string>
     <string name="module_media">播放器</string>
 
     <string name="settings_title">设置</string>

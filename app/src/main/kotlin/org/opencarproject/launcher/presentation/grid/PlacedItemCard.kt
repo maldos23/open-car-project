@@ -41,6 +41,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -82,6 +83,7 @@ import org.opencarproject.launcher.presentation.launcher.LauncherViewModel
 import org.opencarproject.launcher.presentation.widget.GlassWidgetHostView
 import org.opencarproject.launcher.presentation.widget.MediaPlayerCard
 import org.opencarproject.launcher.presentation.widget.NavigationCard
+import org.opencarproject.launcher.presentation.widget.EmbeddedMapCard
 import org.opencarproject.launcher.presentation.widget.NotificationsCard
 import org.opencarproject.launcher.presentation.widget.ClimateCard
 import kotlinx.coroutines.launch
@@ -240,6 +242,10 @@ fun PlacedItemCard(
                 CatalogItemKind.MEDIA -> MediaPlayerCard()
                 CatalogItemKind.NOTIFICATIONS -> NotificationsCard()
                 CatalogItemKind.CLIMATE -> ClimateCard()
+                CatalogItemKind.EMBEDDED_MAP -> {
+                    val settings by viewModel.settings.collectAsStateWithLifecycle()
+                    EmbeddedMapCard(settings.embeddedMapApp)
+                }
             }
         }
 

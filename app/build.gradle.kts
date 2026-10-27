@@ -16,8 +16,8 @@ android {
         // Keep a low floor (Android 8.0) for compatibility with tablet fleets.
         minSdk = 26
         targetSdk = 37
-        versionCode = 23
-        versionName = "0.11.1"
+        versionCode = 24
+        versionName = "0.12.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
@@ -87,6 +87,9 @@ dependencies {
 
     // JSON serialization of the layout (no annotation processors).
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
+
+    // adb client to the device's own adbd (embedded Maps module on root-adb head units).
+    implementation("dev.mobile:dadb:1.2.10")
 
     // Compose UI.
     implementation("androidx.compose.ui:ui")

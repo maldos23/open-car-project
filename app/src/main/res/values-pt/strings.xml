@@ -15,6 +15,14 @@
     <string name="widget_media_next_track">Próxima faixa</string>
 
     <string name="module_navigation">Navegação</string>
+    <string name="module_embedded_map">Mapa integrado</string>
+    <string name="embedded_map_connecting">Conectando à central… Se solicitado, permita a depuração USB para este launcher.</string>
+    <string name="embedded_map_unavailable">Integrar o mapa requer adb root na porta 9876, que não está disponível neste dispositivo.</string>
+    <string name="embedded_map_no_app">Google Maps ou Waze não estão instalados.</string>
+    <string name="embedded_map_retry">Tentar novamente</string>
+    <string name="embedded_map_open">Abrir mapa</string>
+    <string name="settings_embedded_map_app">App do mapa integrado</string>
+    <string name="embedded_map_app_auto">Automático</string>
     <string name="module_media">Player</string>
 
     <string name="settings_title">Configurações</string>

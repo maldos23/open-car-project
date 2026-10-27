@@ -60,6 +60,8 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import org.opencarproject.launcher.presentation.widget.installedNavigationApps
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -417,6 +419,17 @@ fun SettingsSheet(
             }
             Stepper(stringResource(R.string.settings_module_roundness), settings.moduleCornerDp, ModuleCornerRange, step = 4) { v ->
                 onChange { it.copy(moduleCornerDp = v.coerceIn(ModuleCornerRange)) }
+            }
+
+            val context = LocalContext.current
+            val navApps = remember { context.installedNavigationApps() }
+            if (navApps.isNotEmpty()) {
+                Choice(
+                    title = stringResource(R.string.settings_embedded_map_app),
+                    options = listOf("" to stringResource(R.string.embedded_map_app_auto)) + navApps.map { it.packageName to it.label },
+                    selected = settings.embeddedMapApp.takeIf { pkg -> navApps.any { it.packageName == pkg } } ?: "",
+                    onSelect = { v -> onChange { it.copy(embeddedMapApp = v) } },
+                )
             }
 
             Choice(

@@ -63,6 +63,7 @@ class SystemCatalogSource(
         builtin(CatalogItemKind.NOTIFICATIONS, BuiltinKeys.NOTIFICATIONS, "Notificaciones", "Notificaciones activas"),
         builtin(CatalogItemKind.CLIMATE, BuiltinKeys.CLIMATE, "Clima", "Temperatura y modos del aire acondicionado")
             .takeIf { ClimateSource.isAvailable(context) },
+        builtin(CatalogItemKind.EMBEDDED_MAP, BuiltinKeys.EMBEDDED_MAP, "Mapa integrado", "Google Maps dentro de la tarjeta (requiere adb root)"),
     )
 
     private fun builtin(kind: CatalogItemKind, key: String, title: String, description: String) = CatalogItem(

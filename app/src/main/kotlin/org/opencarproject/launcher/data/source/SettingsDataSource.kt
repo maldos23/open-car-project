@@ -79,6 +79,7 @@ class SettingsDataSource(private val context: Context) {
     private val moduleShapeKey = stringPreferencesKey("module_shape")
     private val moduleCornerKey = intPreferencesKey("module_corner_dp")
     private val assistantStyleKey = stringPreferencesKey("assistant_style")
+    private val embeddedMapAppKey = stringPreferencesKey("embedded_map_app")
     private val assistantGlowKey = booleanPreferencesKey("assistant_glow")
     private val climateBarKey = booleanPreferencesKey("climate_bar")
     private val reverseOverlayKey = booleanPreferencesKey("reverse_overlay")
@@ -131,6 +132,7 @@ class SettingsDataSource(private val context: Context) {
             prefs[reverseOverlayKey] = next.reverseOverlay
             prefs[reverseCameraIdKey] = next.reverseCameraId
             prefs[hideSystemReverseKey] = next.hideSystemReverseView
+            prefs[embeddedMapAppKey] = next.embeddedMapApp
         }
     }
 
@@ -176,6 +178,7 @@ class SettingsDataSource(private val context: Context) {
         reverseOverlay = this[reverseOverlayKey] ?: false,
         reverseCameraId = this[reverseCameraIdKey] ?: "1",
         hideSystemReverseView = this[hideSystemReverseKey] ?: false,
+        embeddedMapApp = this[embeddedMapAppKey] ?: "",
     )
 
     /** Stored value, or the default if missing or from a version that no longer exists. */
