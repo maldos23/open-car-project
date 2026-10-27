@@ -4,6 +4,8 @@
 
 [English](README.md) · **Español** · [简体中文](README.zh-CN.md)
 
+🌐 **[Sitio web](https://maldos23.github.io/open-car-project/)** · ⬇️ [Descarga la última APK](https://github.com/maldos23/open-car-project/releases/latest)
+
 > **Abre el auto que ya tienes.** Las unidades principales de hoy tienen hardware lo
 > suficientemente potente para funciones que los fabricantes bloquean o cobran como
 > suscripción. Open Car Project existe para democratizar el sistema de entretenimiento del
