@@ -138,8 +138,11 @@ enum class BackgroundStyle {
     GRADIENT,
 }
 
-/** Silhouette of the speed scene. */
-enum class VehicleShape { CAR, SUV, PICKUP, CAT, DOG }
+/** Silhouette of the speed scene (stored by name: append new ones, never rename). */
+enum class VehicleShape { CAR, SUV, PICKUP, CAT, DOG, SPORTS, VAN, BUS, MOTORBIKE, PIXEL_CAT }
+
+/** Scenery the speed scene drives through (the sky still follows time and weather). */
+enum class SceneTheme { CITY, PIXEL, COUNTRYSIDE, BEACH, DESERT, SNOW, JUNGLE }
 
 /** Silhouette colors (ARGB). */
 enum class VehicleColor(val argb: Long) {

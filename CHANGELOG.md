@@ -6,6 +6,19 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-26
+
+### Added
+
+- Speed scene: past the rocket speed the vehicle shakes and sparks, turns into a rocket and
+  lifts off into space; it lands back on the road when you slow down.
+- Speed scene: a picture catalog of silhouettes, with new sports car, van, bus, motorbike and
+  an 8-bit pixel cat with a rainbow trail.
+- Speed scene: selectable animated scenery: city, pixel art, countryside, beach, desert, snow
+  and jungle (the sky still follows the time and the weather).
+- More detail on vehicles (doors, mirrors, exhaust, brake light, night headlight beam), cats
+  (stripes, whiskers, blinking) and dogs (spots, collar, flapping ear, tongue out when fast).
+
 ## [0.8.0] - 2026-10-26
 
 ### Added
@@ -212,7 +225,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.8.0...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.9.0...develop
+[0.9.0]: https://github.com/maldos23/open-car-project/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/maldos23/open-car-project/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/maldos23/open-car-project/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/maldos23/open-car-project/compare/v0.6.0...v0.6.1

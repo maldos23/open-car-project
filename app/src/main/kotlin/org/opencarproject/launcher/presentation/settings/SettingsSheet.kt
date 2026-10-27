@@ -9,6 +9,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,6 +50,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -87,8 +89,11 @@ import kotlin.math.roundToInt
 import org.opencarproject.launcher.core.model.TemperatureUnit
 import org.opencarproject.launcher.core.model.ThemeMode
 import org.opencarproject.launcher.core.model.TimeFormat
+import org.opencarproject.launcher.core.model.SceneTheme
 import org.opencarproject.launcher.core.model.VehicleColor
 import org.opencarproject.launcher.core.model.VehicleShape
+import org.opencarproject.launcher.presentation.common.SceneThumbnail
+import org.opencarproject.launcher.presentation.common.VehicleThumbnail
 import org.opencarproject.launcher.core.model.WeatherPosition
 import org.opencarproject.launcher.core.ui.theme.swatch
 import org.opencarproject.launcher.presentation.common.MatchSystemBarsInDialog
@@ -295,19 +300,44 @@ fun SettingsSheet(
                         step = if (mph) 5 else 10,
                         onChange = { onRocketKmhChange(SpeedUnits.toKmh(it.toFloat(), mph).roundToInt()) },
                     )
-                    Choice(
+                    val vehicleColor = Color(settings.vehicleColor.argb)
+                    val ground = MaterialTheme.colorScheme.outlineVariant
+                    Catalog(
                         title = stringResource(R.string.settings_vehicle_shape),
                         options = listOf(
                             VehicleShape.CAR to stringResource(R.string.vehicle_car),
+                            VehicleShape.SPORTS to stringResource(R.string.vehicle_sports),
                             VehicleShape.SUV to stringResource(R.string.vehicle_suv),
                             VehicleShape.PICKUP to stringResource(R.string.vehicle_pickup),
+                            VehicleShape.VAN to stringResource(R.string.vehicle_van),
+                            VehicleShape.BUS to stringResource(R.string.vehicle_bus),
+                            VehicleShape.MOTORBIKE to stringResource(R.string.vehicle_motorbike),
                             VehicleShape.CAT to stringResource(R.string.vehicle_cat),
                             VehicleShape.DOG to stringResource(R.string.vehicle_dog),
+                            VehicleShape.PIXEL_CAT to stringResource(R.string.vehicle_pixel_cat),
                         ),
                         selected = settings.vehicleShape,
                         onSelect = { v -> onChange { it.copy(vehicleShape = v) } },
-                    )
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    ) { shape, preview -> VehicleThumbnail(shape, vehicleColor, ground, preview.background(MaterialTheme.colorScheme.surfaceContainerHighest)) }
+                    Catalog(
+                        title = stringResource(R.string.settings_scene_theme),
+                        options = listOf(
+                            SceneTheme.CITY to stringResource(R.string.scene_city),
+                            SceneTheme.PIXEL to stringResource(R.string.scene_pixel),
+                            SceneTheme.COUNTRYSIDE to stringResource(R.string.scene_countryside),
+                            SceneTheme.BEACH to stringResource(R.string.scene_beach),
+                            SceneTheme.DESERT to stringResource(R.string.scene_desert),
+                            SceneTheme.SNOW to stringResource(R.string.scene_snow),
+                            SceneTheme.JUNGLE to stringResource(R.string.scene_jungle),
+                        ),
+                        selected = settings.sceneTheme,
+                        onSelect = { v -> onChange { it.copy(sceneTheme = v) } },
+                    ) { theme, preview -> SceneThumbnail(theme, preview) }
+                    // The pixel cat has its own fixed palette.
+                    Column(
+                        Modifier.alpha(if (settings.vehicleShape == VehicleShape.PIXEL_CAT) 0.38f else 1f),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
                         Text(stringResource(R.string.settings_color), style = MaterialTheme.typography.titleMedium)
                         ColorSwatches(
                             options = VehicleColor.entries.map { it to Color(it.argb) },
@@ -501,6 +531,48 @@ private fun Swatch(fill: Brush, selected: Boolean, outlined: Boolean, checkTint:
 private val DynamicSwatch = Brush.sweepGradient(
     listOf(Color(0xFF4285F4), Color(0xFFEA4335), Color(0xFFFBBC05), Color(0xFF34A853), Color(0xFF4285F4)),
 )
+
+/**
+ * Title + horizontally scrolling row of picture cards (a drawn [preview] with its label);
+ * the selected card gets a thick primary border. Each card is well above 48 dp.
+ */
+@Composable
+private fun <T> Catalog(
+    title: String,
+    options: List<Pair<T, String>>,
+    selected: T,
+    onSelect: (T) -> Unit,
+    preview: @Composable (T, Modifier) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(title, style = MaterialTheme.typography.titleMedium)
+        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            options.forEach { (value, label) ->
+                val isSelected = value == selected
+                val shape = RoundedCornerShape(16.dp)
+                Column(
+                    Modifier
+                        .width(128.dp)
+                        .clip(shape)
+                        .border(if (isSelected) 3.dp else 1.dp, if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, shape)
+                        .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
+                        .selectable(isSelected, role = Role.RadioButton) { onSelect(value) }
+                        .padding(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    preview(value, Modifier.fillMaxWidth().height(64.dp).clip(RoundedCornerShape(10.dp)))
+                    Text(
+                        label,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                    )
+                }
+            }
+        }
+    }
+}
 
 /** Title + single-choice segmented buttons. */
 @Composable
