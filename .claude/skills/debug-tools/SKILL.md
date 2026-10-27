@@ -53,6 +53,7 @@ adb shell am start -a android.intent.action.VIEW -d "google.navigation:q=19.4270
 ```bash
 adb logcat --pid=$(adb shell pidof $P)        # app logs
 adb logcat -b crash                           # crashes
+adb logcat -s OCP.Notif OCP.Media             # listener bind/rebind and media session errors
 adb shell run-as $P ls files/datastore/       # saved layout / settings
 adb shell pm clear $P                         # reset everything
 ```

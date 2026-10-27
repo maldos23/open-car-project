@@ -2,8 +2,12 @@ package org.opencarproject.launcher.data.source
 
 import android.app.Notification
 import android.content.ComponentName
+import android.content.Context
+import android.content.pm.PackageManager
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import android.util.Log
+import org.opencarproject.launcher.core.util.hasNotificationAccess
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -20,6 +24,8 @@ import kotlinx.coroutines.flow.asStateFlow
 class LauncherNotificationListener : NotificationListenerService() {
 
     override fun onListenerConnected() {
+        Log.d(TAG, "listener connected")
+        isConnected = true
         // Ones already present must not "pop" in the island on connect.
         alerted.clear()
         active.clear()
@@ -30,8 +36,11 @@ class LauncherNotificationListener : NotificationListenerService() {
     }
 
     override fun onListenerDisconnected() {
+        Log.d(TAG, "listener disconnected")
+        isConnected = false
         active.clear()
         publish()
+        MediaSessionSource.onListenerDisconnected()
         // The system may unbind the listener (low memory, doze, app update) and not bind it back
         // on its own: without this, no notification or media session reaches the launcher again.
         runCatching { requestRebind(ComponentName(this, LauncherNotificationListener::class.java)) }
@@ -73,6 +82,30 @@ class LauncherNotificationListener : NotificationListenerService() {
     }
 
     companion object {
+        private const val TAG = "OCP.Notif"
+
+        /** `true` while the system keeps the listener bound. */
+        @Volatile
+        var isConnected = false
+            private set
+
+        /**
+         * Binds the listener back if access is granted but the system dropped it. Some head-unit
+         * ROMs (seen on a Unisoc K706, Android 10) kill the launcher process and never bind the
+         * listener again; `requestRebind` is a no-op then (the component isn't snoozed), so the
+         * component is toggled, which makes the system re-scan the package and bind it.
+         */
+        fun ensureBound(context: Context) {
+            if (isConnected || !context.hasNotificationAccess()) return
+            Log.w(TAG, "listener enabled but not bound, forcing a rebind")
+            val component = ComponentName(context, LauncherNotificationListener::class.java)
+            val pm = context.packageManager
+            runCatching {
+                pm.setComponentEnabledSetting(component, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
+                pm.setComponentEnabledSetting(component, PackageManager.COMPONENT_ENABLED_STATE_DEFAULT, PackageManager.DONT_KILL_APP)
+            }
+        }
+
         /** Notifications shown to the user (neither "ongoing" nor group summaries). */
         private fun StatusBarNotification.isUserFacing(): Boolean =
             !isOngoing && notification.flags and Notification.FLAG_GROUP_SUMMARY == 0
