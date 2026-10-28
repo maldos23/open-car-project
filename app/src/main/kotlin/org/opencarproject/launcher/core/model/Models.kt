@@ -134,6 +134,13 @@ data class LauncherSettings(
     val reverseBrightness: Float = 0.5f,
     /** Contrast of the cleaned image, 0..1 (0.5 = unchanged). */
     val reverseContrast: Float = 0.5f,
+    /** Floating music island over other apps while something plays and Home isn't in front. */
+    val floatingIsland: Boolean = false,
+    /** Lets a tap on the title shrink the floating island to a bubble (off = always expanded). */
+    val floatingIslandShrink: Boolean = false,
+    /** Where the floating island was left, as fractions (0..1) of the room it can move in. */
+    val floatingIslandX: Float = 0.5f,
+    val floatingIslandY: Float = 0f,
     /** Package the "Maps (embedded)" module runs; empty = the default navigation app. */
     val embeddedMapApp: String = "",
     /** Resolution (% of the card) the embedded app draws at; lower costs less on weak GPUs. */

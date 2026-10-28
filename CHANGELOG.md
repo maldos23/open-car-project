@@ -6,6 +6,35 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-10-28
+
+### Added
+
+- Settings → "Floating music island" (off by default): while music plays and you're in another
+  app, such as a map, the player floats over it as a small black island with the cover, title
+  and controls. Drag it anywhere and it stays there, also after a restart. Only the cover opens
+  the music app; with "Shrinkable island" (off by default) a tap on the title shrinks it to a
+  bubble. It covers nothing but itself, hides when you go back Home and 15 s after the music
+  pauses. Needs "display over other apps".
+
+### Screenshots
+
+**Floating music island.** With music playing, the player floats over the app in front (here,
+Google Maps) with its cover, title and controls. Drag it anywhere: it stays there next time.
+Only the cover opens the music app.
+
+![Floating music island over Google Maps](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.15.0/floating-island.png)
+
+**Shrinkable island.** With "Shrinkable island" on, a tap on the title shrinks it to a bubble
+with the cover and a level meter; a tap on the bubble expands it again.
+
+![Floating music island shrunk to a bubble](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.15.0/floating-island-shrunk.png)
+
+**Settings.** Settings → "Floating music island" and, below it, "Shrinkable island". Both are
+off by default.
+
+![Floating music island settings](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.15.0/floating-island-settings.png)
+
 ## [0.14.1] - 2026-10-27
 
 ### Added
@@ -534,7 +563,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.14.1...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.15.0...develop
+[0.15.0]: https://github.com/maldos23/open-car-project/compare/v0.14.1...v0.15.0
 [0.14.1]: https://github.com/maldos23/open-car-project/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/maldos23/open-car-project/compare/v0.13.2...v0.14.0
 [0.13.2]: https://github.com/maldos23/open-car-project/compare/v0.13.1...v0.13.2

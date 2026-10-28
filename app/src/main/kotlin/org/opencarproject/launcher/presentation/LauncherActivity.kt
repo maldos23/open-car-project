@@ -28,6 +28,7 @@ import org.opencarproject.launcher.presentation.common.setSystemBarsHidden
 import org.opencarproject.launcher.data.source.MediaSessionSource
 import org.opencarproject.launcher.di.AppContainer
 import org.opencarproject.launcher.presentation.launcher.LauncherScreen
+import org.opencarproject.launcher.presentation.widget.FloatingIsland
 import org.opencarproject.launcher.presentation.launcher.LauncherViewModel
 import org.opencarproject.launcher.presentation.launcher.LauncherViewModelFactory
 import kotlinx.coroutines.delay
@@ -174,6 +175,7 @@ class LauncherActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
+        FloatingIsland.launcherVisible.value = true
         container.widgetHost.startListening()
         // Give a live listener time to reconnect after a process restart before forcing a rebind.
         lifecycleScope.launch {
@@ -184,6 +186,7 @@ class LauncherActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
+        FloatingIsland.launcherVisible.value = false
         if (!isFinishing) container.widgetHost.stopListening()
     }
 
