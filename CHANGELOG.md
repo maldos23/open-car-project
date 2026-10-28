@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-10-27
+
 ### Changed
 
 - Much lower CPU and GPU use on head units:
@@ -17,6 +19,20 @@ All notable changes to this project are documented here. The format follows
 - Settings → "Embedded map resolution" (100% by default; 75% or 50%): the navigation app draws
   the card at a lower resolution and the system scales it up, for less CPU/GPU at the cost of a
   softer map. Touches are scaled to match.
+
+### Screenshots
+
+**Lighter home screen.** The same home screen with Waze live in its card, now at a fraction of
+the cost. Measured on a K706: in another app total CPU went from ~215% to ~60% (the embedded map
+stops drawing when nobody sees it), and the launcher redraws ~15 times a second at ~19 ms per
+frame instead of ~28 at ~69 ms.
+
+![Home screen with the embedded Waze card](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.14.0/embedded-map-light.png)
+
+**Embedded map resolution.** Settings → "Embedded map resolution" lets the navigation app draw
+the card at 75% or 50% and the system scales it up: a bit softer, a bit lighter. 100% by default.
+
+![Embedded map resolution setting at 50%](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.14.0/embedded-map-resolution.png)
 
 ## [0.13.2] - 2026-10-27
 
@@ -503,7 +519,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.13.2...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.14.0...develop
+[0.14.0]: https://github.com/maldos23/open-car-project/compare/v0.13.2...v0.14.0
 [0.13.2]: https://github.com/maldos23/open-car-project/compare/v0.13.1...v0.13.2
 [0.13.1]: https://github.com/maldos23/open-car-project/compare/v0.13.0...v0.13.1
 [0.13.0]: https://github.com/maldos23/open-car-project/compare/v0.12.0...v0.13.0
