@@ -22,6 +22,18 @@ Escape spaces in values for the device shell: `--es title "Midnight\ Drive"`.
 
 `adb shell am broadcast -n $P/.debug.FakeMediaSessionReceiver -a $P.DEBUG_WALLPAPER`
 
+## Parking radar (debug builds only)
+
+Feeds the reverse overlay without a car. Zones per sensor, left to right: -1 none, 0 clear,
+1 closest … 10 farthest. Bumpers have 6 slots (default: corners absent), sides 4.
+
+```bash
+adb shell am broadcast -a com.qf.action.BACKCAR_START -p $P      # show the overlay
+adb shell am broadcast -n $P/.debug.FakeMediaSessionReceiver -a $P.DEBUG_RADAR \
+  --es rear "-1,0,1,5,0,-1" --es front "-1,0,0,10,0,-1"
+adb shell am broadcast -n $P/.debug.FakeMediaSessionReceiver -a $P.DEBUG_RADAR --ez clear true
+```
+
 ## Notifications
 
 ```bash
