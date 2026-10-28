@@ -8,6 +8,7 @@ import org.opencarproject.launcher.presentation.reverse.ReverseOverlay
 import org.opencarproject.launcher.presentation.update.UpdateNotifier
 import org.opencarproject.launcher.presentation.widget.ClimateOverlay
 import org.opencarproject.launcher.presentation.widget.DoorOverlay
+import org.opencarproject.launcher.presentation.widget.VolumeOverlay
 import org.opencarproject.launcher.presentation.widget.FloatingIsland
 
 /**
@@ -23,6 +24,7 @@ class LauncherApp : Application() {
             FloatingIsland.apply(this@LauncherApp, it)
             ClimateOverlay.apply(this@LauncherApp, it)
             DoorOverlay.apply(this@LauncherApp, it)
+            VolumeOverlay.apply(this@LauncherApp, it)
             UpdateNotifier.apply(this@LauncherApp, it)
         } }
     }

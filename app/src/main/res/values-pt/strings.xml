@@ -335,4 +335,6 @@
     <string name="door_rear_right">Porta traseira direita</string>
     <string name="door_trunk">Porta-malas</string>
     <string name="door_hood">Capô</string>
+    <string name="settings_volume_indicator">Indicador de volume do launcher</string>
+    <string name="settings_volume_indicator_desc">Mostra o volume sobre todos os apps com o design do launcher quando ele muda. A barra do rádio não pode ser desligada e continua aparecendo no topo</string>
 </resources>

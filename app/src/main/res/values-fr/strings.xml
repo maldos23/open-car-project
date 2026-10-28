@@ -335,4 +335,6 @@
     <string name="door_rear_right">Portière arrière droite</string>
     <string name="door_trunk">Coffre</string>
     <string name="door_hood">Capot</string>
+    <string name="settings_volume_indicator">Indicateur de volume du launcher</string>
+    <string name="settings_volume_indicator_desc">Affiche le volume par-dessus toutes les apps avec le design du launcher quand il change. La barre de l\'autoradio ne peut pas être désactivée et reste affichée en haut</string>
 </resources>

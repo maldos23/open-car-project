@@ -549,6 +549,10 @@ fun SettingsSheet(
                         onChange { it.copy(launcherDoorAlert = v) }
                     }
                     OverlayPermissionButton(settings.launcherDoorAlert)
+                    SwitchRow(stringResource(R.string.settings_volume_indicator), stringResource(R.string.settings_volume_indicator_desc), settings.launcherVolumeIndicator) { v ->
+                        onChange { it.copy(launcherVolumeIndicator = v) }
+                    }
+                    OverlayPermissionButton(settings.launcherVolumeIndicator)
                 }
             }
 

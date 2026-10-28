@@ -86,6 +86,7 @@ class SettingsDataSource(private val context: Context) {
     private val climateBarKey = booleanPreferencesKey("climate_bar")
     private val climateBarEverywhereKey = booleanPreferencesKey("climate_bar_everywhere")
     private val launcherDoorAlertKey = booleanPreferencesKey("launcher_door_alert")
+    private val launcherVolumeIndicatorKey = booleanPreferencesKey("launcher_volume_indicator")
     private val updateNotifyKey = booleanPreferencesKey("update_notify")
     private val reverseOverlayKey = booleanPreferencesKey("reverse_overlay")
     private val reverseCameraIdKey = stringPreferencesKey("reverse_camera_id")
@@ -146,6 +147,7 @@ class SettingsDataSource(private val context: Context) {
             prefs[climateBarKey] = next.climateBar
             prefs[climateBarEverywhereKey] = next.climateBarEverywhere
             prefs[launcherDoorAlertKey] = next.launcherDoorAlert
+            prefs[launcherVolumeIndicatorKey] = next.launcherVolumeIndicator
             prefs[updateNotifyKey] = next.updateNotify
             prefs[reverseOverlayKey] = next.reverseOverlay
             prefs[reverseCameraIdKey] = next.reverseCameraId
@@ -206,6 +208,7 @@ class SettingsDataSource(private val context: Context) {
         climateBar = this[climateBarKey] ?: false,
         climateBarEverywhere = this[climateBarEverywhereKey] ?: false,
         launcherDoorAlert = this[launcherDoorAlertKey] ?: false,
+        launcherVolumeIndicator = this[launcherVolumeIndicatorKey] ?: false,
         updateNotify = this[updateNotifyKey] ?: true,
         reverseOverlay = this[reverseOverlayKey] ?: false,
         reverseCameraId = this[reverseCameraIdKey] ?: "1",

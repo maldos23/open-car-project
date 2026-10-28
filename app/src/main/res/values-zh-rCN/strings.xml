@@ -331,4 +331,6 @@
     <string name="door_rear_right">右后门</string>
     <string name="door_trunk">后备箱</string>
     <string name="door_hood">引擎盖</string>
+    <string name="settings_volume_indicator">启动器音量指示</string>
+    <string name="settings_volume_indicator_desc">音量变化时，以启动器的样式在所有应用上方显示音量。主机自带的音量条无法关闭，仍会显示在顶部</string>
 </resources>

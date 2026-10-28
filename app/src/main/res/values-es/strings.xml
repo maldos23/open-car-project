@@ -335,4 +335,6 @@
     <string name="door_rear_right">Puerta trasera derecha</string>
     <string name="door_trunk">Cajuela</string>
     <string name="door_hood">Cofre</string>
+    <string name="settings_volume_indicator">Indicador de volumen del launcher</string>
+    <string name="settings_volume_indicator_desc">Muestra el volumen sobre todas las apps con el diseño del launcher cuando cambia. La barra del estéreo no se puede desactivar y sigue apareciendo arriba</string>
 </resources>
