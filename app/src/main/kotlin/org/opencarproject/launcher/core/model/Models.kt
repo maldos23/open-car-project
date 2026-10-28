@@ -120,6 +120,8 @@ data class LauncherSettings(
     val climateBar: Boolean = false,
     /** The climate bar floats over every app, not only Home (needs "display over other apps"). */
     val climateBarEverywhere: Boolean = false,
+    /** Checks GitHub once a day and notifies when a newer release is out. */
+    val updateNotify: Boolean = true,
     /** Floating reverse camera + parking radar over any app while in reverse (off = system camera only). */
     val reverseOverlay: Boolean = false,
     /** Camera2 id of the reverse camera (on QF head units the rear input is "1"). */

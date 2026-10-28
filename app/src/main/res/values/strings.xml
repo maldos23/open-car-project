@@ -332,4 +332,21 @@
     <string name="floating_island_expand">Expand player</string>
     <string name="floating_island_open">Open the music app</string>
     <string name="floating_island_collapse">Shrink player</string>
+    <string name="settings_updates">Updates</string>
+    <string name="settings_updates_version">Installed version %1$s</string>
+    <string name="settings_updates_keep">Updating keeps your settings and layout.</string>
+    <string name="settings_updates_check">Check for updates</string>
+    <string name="settings_updates_checking">Checking…</string>
+    <string name="settings_updates_latest">You have the latest version</string>
+    <string name="settings_updates_available">Version %1$s is available</string>
+    <string name="settings_updates_install">Download and install</string>
+    <string name="settings_updates_downloading">Downloading the update…</string>
+    <string name="settings_updates_error">Couldn\'t reach GitHub. Check the connection and try again.</string>
+    <string name="settings_updates_install_error">The update couldn\'t be installed: %1$s</string>
+    <string name="settings_updates_notify">Notify me about updates</string>
+    <string name="settings_updates_notify_desc">Checks GitHub once a day and shows a notification when a new version is out</string>
+    <string name="settings_updates_allow_notifications">Allow notifications</string>
+    <string name="update_channel">App updates</string>
+    <string name="update_notification_title">Update available</string>
+    <string name="update_notification_text">Open Car Project %1$s is ready. Tap to install it.</string>
 </resources>

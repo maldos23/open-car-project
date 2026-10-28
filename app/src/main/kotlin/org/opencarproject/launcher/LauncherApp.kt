@@ -5,12 +5,13 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import org.opencarproject.launcher.data.source.SettingsDataSource
 import org.opencarproject.launcher.presentation.reverse.ReverseOverlay
+import org.opencarproject.launcher.presentation.update.UpdateNotifier
 import org.opencarproject.launcher.presentation.widget.ClimateOverlay
 import org.opencarproject.launcher.presentation.widget.FloatingIsland
 
 /**
  * Starts what must work without the home screen being open: the reverse overlay and the floating
- * music island and the climate bar follow the settings from process start (boot, reinstall, or the system rebinding the notification
+ * music island and the climate bar follow the settings (as does the daily update check) the settings from process start (boot, reinstall, or the system rebinding the notification
  * listener), so reverse gear shows it even while another app is in front.
  */
 class LauncherApp : Application() {
@@ -20,6 +21,7 @@ class LauncherApp : Application() {
             ReverseOverlay.apply(this@LauncherApp, it)
             FloatingIsland.apply(this@LauncherApp, it)
             ClimateOverlay.apply(this@LauncherApp, it)
+            UpdateNotifier.apply(this@LauncherApp, it)
         } }
     }
 }

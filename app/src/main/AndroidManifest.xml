@@ -29,6 +29,9 @@
     <!-- Reverse camera overlay: the rear camera in a floating window over any app. -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- In-app updates from the GitHub releases, and the notice that one is out. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <!-- Package visibility (API 30+): allows listing launchable apps for the panel. -->
@@ -121,6 +124,14 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/sample_media_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".presentation.update.UpdateReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="org.opencarproject.launcher.UPDATE_STATUS" />
+            </intent-filter>
         </receiver>
 
     </application>
