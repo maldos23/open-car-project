@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Embedded map: opening the app drawer and coming back no longer restarts the map app.
+- Embedded map: after using the navigation app full screen (or after the head unit closes it in
+  the background), the card puts it back within a couple of seconds, with its current state,
+  instead of freezing on an old frame.
+
 ## [0.13.0] - 2026-10-27
 
 ### Added
