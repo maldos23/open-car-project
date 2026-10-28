@@ -28,6 +28,8 @@ Architecture, manual DI in `di/AppContainer`. Root package `org.opencarproject.l
 - **Conventional Commits** for every commit and PR title: `type(scope): description`, English,
   imperative. Check with `scripts/check-commit-msg.sh --text "..."`.
 - Never commit secrets, keystores, APKs or `local.properties`; keep `.gitignore` intact.
+- Never write IP addresses, session IDs/links (no `Claude-Session:` trailer) or device serials in
+  commits, PR bodies, docs or code — the repo is public. `check-commit-msg.sh` rejects them.
 - Update `CHANGELOG.md` (`Unreleased`) for user-visible changes.
 - Don't push, tag, open PRs or change GitHub settings unless the user asked for it.
 

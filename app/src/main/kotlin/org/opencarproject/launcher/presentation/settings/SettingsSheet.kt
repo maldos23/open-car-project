@@ -1,5 +1,12 @@
 package org.opencarproject.launcher.presentation.settings
 
+import androidx.compose.material3.Button
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import org.opencarproject.launcher.core.pure.AppVersion
+import org.opencarproject.launcher.data.source.AppRelease
+import org.opencarproject.launcher.data.source.UpdateSource
+import org.opencarproject.launcher.presentation.update.UpdateNotifier
 import org.opencarproject.launcher.R
 import android.Manifest
 import android.content.Intent
@@ -541,6 +548,8 @@ fun SettingsSheet(
                 }
             }
 
+            UpdateSettings(settings, onChange)
+
             // Attribution required by the CC BY 4.0 license of the weather data.
             Text(
                 text = stringResource(R.string.settings_weather_attribution),
@@ -774,6 +783,72 @@ private fun FloatingIslandSettings(settings: LauncherSettings, onChange: ((Launc
             },
             modifier = Modifier.height(48.dp),
         ) { Text(stringResource(R.string.settings_reverse_permission)) }
+    }
+}
+
+/** Installed version, check and install from the latest GitHub release, and the daily notice. */
+@Composable
+private fun UpdateSettings(settings: LauncherSettings, onChange: ((LauncherSettings) -> LauncherSettings) -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val installed = remember { UpdateSource.currentVersion(context) }
+    var release by remember { mutableStateOf<AppRelease?>(null) }
+    /** Message under the buttons (string resource), null before the first check. */
+    var status by remember { mutableStateOf<Int?>(null) }
+    var busy by remember { mutableStateOf(false) }
+    var canNotify by remember { mutableStateOf(UpdateNotifier.canNotify(context)) }
+    val notifyPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { canNotify = it }
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Text(stringResource(R.string.settings_updates), style = MaterialTheme.typography.titleMedium)
+        Column {
+            Text(stringResource(R.string.settings_updates_version, installed), style = MaterialTheme.typography.bodyLarge)
+            Text(stringResource(R.string.settings_updates_keep), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            FilledTonalButton(
+                enabled = !busy,
+                onClick = {
+                    busy = true
+                    status = R.string.settings_updates_checking
+                    scope.launch {
+                        val latest = UpdateSource.latest()
+                        release = latest?.takeIf { AppVersion.isNewer(it.version, installed) }
+                        status = when {
+                            latest == null -> R.string.settings_updates_error
+                            release != null -> R.string.settings_updates_available
+                            else -> R.string.settings_updates_latest
+                        }
+                        busy = false
+                    }
+                },
+                modifier = Modifier.height(48.dp),
+            ) { Text(stringResource(R.string.settings_updates_check)) }
+            release?.let { r ->
+                Button(
+                    enabled = !busy,
+                    onClick = {
+                        busy = true
+                        status = R.string.settings_updates_downloading
+                        scope.launch {
+                            // Success shows Android's install screen; the app restarts once it's done.
+                            if (!UpdateSource.install(context, r)) status = R.string.settings_updates_error
+                            busy = false
+                        }
+                    },
+                    modifier = Modifier.height(48.dp),
+                ) { Text(stringResource(R.string.settings_updates_install)) }
+            }
+        }
+        status?.let { Text(stringResource(it, release?.version.orEmpty()), style = MaterialTheme.typography.bodyMedium) }
+        SwitchRow(stringResource(R.string.settings_updates_notify), stringResource(R.string.settings_updates_notify_desc), settings.updateNotify) { v ->
+            onChange { it.copy(updateNotify = v) }
+        }
+        AnimatedVisibility(settings.updateNotify && !canNotify && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            FilledTonalButton(
+                onClick = { notifyPermission.launch(Manifest.permission.POST_NOTIFICATIONS) },
+                modifier = Modifier.height(48.dp),
+            ) { Text(stringResource(R.string.settings_updates_allow_notifications)) }
+        }
     }
 }
 
