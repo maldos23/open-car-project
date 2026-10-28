@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -45,7 +46,12 @@ object DoorSource {
             override fun onServiceConnected(name: ComponentName, service: IBinder) {
                 s.launch {
                     val b = QfVehicleBridge.load(appContext, vendor, service) ?: return@launch
-                    val cb = b.newCallback { frame -> RadarProtocol.parseDoors(frame)?.let { _doors.value = it } }
+                    val cb = b.newCallback { frame ->
+                        val state = RadarProtocol.parseDoors(frame) ?: return@newCallback
+                        // Raw bits per change, to map a car whose CAN box reports a part elsewhere.
+                        if (state != _doors.value) Log.i(TAG, "frame " + frame.joinToString(" ") { "%02x".format(it) } + " -> $state")
+                        _doors.value = state
+                    }
                     if (scope !== s) return@launch // stopped while loading
                     bridge = b; callback = cb
                     b.addDoorCallback(cb)
@@ -87,6 +93,8 @@ object DoorSource {
                 .putExtra(vendor.popupEnableExtra, show),
         )
     }
+
+    private const val TAG = "DoorSource"
 
     /** Debug builds only: door frames injected without a car. */
     internal fun debugDoors(state: DoorState?) { _doors.value = state }
