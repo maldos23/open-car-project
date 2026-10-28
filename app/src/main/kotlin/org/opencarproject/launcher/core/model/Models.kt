@@ -122,6 +122,16 @@ data class LauncherSettings(
     val reverseCameraId: String = "1",
     /** Closes the system's own full-screen reverse view so the floating one is visible. */
     val hideSystemReverseView: Boolean = false,
+    /** GPU cleanup of the analog reverse video (deinterlace, denoise, sharpen). */
+    val reverseCleanImage: Boolean = false,
+    /** Strength of the cleanup's noise reduction, 0..1. */
+    val reverseDenoise: Float = 0.8f,
+    /** Strength of the cleanup's sharpening, 0..1. */
+    val reverseSharpness: Float = 0.2f,
+    /** Brightness of the cleaned image, 0..1 (0.5 = unchanged). */
+    val reverseBrightness: Float = 0.5f,
+    /** Contrast of the cleaned image, 0..1 (0.5 = unchanged). */
+    val reverseContrast: Float = 0.5f,
     /** Package the "Maps (embedded)" module runs; empty = the default navigation app. */
     val embeddedMapApp: String = "",
 )

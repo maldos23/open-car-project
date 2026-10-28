@@ -36,6 +36,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -89,6 +90,7 @@ import org.opencarproject.launcher.core.model.AppLanguage
 import org.opencarproject.launcher.core.model.LauncherSettings
 import org.opencarproject.launcher.core.model.RadarSensor
 import org.opencarproject.launcher.core.model.RadarState
+import org.opencarproject.launcher.core.pure.ReverseImageTuning
 import org.opencarproject.launcher.core.model.closest
 import org.opencarproject.launcher.core.pure.RadarProtocol
 import org.opencarproject.launcher.core.ui.theme.LauncherTheme
@@ -107,6 +109,8 @@ object ReverseOverlay {
     private var view: ComposeView? = null
     private var owner: OverlayOwner? = null
     private val preview = MutableStateFlow(false)
+    /** Cleanup strengths, pushed live to an open preview. */
+    internal val imageTuning = MutableStateFlow(ReverseImageTuning.of(0.8f, 0.2f))
     /** Closed by the user during this reverse; reopens on the next one. */
     private val dismissed = MutableStateFlow(false)
 
@@ -114,6 +118,7 @@ object ReverseOverlay {
     fun apply(context: Context, next: LauncherSettings) {
         val app = context.applicationContext
         settings = next
+        imageTuning.value = ReverseImageTuning.of(next.reverseDenoise, next.reverseSharpness, next.reverseBrightness, next.reverseContrast)
         ReverseSource.hideVendorView = next.reverseOverlay && next.hideSystemReverseView
         if (!next.reverseOverlay) {
             scope?.cancel(); scope = null
@@ -164,6 +169,7 @@ object ReverseOverlay {
                     val radar by ReverseSource.radar.collectAsStateWithLifecycle()
                     ReversePanel(
                         cameraId = current.reverseCameraId,
+                        cleanImage = current.reverseCleanImage,
                         radar = radar,
                         onDrag = { dx, dy ->
                             params.x += dx.roundToInt(); params.y += dy.roundToInt()
@@ -214,6 +220,7 @@ private fun panelWidthDp(screenWidthDp: Int) =
 @Composable
 private fun ReversePanel(
     cameraId: String,
+    cleanImage: Boolean,
     radar: RadarState?,
     onDrag: (Float, Float) -> Unit,
     onClose: () -> Unit,
@@ -232,7 +239,7 @@ private fun ReversePanel(
         Row(Modifier.padding(INNER_PADDING.dp), horizontalArrangement = Arrangement.spacedBy(INNER_PADDING.dp)) {
             // CVBS frames are 720x480 with non-square pixels: a 4:3 box restores the real proportions.
             Box(Modifier.width(cameraWidth).aspectRatio(4f / 3f).clip(RoundedCornerShape(14.dp))) {
-                CameraPreview(cameraId)
+                CameraPreview(cameraId, cleanImage)
                 FilledTonalIconButton(onClick = onClose, modifier = Modifier.align(Alignment.TopEnd).padding(6.dp).size(48.dp)) {
                     Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.reverse_close))
                 }
@@ -244,14 +251,20 @@ private fun ReversePanel(
 
 /**
  * Camera preview that survives the vendor app holding the camera: on any failure it waits for
- * the system to report the camera available again (the vendor closed it) and reopens.
+ * the system to report the camera available again (the vendor closed it) and reopens. With
+ * [cleanImage], frames go through [ReverseFilterRenderer] (GPU denoise + sharpen) on their way
+ * to the screen; if GL fails it falls back to the direct preview.
  */
 @Composable
-private fun CameraPreview(cameraId: String) {
+private fun CameraPreview(cameraId: String, cleanImage: Boolean) {
     val context = LocalContext.current
     var failed by remember(cameraId) { mutableStateOf(false) }
     val camera = remember { mutableStateOf<ReverseCamera?>(null) }
+    // Where the camera renders: the TextureView itself, or the filter's input.
     val texture = remember { mutableStateOf<SurfaceTexture?>(null) }
+    val filter = remember { mutableStateOf<ReverseFilterRenderer?>(null) }
+    val tuning by ReverseOverlay.imageTuning.collectAsStateWithLifecycle()
+    LaunchedEffect(tuning, filter.value) { filter.value?.setTuning(tuning) }
 
     fun open() {
         val target = texture.value ?: return
@@ -271,6 +284,7 @@ private fun CameraPreview(cameraId: String) {
         onDispose {
             manager.unregisterAvailabilityCallback(availability)
             camera.value?.close(); camera.value = null
+            filter.value?.release(); filter.value = null
         }
     }
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -284,13 +298,28 @@ private fun CameraPreview(cameraId: String) {
                     scaleY = if (flipY) -1f else 1f
                     surfaceTextureListener = object : TextureView.SurfaceTextureListener {
                         override fun onSurfaceTextureAvailable(t: SurfaceTexture, w: Int, h: Int) {
-                            texture.value = t
-                            open()
+                            if (!cleanImage) {
+                                texture.value = t
+                                return open()
+                            }
+                            val size = ReverseCamera.previewSize(context.getSystemService(CameraManager::class.java), cameraId)
+                            filter.value = ReverseFilterRenderer(
+                                output = t,
+                                outputWidth = w,
+                                outputHeight = h,
+                                inputSize = size,
+                                onInputReady = { input -> texture.value = input; open() },
+                                onFailed = { filter.value = null; texture.value = t; open() },
+                            )
                         }
-                        override fun onSurfaceTextureSizeChanged(t: SurfaceTexture, w: Int, h: Int) = Unit
+                        override fun onSurfaceTextureSizeChanged(t: SurfaceTexture, w: Int, h: Int) {
+                            filter.value?.resize(w, h)
+                        }
                         override fun onSurfaceTextureDestroyed(t: SurfaceTexture): Boolean {
                             texture.value = null
+                            // Camera first: its session renders into the filter's input.
                             camera.value?.close(); camera.value = null
+                            filter.value?.release(); filter.value = null
                             return true
                         }
                         override fun onSurfaceTextureUpdated(t: SurfaceTexture) = Unit

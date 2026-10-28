@@ -751,6 +751,40 @@ private fun ReverseCameraSettings(settings: LauncherSettings, onChange: ((Launch
                 stringResource(R.string.settings_reverse_hide_system_desc),
                 settings.hideSystemReverseView,
             ) { v -> onChange { it.copy(hideSystemReverseView = v) } }
+            SwitchRow(
+                stringResource(R.string.settings_reverse_clean_image),
+                stringResource(R.string.settings_reverse_clean_image_desc),
+                settings.reverseCleanImage,
+            ) { v -> onChange { it.copy(reverseCleanImage = v) } }
+            AnimatedVisibility(settings.reverseCleanImage) {
+                // Applied live: drag the floating camera aside to watch the change while adjusting.
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    SliderRow(
+                        title = stringResource(R.string.settings_reverse_denoise),
+                        value = settings.reverseDenoise,
+                        range = 0f..1f,
+                        steps = 9,
+                    ) { v -> onChange { it.copy(reverseDenoise = v) } }
+                    SliderRow(
+                        title = stringResource(R.string.settings_reverse_sharpness),
+                        value = settings.reverseSharpness,
+                        range = 0f..1f,
+                        steps = 9,
+                    ) { v -> onChange { it.copy(reverseSharpness = v) } }
+                    SliderRow(
+                        title = stringResource(R.string.settings_reverse_brightness),
+                        value = settings.reverseBrightness,
+                        range = 0f..1f,
+                        steps = 9,
+                    ) { v -> onChange { it.copy(reverseBrightness = v) } }
+                    SliderRow(
+                        title = stringResource(R.string.settings_reverse_contrast),
+                        value = settings.reverseContrast,
+                        range = 0f..1f,
+                        steps = 9,
+                    ) { v -> onChange { it.copy(reverseContrast = v) } }
+                }
+            }
             val ids = remember { runCatching { context.getSystemService(CameraManager::class.java).cameraIdList.toList() }.getOrDefault(emptyList()) }
             if (ids.size > 1) {
                 Choice(
