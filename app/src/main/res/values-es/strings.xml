@@ -139,6 +139,8 @@
     <string name="app_menu_bottom_sheet">Desde abajo</string>
     <string name="app_menu_swipe_page">Página a la derecha (desliza ←)</string>
     <string name="settings_menu_icon_size">Tamaño de iconos del menú</string>
+    <string name="settings_smooth_animations">Animaciones fluidas</string>
+    <string name="settings_smooth_animations_desc">Anima fondos y efectos a todos los cuadros por segundo. Consume más CPU y GPU.</string>
     <string name="settings_app_labels">Nombres de apps</string>
     <string name="settings_app_labels_desc">Muestra el nombre debajo del icono de las apps del escritorio.</string>
     <string name="settings_module_shape">Forma de los módulos</string>

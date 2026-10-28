@@ -188,7 +188,7 @@ fun LauncherScreen(
     BackHandler(enabled = state.layoutMode == LayoutMode.EDIT) { viewModel.toggleEditMode() }
 
     // Decorative loops tick together on one low-rate clock (see AmbientClock).
-    AmbientClockEffect()
+    AmbientClockEffect(smooth = settings.smoothAnimations)
 
     // Embedded app sessions outlive their card; close them once no such card is left.
     val hasEmbeddedApp = state.items.any { it.kind == CatalogItemKind.EMBEDDED_MAP }
