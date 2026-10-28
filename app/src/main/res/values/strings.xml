@@ -150,6 +150,8 @@
     <string name="app_menu_bottom_sheet">From the bottom</string>
     <string name="app_menu_swipe_page">Page on the right (swipe ←)</string>
     <string name="settings_menu_icon_size">App menu icon size</string>
+    <string name="settings_smooth_animations">Smooth animations</string>
+    <string name="settings_smooth_animations_desc">Animates backgrounds and effects at full frame rate. Uses more CPU and GPU.</string>
     <string name="settings_app_labels">App names</string>
     <string name="settings_app_labels_desc">Shows the name under the desktop app icons.</string>
     <string name="settings_module_shape">Module shape</string>

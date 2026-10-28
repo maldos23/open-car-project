@@ -67,6 +67,7 @@ class SettingsDataSource(private val context: Context) {
     private val dockLeftKey = stringPreferencesKey("dock_left_apps")
     private val dockIconSizeKey = stringPreferencesKey("dock_icon_size")
     private val appLabelsKey = booleanPreferencesKey("show_app_labels")
+    private val smoothAnimationsKey = booleanPreferencesKey("smooth_animations")
     private val dockRightKey = stringPreferencesKey("dock_right_apps")
     private val appLanguageKey = stringPreferencesKey("app_language")
     private val uiScaleKey = floatPreferencesKey("ui_scale")
@@ -121,6 +122,7 @@ class SettingsDataSource(private val context: Context) {
             prefs[dockLeftKey] = next.dockLeftApps.joinToString("\n")
             prefs[dockIconSizeKey] = next.dockIconSize.name
             prefs[appLabelsKey] = next.showAppLabels
+            prefs[smoothAnimationsKey] = next.smoothAnimations
             prefs[dockRightKey] = next.dockRightApps.joinToString("\n")
             prefs[appLanguageKey] = next.appLanguage.name
             prefs[uiScaleKey] = next.uiScale
@@ -169,6 +171,7 @@ class SettingsDataSource(private val context: Context) {
         accentColor = enumOr(this[accentColorKey], AccentColor.BLUE),
         dockIconSize = enumOr(this[dockIconSizeKey], DockIconSize.MEDIUM),
         showAppLabels = this[appLabelsKey] ?: false,
+        smoothAnimations = this[smoothAnimationsKey] ?: false,
         dockLeftApps = this[dockLeftKey].orEmpty().lines().filter { it.isNotBlank() },
         dockRightApps = this[dockRightKey].orEmpty().lines().filter { it.isNotBlank() },
         hiddenElements = this[hiddenElementsKey].orEmpty()

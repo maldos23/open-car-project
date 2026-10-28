@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Settings → "Smooth animations" (off by default): backgrounds, glows, weather and player
+  effects animate at full frame rate again instead of the lighter ~12 fps, at the cost of more
+  CPU and GPU (on a K706 the home screen went from ~83% to ~177% total CPU).
+
 ## [0.14.0] - 2026-10-27
 
 ### Changed

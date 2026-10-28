@@ -12,7 +12,7 @@ import androidx.compose.runtime.withFrameMillis
 import kotlinx.coroutines.delay
 import org.opencarproject.launcher.core.pure.LoopPhase
 
-/** ~12 fps: smooth enough for slow decorative motion. */
+/** ~12 fps: light, and smooth enough for slow decorative motion. */
 private const val AMBIENT_TICK_MS = 80L
 
 private val ambientMillis = mutableLongStateOf(0L)
@@ -20,14 +20,15 @@ private val ambientMillis = mutableLongStateOf(0L)
 /**
  * Drives the shared clock of decorative loops (backgrounds, glows, idle icons). Any animation
  * redraws the whole launcher window, which head-unit GPUs struggle with at 60 fps, so these
- * loops tick together at a low rate instead of every frame. Call once from the home screen.
+ * loops tick together at a low rate instead of every frame, unless [smooth] asks for every frame.
+ * Call once from the home screen.
  */
 @Composable
-fun AmbientClockEffect() {
-    LaunchedEffect(Unit) {
+fun AmbientClockEffect(smooth: Boolean = false) {
+    LaunchedEffect(smooth) {
         while (true) {
             withFrameMillis { ambientMillis.longValue = it }
-            delay(AMBIENT_TICK_MS)
+            if (!smooth) delay(AMBIENT_TICK_MS)
         }
     }
 }
