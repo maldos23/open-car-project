@@ -131,7 +131,8 @@ internal fun DoorAlert(doors: DoorState?) {
     ) {
         val state = shown[0]
         Surface(
-            Modifier.padding(top = 16.dp),
+            // Room for the shadow inside the wrap-content window.
+            Modifier.padding(16.dp),
             shape = RoundedCornerShape(28.dp),
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
             shadowElevation = 12.dp,

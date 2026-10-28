@@ -51,6 +51,13 @@ adb shell am broadcast -n $P/.debug.FakeMediaSessionReceiver -a $P.DEBUG_DOORS -
 adb shell am broadcast -n $P/.debug.FakeMediaSessionReceiver -a $P.DEBUG_DOORS --es open none   # all closed
 ```
 
+Launcher volume indicator (recent Android no longer broadcasts volume changes, so fake one with `level`):
+
+```bash
+adb shell am broadcast -n $P/.debug.FakeMediaSessionReceiver -a $P.DEBUG_VOLUME --ez enable true
+adb shell am broadcast -n $P/.debug.FakeMediaSessionReceiver -a $P.DEBUG_VOLUME --ei level 60
+```
+
 ## Notifications
 
 ```bash

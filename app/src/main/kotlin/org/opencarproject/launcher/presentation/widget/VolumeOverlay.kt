@@ -104,9 +104,11 @@ object VolumeOverlay {
                 change.value = percent.roundToInt() to System.nanoTime()
             }
         }.also {
-            // The stereo's broadcast comes from its firmware app, so that receiver must be exported.
-            if (stereo) ContextCompat.registerReceiver(app, it, IntentFilter(StereoVolume.ACTION_CHANGED), ContextCompat.RECEIVER_EXPORTED)
-            else ContextCompat.registerReceiver(app, it, IntentFilter(ACTION_ANDROID_VOLUME), ContextCompat.RECEIVER_NOT_EXPORTED)
+            // ponytail: recent Android versions no longer send VOLUME_CHANGED_ACTION to apps; QF units
+            // use their firmware broadcast. Observe Settings.System volumes if other units need it.
+            // Exported: both come from other processes (the firmware app, the audio service). A forged
+            // one only shows the pill, since the level is always read back from the source.
+            ContextCompat.registerReceiver(app, it, IntentFilter(if (stereo) StereoVolume.ACTION_CHANGED else ACTION_ANDROID_VOLUME), ContextCompat.RECEIVER_EXPORTED)
         }
         // Retry each time Home comes or goes: the permission may have been granted meanwhile.
         scope = MainScope().apply { launch { FloatingIsland.launcherVisible.collect { show(app) } } }
@@ -140,6 +142,9 @@ object VolumeOverlay {
         lifecycle.resume()
     }
 
+    /** Debug builds only: a volume change without the hardware. */
+    internal fun debugShow(percent: Int) { change.value = percent to System.nanoTime() }
+
     private fun hide(app: Context) {
         view?.let { runCatching { app.getSystemService(WindowManager::class.java).removeView(it) } }
         owner?.destroy()
@@ -164,7 +169,7 @@ object VolumeOverlay {
         ) {
             Surface(
                 // Above the dock, where Home keeps its own controls.
-                Modifier.padding(bottom = 120.dp),
+                Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 120.dp),
                 shape = RoundedCornerShape(32.dp),
                 color = MaterialTheme.colorScheme.surfaceContainerHigh,
                 shadowElevation = 12.dp,

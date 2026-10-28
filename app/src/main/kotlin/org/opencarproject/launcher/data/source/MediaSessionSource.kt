@@ -264,7 +264,7 @@ object MediaSessionSource {
             )
         }
         // An app that was uninstalled can't be resumed.
-        return last?.takeIf { t -> app?.packageManager?.getLaunchIntentForPackage(t.packageName) != null }
+        return last?.takeIf { t -> runCatching { app?.packageManager?.getApplicationInfo(t.packageName, 0) }.getOrNull() != null }
     }
 
     private const val PREFS = "last_track"

@@ -7,6 +7,7 @@ import org.opencarproject.launcher.core.model.ClimateState
 import org.opencarproject.launcher.core.model.ClimateTemp
 import org.opencarproject.launcher.data.source.ClimateSource
 import org.opencarproject.launcher.data.source.DoorSource
+import org.opencarproject.launcher.presentation.widget.VolumeOverlay
 import org.opencarproject.launcher.data.source.SettingsDataSource
 import android.content.BroadcastReceiver
 import androidx.core.graphics.createBitmap
@@ -41,6 +42,8 @@ import org.opencarproject.launcher.data.source.ReverseSource
  * Fake doors (door alert): ... -a org.opencarproject.launcher.DEBUG_DOORS \
  *   --es open "fl,fr,rl,rr,trunk,hood" (any subset; "none" closes all) [--ez enable true]
  *
+ * Launcher volume indicator on/off, or a fake change: ... -a org.opencarproject.launcher.DEBUG_VOLUME [--ez enable true] [--ei level 60]
+ *
  * adb shell am broadcast -n org.opencarproject.launcher/.debug.FakeMediaSessionReceiver \
  *   -a org.opencarproject.launcher.DEBUG_MEDIA --es title "Canción" --es artist "Artista" \
  *   --es album "Álbum" --ei color 0xE53935 --es state play|pause|stop --el duration 210000 --el position 30000
@@ -66,6 +69,16 @@ class FakeMediaSessionReceiver : BroadcastReceiver() {
                     right = zones("right", "-1,-1,-1,-1"),
                 ),
             )
+            return
+        }
+        if (intent.action == "org.opencarproject.launcher.DEBUG_VOLUME") {
+            // The setting is hidden without a CAN app: switch the indicator from here.
+            if (intent.hasExtra("enable")) {
+                val enable = intent.getBooleanExtra("enable", true)
+                val app = context.applicationContext
+                MainScope().launch { SettingsDataSource(app).update { it.copy(launcherVolumeIndicator = enable) } }
+            }
+            if (intent.hasExtra("level")) VolumeOverlay.debugShow(intent.getIntExtra("level", 0))
             return
         }
         if (intent.action == "org.opencarproject.launcher.DEBUG_DOORS") {
