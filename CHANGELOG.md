@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.13.2] - 2026-10-27
+
 ### Fixed
 
 - Assistant "App logo" style: on head units with no default assistant set in the system, the
@@ -13,6 +15,20 @@ All notable changes to this project are documented here. The format follows
   logo of the app that answers the assistant button (usually Google).
 - Media player card: the artwork no longer disappears when the card is resized. Small sizes show
   it beside the text (up to 40% of the width), and the smallest one shows it behind the play button.
+
+### Screenshots
+
+**Assistant with the Google logo.** With "App logo" chosen, the assistant pill at the bottom shows
+the Google "G" even on head units that have no default assistant set in the system.
+
+![Assistant pill with the Google logo](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.13.2/assistant-google-logo.png)
+
+**Artwork at every size.** Resizing the music card no longer drops the cover: in a short card it
+sits beside the title and controls, and in the smallest size it fills the card behind the play button.
+
+![Short music card keeping its artwork while resized](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.13.2/media-cover-compact.png)
+
+![Smallest music card with the artwork behind the play button](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.13.2/media-cover-mini.png)
 
 ## [0.13.1] - 2026-10-27
 
@@ -475,7 +491,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.13.1...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.13.2...develop
+[0.13.2]: https://github.com/maldos23/open-car-project/compare/v0.13.1...v0.13.2
 [0.13.1]: https://github.com/maldos23/open-car-project/compare/v0.13.0...v0.13.1
 [0.13.0]: https://github.com/maldos23/open-car-project/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/maldos23/open-car-project/compare/v0.11.1...v0.12.0
