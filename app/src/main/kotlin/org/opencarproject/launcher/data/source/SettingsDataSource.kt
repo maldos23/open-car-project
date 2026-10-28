@@ -86,6 +86,8 @@ class SettingsDataSource(private val context: Context) {
     private val reverseCameraIdKey = stringPreferencesKey("reverse_camera_id")
     private val hideSystemReverseKey = booleanPreferencesKey("hide_system_reverse_view")
     private val reverseCleanImageKey = booleanPreferencesKey("reverse_clean_image")
+    private val reverseDenoiseKey = floatPreferencesKey("reverse_denoise")
+    private val reverseSharpnessKey = floatPreferencesKey("reverse_sharpness")
 
     val settingsFlow: Flow<LauncherSettings> = context.settingsDataStore.data.recoverIoErrors().map { it.toSettings() }
 
@@ -134,6 +136,8 @@ class SettingsDataSource(private val context: Context) {
             prefs[reverseCameraIdKey] = next.reverseCameraId
             prefs[hideSystemReverseKey] = next.hideSystemReverseView
             prefs[reverseCleanImageKey] = next.reverseCleanImage
+            prefs[reverseDenoiseKey] = next.reverseDenoise
+            prefs[reverseSharpnessKey] = next.reverseSharpness
             prefs[embeddedMapAppKey] = next.embeddedMapApp
         }
     }
@@ -181,6 +185,8 @@ class SettingsDataSource(private val context: Context) {
         reverseCameraId = this[reverseCameraIdKey] ?: "1",
         hideSystemReverseView = this[hideSystemReverseKey] ?: false,
         reverseCleanImage = this[reverseCleanImageKey] ?: false,
+        reverseDenoise = (this[reverseDenoiseKey] ?: 0.6f).coerceIn(0f, 1f),
+        reverseSharpness = (this[reverseSharpnessKey] ?: 0.3f).coerceIn(0f, 1f),
         embeddedMapApp = this[embeddedMapAppKey] ?: "",
     )
 

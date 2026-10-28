@@ -10,8 +10,9 @@ All notable changes to this project are documented here. The format follows
 
 - Settings → Reverse camera → "Clean up the image" (off by default): the analog reverse video is
   processed on the GPU before it's shown: interlacing lines blended, edge-preserving and temporal
-  denoise (removes most of the analog grain), and a light sharpen. Falls back to the plain
-  preview if the GPU can't run it.
+  denoise (removes most of the analog grain, colour speckles included), and a light sharpen.
+  "Noise reduction" and "Sharpness" sliders tune it live while the camera is open. Falls back to
+  the plain preview if the GPU can't run it.
 
 ### Changed
 

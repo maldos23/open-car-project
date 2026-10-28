@@ -155,6 +155,8 @@
     <string name="settings_reverse_hide_system_desc">Cierra la vista de reversa a pantalla completa de la radio para que se vea esta ventana flotante.</string>
     <string name="settings_reverse_clean_image">Limpiar la imagen</string>
     <string name="settings_reverse_clean_image_desc">Quita el ruido analógico y las líneas de entrelazado y da nitidez a la cámara de reversa, con la GPU.</string>
+    <string name="settings_reverse_denoise">Reducción de ruido</string>
+    <string name="settings_reverse_sharpness">Nitidez</string>
     <string name="reverse_camera_option">Cámara %1$s</string>
     <string name="settings_reverse_permission">Permitir mostrar sobre otras apps</string>
     <string name="settings_reverse_test">Probar</string>

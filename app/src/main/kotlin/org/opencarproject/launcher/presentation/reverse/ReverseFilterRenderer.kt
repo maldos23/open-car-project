@@ -13,6 +13,7 @@ import android.os.HandlerThread
 import android.os.Looper
 import android.util.Log
 import android.util.Size
+import org.opencarproject.launcher.core.pure.ReverseImageTuning
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -41,6 +42,12 @@ class ReverseFilterRenderer(
 
     @Volatile private var outWidth = outputWidth
     @Volatile private var outHeight = outputHeight
+    @Volatile private var tuning = ReverseImageTuning.of(denoise = 0.6f, sharpness = 0.3f)
+
+    /** New slider values; applied from the next frame. */
+    fun setTuning(value: ReverseImageTuning) {
+        tuning = value
+    }
 
     private var display: EGLDisplay = EGL14.EGL_NO_DISPLAY
     private var context: EGLContext = EGL14.EGL_NO_CONTEXT
@@ -147,6 +154,11 @@ class ReverseFilterRenderer(
             GLES20.glUniform1i(GLES20.glGetUniformLocation(denoise, "uHistory"), 1)
             GLES20.glUniform1f(GLES20.glGetUniformLocation(denoise, "uHasHistory"), if (hasHistory) 1f else 0f)
             GLES20.glUniform2f(GLES20.glGetUniformLocation(denoise, "uTexel"), 1f / inputSize.width, 1f / inputSize.height)
+            val t = tuning
+            GLES20.glUniform1f(GLES20.glGetUniformLocation(denoise, "uStillWeight"), t.stillWeight)
+            GLES20.glUniform1f(GLES20.glGetUniformLocation(denoise, "uMotionThreshold"), t.motionThreshold)
+            GLES20.glUniform1f(GLES20.glGetUniformLocation(denoise, "uEdgeFalloff"), t.edgeFalloff)
+            GLES20.glUniform1f(GLES20.glGetUniformLocation(denoise, "uChroma"), t.chromaSmoothing)
             GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
 
             // Pass 2: unsharp mask, to the screen.
@@ -159,6 +171,7 @@ class ReverseFilterRenderer(
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, frameTextures[current])
             GLES20.glUniform1i(GLES20.glGetUniformLocation(sharpen, "uFrame"), 0)
             GLES20.glUniform2f(GLES20.glGetUniformLocation(sharpen, "uTexel"), 1f / inputSize.width, 1f / inputSize.height)
+            GLES20.glUniform1f(GLES20.glGetUniformLocation(sharpen, "uAmount"), t.sharpen)
             GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
             EGL14.eglSwapBuffers(display, surface)
 
@@ -246,7 +259,6 @@ class ReverseFilterRenderer(
             }
         """
 
-        // ponytail: fixed strengths tuned for NTSC 720x480; expose them as settings if a car needs it.
         const val DENOISE = """
             #extension GL_OES_EGL_image_external : require
             precision mediump float;
@@ -254,35 +266,53 @@ class ReverseFilterRenderer(
             uniform sampler2D uHistory;
             uniform float uHasHistory;
             uniform vec2 uTexel;
+            uniform float uStillWeight;
+            uniform float uMotionThreshold;
+            uniform float uEdgeFalloff;
+            uniform float uChroma;
             varying vec2 vUv;
             varying vec2 vCamera;
+            const vec3 LUMA = vec3(0.299, 0.587, 0.114);
             vec3 px(float x, float y) { return texture2D(uCamera, vCamera + vec2(x, y) * uTexel).rgb; }
-            vec3 bilateral(vec3 center, vec3 sample, inout float weight) {
-                vec3 d = sample - center;
-                float w = exp(-dot(d, d) * 30.0);
-                weight += w;
-                return sample * w;
+            float lumaWeight(float center, float sample) {
+                float d = sample - center;
+                return exp(-d * d * uEdgeFalloff * 4.0);
             }
             void main() {
-                vec3 up = px(0.0, -1.0);
-                vec3 down = px(0.0, 1.0);
+                vec3 s0 = px(0.0, 0.0);
+                vec3 s1 = px(0.0, -1.0);
+                vec3 s2 = px(0.0, 1.0);
+                vec3 s3 = px(-1.0, 0.0);
+                vec3 s4 = px(1.0, 0.0);
+                vec3 s5 = px(-1.0, -1.0);
+                vec3 s6 = px(1.0, -1.0);
+                vec3 s7 = px(-1.0, 1.0);
+                vec3 s8 = px(1.0, 1.0);
                 // Interlaced lines: blend each line with its neighbours (removes combing).
-                vec3 center = px(0.0, 0.0) * 0.5 + (up + down) * 0.25;
-                float weight = 1.0;
-                vec3 sum = center;
-                sum += bilateral(center, up, weight);
-                sum += bilateral(center, down, weight);
-                sum += bilateral(center, px(-1.0, 0.0), weight);
-                sum += bilateral(center, px(1.0, 0.0), weight);
-                sum += bilateral(center, px(-1.0, -1.0), weight);
-                sum += bilateral(center, px(1.0, -1.0), weight);
-                sum += bilateral(center, px(-1.0, 1.0), weight);
-                sum += bilateral(center, px(1.0, 1.0), weight);
-                vec3 clean = sum / weight;
-                // Temporal: keep more history where the picture is still, follow motion where it changes.
+                vec3 center = s0 * 0.5 + (s1 + s2) * 0.25;
+                vec3 mean = (s0 + s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8) / 9.0;
+                // Luma: edge-preserving (bilateral) average.
+                float y0 = dot(center, LUMA);
+                float w = 1.0;
+                float y = y0;
+                float l; float k;
+                l = dot(s1, LUMA); k = lumaWeight(y0, l); y += l * k; w += k;
+                l = dot(s2, LUMA); k = lumaWeight(y0, l); y += l * k; w += k;
+                l = dot(s3, LUMA); k = lumaWeight(y0, l); y += l * k; w += k;
+                l = dot(s4, LUMA); k = lumaWeight(y0, l); y += l * k; w += k;
+                l = dot(s5, LUMA); k = lumaWeight(y0, l); y += l * k; w += k;
+                l = dot(s6, LUMA); k = lumaWeight(y0, l); y += l * k; w += k;
+                l = dot(s7, LUMA); k = lumaWeight(y0, l); y += l * k; w += k;
+                l = dot(s8, LUMA); k = lumaWeight(y0, l); y += l * k; w += k;
+                y /= w;
+                // Chroma: analog colour speckles have no edges worth keeping, so average them away.
+                vec3 chroma = mix(center - y0, mean - dot(mean, LUMA), uChroma);
+                vec3 clean = clamp(vec3(y) + chroma, 0.0, 1.0);
+                // Temporal: average with history while still; follow the new frame where luma really moved
+                // (measured on the 3x3 mean, so grain alone doesn't count as motion).
                 vec3 history = texture2D(uHistory, vUv).rgb;
-                float change = length(clean - history);
-                float fresh = mix(0.3, 1.0, smoothstep(0.05, 0.18, change));
+                float motion = abs(dot(mean, LUMA) - dot(history, LUMA));
+                float fresh = mix(uStillWeight, 1.0, smoothstep(uMotionThreshold, uMotionThreshold * 2.5, motion));
                 gl_FragColor = vec4(mix(history, clean, uHasHistory > 0.5 ? fresh : 1.0), 1.0);
             }
         """
@@ -291,6 +321,7 @@ class ReverseFilterRenderer(
             precision mediump float;
             uniform sampler2D uFrame;
             uniform vec2 uTexel;
+            uniform float uAmount;
             varying vec2 vUv;
             void main() {
                 vec3 c = texture2D(uFrame, vUv).rgb;
@@ -298,7 +329,7 @@ class ReverseFilterRenderer(
                     + texture2D(uFrame, vUv - vec2(uTexel.x, 0.0)).rgb
                     + texture2D(uFrame, vUv + vec2(0.0, uTexel.y)).rgb
                     + texture2D(uFrame, vUv - vec2(0.0, uTexel.y)).rgb) * 0.25;
-                gl_FragColor = vec4(clamp(c + (c - blur) * 0.6, 0.0, 1.0), 1.0);
+                gl_FragColor = vec4(clamp(c + (c - blur) * uAmount, 0.0, 1.0), 1.0);
             }
         """
     }

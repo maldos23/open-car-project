@@ -155,6 +155,8 @@
     <string name="settings_reverse_hide_system_desc">Fecha a tela cheia de ré do rádio para que esta janela flutuante fique visível.</string>
     <string name="settings_reverse_clean_image">Limpar a imagem</string>
     <string name="settings_reverse_clean_image_desc">Remove o ruído analógico e as linhas de entrelaçamento e dá nitidez à câmera de ré, na GPU.</string>
+    <string name="settings_reverse_denoise">Redução de ruído</string>
+    <string name="settings_reverse_sharpness">Nitidez</string>
     <string name="reverse_camera_option">Câmera %1$s</string>
     <string name="settings_reverse_permission">Permitir sobreposição a outros apps</string>
     <string name="settings_reverse_test">Testar</string>

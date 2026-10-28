@@ -36,6 +36,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -89,6 +90,7 @@ import org.opencarproject.launcher.core.model.AppLanguage
 import org.opencarproject.launcher.core.model.LauncherSettings
 import org.opencarproject.launcher.core.model.RadarSensor
 import org.opencarproject.launcher.core.model.RadarState
+import org.opencarproject.launcher.core.pure.ReverseImageTuning
 import org.opencarproject.launcher.core.model.closest
 import org.opencarproject.launcher.core.pure.RadarProtocol
 import org.opencarproject.launcher.core.ui.theme.LauncherTheme
@@ -107,6 +109,8 @@ object ReverseOverlay {
     private var view: ComposeView? = null
     private var owner: OverlayOwner? = null
     private val preview = MutableStateFlow(false)
+    /** Cleanup strengths, pushed live to an open preview. */
+    internal val imageTuning = MutableStateFlow(ReverseImageTuning.of(0.6f, 0.3f))
     /** Closed by the user during this reverse; reopens on the next one. */
     private val dismissed = MutableStateFlow(false)
 
@@ -114,6 +118,7 @@ object ReverseOverlay {
     fun apply(context: Context, next: LauncherSettings) {
         val app = context.applicationContext
         settings = next
+        imageTuning.value = ReverseImageTuning.of(next.reverseDenoise, next.reverseSharpness)
         ReverseSource.hideVendorView = next.reverseOverlay && next.hideSystemReverseView
         if (!next.reverseOverlay) {
             scope?.cancel(); scope = null
@@ -258,6 +263,8 @@ private fun CameraPreview(cameraId: String, cleanImage: Boolean) {
     // Where the camera renders: the TextureView itself, or the filter's input.
     val texture = remember { mutableStateOf<SurfaceTexture?>(null) }
     val filter = remember { mutableStateOf<ReverseFilterRenderer?>(null) }
+    val tuning by ReverseOverlay.imageTuning.collectAsStateWithLifecycle()
+    LaunchedEffect(tuning, filter.value) { filter.value?.setTuning(tuning) }
 
     fun open() {
         val target = texture.value ?: return

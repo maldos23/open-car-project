@@ -155,6 +155,8 @@
     <string name="settings_reverse_hide_system_desc">关闭车机自带的全屏倒车画面，以便显示此悬浮窗。</string>
     <string name="settings_reverse_clean_image">优化画面</string>
     <string name="settings_reverse_clean_image_desc">使用 GPU 去除模拟噪点和隔行扫描线，并锐化倒车影像。</string>
+    <string name="settings_reverse_denoise">降噪</string>
+    <string name="settings_reverse_sharpness">锐度</string>
     <string name="reverse_camera_option">摄像头 %1$s</string>
     <string name="settings_reverse_permission">允许显示在其他应用上层</string>
     <string name="settings_reverse_test">测试</string>

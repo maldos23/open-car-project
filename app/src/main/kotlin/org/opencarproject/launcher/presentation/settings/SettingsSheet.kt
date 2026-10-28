@@ -756,6 +756,23 @@ private fun ReverseCameraSettings(settings: LauncherSettings, onChange: ((Launch
                 stringResource(R.string.settings_reverse_clean_image_desc),
                 settings.reverseCleanImage,
             ) { v -> onChange { it.copy(reverseCleanImage = v) } }
+            AnimatedVisibility(settings.reverseCleanImage) {
+                // Applied live: drag the floating camera aside to watch the change while adjusting.
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    SliderRow(
+                        title = stringResource(R.string.settings_reverse_denoise),
+                        value = settings.reverseDenoise,
+                        range = 0f..1f,
+                        steps = 9,
+                    ) { v -> onChange { it.copy(reverseDenoise = v) } }
+                    SliderRow(
+                        title = stringResource(R.string.settings_reverse_sharpness),
+                        value = settings.reverseSharpness,
+                        range = 0f..1f,
+                        steps = 9,
+                    ) { v -> onChange { it.copy(reverseSharpness = v) } }
+                }
+            }
             val ids = remember { runCatching { context.getSystemService(CameraManager::class.java).cameraIdList.toList() }.getOrDefault(emptyList()) }
             if (ids.size > 1) {
                 Choice(

@@ -166,6 +166,8 @@
     <string name="settings_reverse_hide_system_desc">Closes the head unit\'s full-screen reverse view so this floating window is visible.</string>
     <string name="settings_reverse_clean_image">Clean up the image</string>
     <string name="settings_reverse_clean_image_desc">Removes analog noise and interlacing lines and sharpens the reverse camera, on the GPU.</string>
+    <string name="settings_reverse_denoise">Noise reduction</string>
+    <string name="settings_reverse_sharpness">Sharpness</string>
     <string name="reverse_camera_option">Camera %1$s</string>
     <string name="settings_reverse_permission">Allow display over other apps</string>
     <string name="settings_reverse_test">Test</string>
