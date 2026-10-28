@@ -6,6 +6,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- The floating music island expands and shrinks much faster, and when shrunk the whole bubble
+  (except the cover, which opens the music app) expands it again, not just the level meter.
+
 ## [0.15.0] - 2026-10-28
 
 ### Added

@@ -8,6 +8,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -208,6 +209,7 @@ object FloatingIsland {
         val t = track ?: return
         val art = remember(t.art, t.packageName) { t.art?.asImageBitmap() ?: context.appIcon(t.packageName, 48f) }
         val shape = RoundedCornerShape(50)
+        val toggle = stringResource(if (small) R.string.floating_island_expand else R.string.floating_island_collapse)
         // Margin inside the window so the shadow isn't cut square at its edge.
         Box(Modifier.padding(16.dp)) {
             Row(
@@ -220,7 +222,11 @@ object FloatingIsland {
                             onDrag(amount.x, amount.y)
                         }
                     }
-                    .animateContentSize(spring(dampingRatio = 0.8f, stiffness = 380f))
+                    // Shrunk, the whole bubble but the cover expands it: an easy target while driving.
+                    .clip(shape)
+                    .clickable(enabled = small, onClickLabel = toggle) { collapsed.value = false }
+                    // Quick: every frame of it also resizes the overlay window, which is slow on head units.
+                    .animateContentSize(spring(dampingRatio = 0.9f, stiffness = Spring.StiffnessMedium))
                     .padding(horizontal = 6.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -242,17 +248,9 @@ object FloatingIsland {
                         )
                     }
                 }
-                // The rest of the pill toggles the size, if allowed in settings.
-                val toggle = stringResource(if (small) R.string.floating_island_expand else R.string.floating_island_collapse)
+                // Expanded, the title shrinks it (if allowed in settings).
                 if (small) {
-                    Box(
-                        Modifier
-                            .padding(end = 4.dp)
-                            .size(48.dp)
-                            .clip(shape)
-                            .clickable(onClickLabel = toggle) { collapsed.value = false },
-                        contentAlignment = Alignment.Center,
-                    ) {
+                    Box(Modifier.padding(end = 4.dp).size(48.dp), contentAlignment = Alignment.Center) {
                         if (t.isPlaying) AudioBars(List(4) { Color.White.copy(alpha = 0.7f) }, Modifier.size(width = 18.dp, height = 14.dp), periodMs = 2000)
                     }
                 } else {
