@@ -323,4 +323,11 @@
     <string name="settings_climate_bar">Climate bar</string>
     <string name="settings_climate_bar_desc">Shows the temperature and fan at the bottom of the home screen for a few seconds when the climate changes</string>
     <string name="climate_waiting">Waiting for the car…</string>
+    <string name="settings_floating_island">Floating music island</string>
+    <string name="settings_floating_island_desc">While music plays and you are in another app (like a map), shows the player in a small floating island. Drag it anywhere; tap the cover to open the app.</string>
+    <string name="settings_floating_island_shrink">Shrinkable island</string>
+    <string name="settings_floating_island_shrink_desc">Tap the title to shrink the island to a small bubble; tap the bubble to expand it again. Off: always expanded.</string>
+    <string name="floating_island_expand">Expand player</string>
+    <string name="floating_island_open">Open the music app</string>
+    <string name="floating_island_collapse">Shrink player</string>
 </resources>

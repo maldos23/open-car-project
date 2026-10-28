@@ -92,6 +92,10 @@ class SettingsDataSource(private val context: Context) {
     private val reverseSharpnessKey = floatPreferencesKey("reverse_sharpness")
     private val reverseBrightnessKey = floatPreferencesKey("reverse_brightness")
     private val reverseContrastKey = floatPreferencesKey("reverse_contrast")
+    private val floatingIslandKey = booleanPreferencesKey("floating_island")
+    private val floatingIslandShrinkKey = booleanPreferencesKey("floating_island_shrink")
+    private val floatingIslandXKey = floatPreferencesKey("floating_island_x")
+    private val floatingIslandYKey = floatPreferencesKey("floating_island_y")
 
     val settingsFlow: Flow<LauncherSettings> = context.settingsDataStore.data.recoverIoErrors().map { it.toSettings() }
 
@@ -145,6 +149,10 @@ class SettingsDataSource(private val context: Context) {
             prefs[reverseSharpnessKey] = next.reverseSharpness
             prefs[reverseBrightnessKey] = next.reverseBrightness
             prefs[reverseContrastKey] = next.reverseContrast
+            prefs[floatingIslandKey] = next.floatingIsland
+            prefs[floatingIslandShrinkKey] = next.floatingIslandShrink
+            prefs[floatingIslandXKey] = next.floatingIslandX
+            prefs[floatingIslandYKey] = next.floatingIslandY
             prefs[embeddedMapAppKey] = next.embeddedMapApp
             prefs[embeddedMapScaleKey] = next.embeddedMapScale
         }
@@ -198,6 +206,10 @@ class SettingsDataSource(private val context: Context) {
         reverseSharpness = (this[reverseSharpnessKey] ?: 0.2f).coerceIn(0f, 1f),
         reverseBrightness = (this[reverseBrightnessKey] ?: 0.5f).coerceIn(0f, 1f),
         reverseContrast = (this[reverseContrastKey] ?: 0.5f).coerceIn(0f, 1f),
+        floatingIsland = this[floatingIslandKey] ?: false,
+        floatingIslandShrink = this[floatingIslandShrinkKey] ?: false,
+        floatingIslandX = (this[floatingIslandXKey] ?: 0.5f).coerceIn(0f, 1f),
+        floatingIslandY = (this[floatingIslandYKey] ?: 0f).coerceIn(0f, 1f),
         embeddedMapApp = this[embeddedMapAppKey] ?: "",
         embeddedMapScale = (this[embeddedMapScaleKey] ?: 100).coerceIn(50, 100),
     )

@@ -300,4 +300,11 @@
     <string name="settings_climate_bar">Barre de clim</string>
     <string name="settings_climate_bar_desc">Affiche la température et la ventilation en bas de l\'écran d\'accueil quelques secondes quand la clim change</string>
     <string name="climate_waiting">En attente de la voiture…</string>
+    <string name="settings_floating_island">Île musicale flottante</string>
+    <string name="settings_floating_island_desc">Pendant la lecture de musique, lorsque vous êtes dans une autre app (comme une carte), affiche le lecteur dans une petite île flottante. Faites-la glisser où vous voulez ; touchez la pochette pour ouvrir l\'app.</string>
+    <string name="settings_floating_island_shrink">Île réductible</string>
+    <string name="settings_floating_island_shrink_desc">Touchez le titre pour réduire l\'île en une petite bulle ; touchez la bulle pour l\'agrandir à nouveau. Désactivé : toujours agrandie.</string>
+    <string name="floating_island_expand">Agrandir le lecteur</string>
+    <string name="floating_island_open">Ouvrir l\'app de musique</string>
+    <string name="floating_island_collapse">Réduire le lecteur</string>
 </resources>
