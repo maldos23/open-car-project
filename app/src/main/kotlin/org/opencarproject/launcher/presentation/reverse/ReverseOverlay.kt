@@ -3,7 +3,6 @@ package org.opencarproject.launcher.presentation.reverse
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraManager
@@ -70,14 +69,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.setViewTreeLifecycleOwner
-import androidx.savedstate.SavedStateRegistry
-import androidx.savedstate.SavedStateRegistryController
-import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
@@ -86,7 +79,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import org.opencarproject.launcher.R
-import org.opencarproject.launcher.core.model.AppLanguage
 import org.opencarproject.launcher.core.model.LauncherSettings
 import org.opencarproject.launcher.core.model.RadarSensor
 import org.opencarproject.launcher.core.model.RadarState
@@ -95,7 +87,8 @@ import org.opencarproject.launcher.core.model.closest
 import org.opencarproject.launcher.core.pure.RadarProtocol
 import org.opencarproject.launcher.core.ui.theme.LauncherTheme
 import org.opencarproject.launcher.data.source.ReverseSource
-import java.util.Locale
+import org.opencarproject.launcher.presentation.common.OverlayOwner
+import org.opencarproject.launcher.presentation.common.localized
 import kotlin.math.roundToInt
 
 /**
@@ -150,7 +143,7 @@ object ReverseOverlay {
         val wm = app.getSystemService(WindowManager::class.java)
         // Explicit width: a WRAP_CONTENT window starts at the platform's preferred dialog width and
         // Compose never asks it to grow, which squeezed the radar panel.
-        val context = localized(app)
+        val context = app.localized(settings.appLanguage)
         val config = context.resources.configuration
         val params = WindowManager.LayoutParams(
             (panelWidthDp(config.screenWidthDp) * context.resources.displayMetrics.density).roundToInt(),
@@ -189,23 +182,6 @@ object ReverseOverlay {
         view?.let { runCatching { app.getSystemService(WindowManager::class.java).removeView(it) } }
         owner?.destroy()
         view = null; owner = null
-    }
-
-    /** The overlay lives outside the Activity, so it applies the in-app language itself. */
-    private fun localized(app: Context): Context {
-        if (settings.appLanguage == AppLanguage.SYSTEM) return app
-        val config = Configuration(app.resources.configuration).apply { setLocale(Locale.forLanguageTag(settings.appLanguage.tag)) }
-        return app.createConfigurationContext(config)
-    }
-
-    /** Minimal lifecycle so Compose can run in a window that no Activity owns. */
-    private class OverlayOwner : SavedStateRegistryOwner {
-        private val registry = LifecycleRegistry(this)
-        private val controller = SavedStateRegistryController.create(this).apply { performRestore(null) }
-        override val lifecycle: Lifecycle get() = registry
-        override val savedStateRegistry: SavedStateRegistry get() = controller.savedStateRegistry
-        fun resume() { registry.currentState = Lifecycle.State.RESUMED }
-        fun destroy() { registry.currentState = Lifecycle.State.DESTROYED }
     }
 }
 

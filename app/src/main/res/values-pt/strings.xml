@@ -300,4 +300,11 @@
     <string name="settings_climate_bar">Barra de clima</string>
     <string name="settings_climate_bar_desc">Mostra a temperatura e a ventilação na parte de baixo da tela inicial por alguns segundos quando o clima muda</string>
     <string name="climate_waiting">Aguardando o carro…</string>
+    <string name="settings_floating_island">Ilha de música flutuante</string>
+    <string name="settings_floating_island_desc">Enquanto toca música e você está em outro app (como um mapa), mostra o player em uma pequena ilha flutuante. Arraste para onde quiser; toque na capa para abrir o app.</string>
+    <string name="settings_floating_island_shrink">Ilha redutível</string>
+    <string name="settings_floating_island_shrink_desc">Toque no título para reduzir a ilha a uma pequena bolha; toque na bolha para expandi-la de novo. Desativado: sempre expandida.</string>
+    <string name="floating_island_expand">Expandir player</string>
+    <string name="floating_island_open">Abrir o app de música</string>
+    <string name="floating_island_collapse">Reduzir player</string>
 </resources>

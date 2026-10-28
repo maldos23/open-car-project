@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Settings → "Floating music island" (off by default): while music plays and you're in another
+  app, such as a map, the player floats over it as a small black island with the cover, title
+  and controls. Drag it anywhere and it stays there, also after a restart. Only the cover opens
+  the music app; with "Shrinkable island" (off by default) a tap on the title shrinks it to a
+  bubble. It covers nothing but itself, hides when you go back Home and 15 s after the music
+  pauses. Needs "display over other apps".
+
 ## [0.14.1] - 2026-10-27
 
 ### Added

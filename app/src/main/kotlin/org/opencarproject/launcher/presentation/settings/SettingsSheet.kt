@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import org.opencarproject.launcher.presentation.reverse.ReverseOverlay
+import org.opencarproject.launcher.presentation.widget.FloatingIsland
 import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.AnimatedVisibility
 import android.os.Build
@@ -312,6 +313,8 @@ fun SettingsSheet(
                     }
                 }
             }
+
+            FloatingIslandSettings(settings, onChange)
 
             ReverseCameraSettings(settings, onChange)
 
@@ -734,6 +737,41 @@ private fun SwitchRow(
             }
         }
         Switch(checked = checked, onCheckedChange = null)
+    }
+}
+
+/** Floating music island over other apps: switch and, if missing, the overlay permission. */
+@Composable
+private fun FloatingIslandSettings(settings: LauncherSettings, onChange: ((LauncherSettings) -> LauncherSettings) -> Unit) {
+    val context = LocalContext.current
+    var canDraw by remember { mutableStateOf(FloatingIsland.canDraw(context)) }
+    // Back from the system "display over other apps" screen.
+    LifecycleResumeEffect(Unit) {
+        canDraw = FloatingIsland.canDraw(context)
+        onPauseOrDispose { }
+    }
+    SwitchRow(stringResource(R.string.settings_floating_island), stringResource(R.string.settings_floating_island_desc), settings.floatingIsland) { v ->
+        onChange { it.copy(floatingIsland = v) }
+    }
+    AnimatedVisibility(settings.floatingIsland) {
+        SwitchRow(
+            stringResource(R.string.settings_floating_island_shrink),
+            stringResource(R.string.settings_floating_island_shrink_desc),
+            settings.floatingIslandShrink,
+        ) { v -> onChange { it.copy(floatingIslandShrink = v) } }
+    }
+    AnimatedVisibility(settings.floatingIsland && !canDraw) {
+        FilledTonalButton(
+            onClick = {
+                runCatching {
+                    context.startActivity(
+                        Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}"))
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                    )
+                }
+            },
+            modifier = Modifier.height(48.dp),
+        ) { Text(stringResource(R.string.settings_reverse_permission)) }
     }
 }
 
