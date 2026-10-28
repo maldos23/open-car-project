@@ -44,6 +44,10 @@
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="geo" />
         </intent>
+        <!-- Assistant pill: the app answering the assist action provides the "App logo". -->
+        <intent>
+            <action android:name="android.intent.action.ASSIST" />
+        </intent>
         <!-- Climate module: the head unit's CAN service (see assets/climate/qf.json). -->
         <intent>
             <action android:name="com.qf.vehicle.service.ACTION_CAN_SERVICE" />

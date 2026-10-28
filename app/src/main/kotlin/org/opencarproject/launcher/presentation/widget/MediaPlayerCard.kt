@@ -49,6 +49,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MusicNote
@@ -190,21 +191,28 @@ private fun PlayerLayouts(current: NowPlaying, onBg: Color) {
         val w = maxWidth
         val h = maxHeight
         val mini = h < 90.dp || (w < 180.dp && h < 200.dp)
-        // Mini (play only), compact (text + controls), tall (artwork on top), wide (artwork on the left).
+        // Mini (play over the artwork), compact (text + controls), tall (artwork on top), wide
+        // (artwork on the left). Every size keeps the artwork; beside the text it takes at most
+        // 40% of the width.
+        val sideCover = Modifier.widthIn(max = w * 0.4f).aspectRatio(1f)
         when {
             showQueue && hasQueue && h >= 170.dp -> QueueList(current, controls, onClose = { showQueue = false })
             mini -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Cover(current, Modifier.fillMaxSize())
                 PlayPause(current.isPlaying, controls, big = h >= 72.dp, onBg)
             }
-            h < 170.dp -> Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    TrackText(current, center = false, titleStyle = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                    Equalizer(current.isPlaying, Modifier.size(24.dp, 20.dp))
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Controls(current.isPlaying, controls, compact = true, onBg)
-                    // End padding leaves room for the app logo in the corner.
-                    Progress(current, Modifier.weight(1f).padding(start = 8.dp, end = 36.dp), showTimes = w > 360.dp)
+            h < 170.dp -> Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+                Cover(current, sideCover)
+                Column(Modifier.weight(1f).fillMaxHeight().padding(start = 12.dp), verticalArrangement = Arrangement.SpaceBetween) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        TrackText(current, center = false, titleStyle = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                        Equalizer(current.isPlaying, Modifier.size(24.dp, 20.dp))
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Controls(current.isPlaying, controls, compact = true, onBg)
+                        // End padding leaves room for the app logo in the corner.
+                        Progress(current, Modifier.weight(1f).padding(start = 8.dp, end = 36.dp), showTimes = w > 360.dp)
+                    }
                 }
             }
             h > w * 1.1f -> Column(
@@ -221,9 +229,9 @@ private fun PlayerLayouts(current: NowPlaying, onBg: Color) {
                 }
             }
             else -> Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
-                if (w >= h + 220.dp) Cover(current, Modifier.fillMaxHeight().aspectRatio(1f))
+                Cover(current, sideCover)
                 Column(
-                    Modifier.weight(1f).padding(start = if (w >= h + 220.dp) 16.dp else 0.dp),
+                    Modifier.weight(1f).padding(start = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -232,7 +240,8 @@ private fun PlayerLayouts(current: NowPlaying, onBg: Color) {
                     }
                     Progress(current, Modifier.fillMaxWidth(), showTimes = true)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Controls(current.isPlaying, controls, compact = false, onBg)
+                        // The artwork takes up to 40%: big buttons only when the rest still fits them.
+                        Controls(current.isPlaying, controls, compact = w < 480.dp, onBg)
                         if (hasQueue) QueueButton { showQueue = true }
                     }
                 }
