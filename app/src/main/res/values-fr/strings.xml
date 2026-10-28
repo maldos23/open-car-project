@@ -309,4 +309,21 @@
     <string name="floating_island_expand">Agrandir le lecteur</string>
     <string name="floating_island_open">Ouvrir l\'app de musique</string>
     <string name="floating_island_collapse">Réduire le lecteur</string>
+    <string name="settings_updates">Mises à jour</string>
+    <string name="settings_updates_version">Version installée %1$s</string>
+    <string name="settings_updates_keep">La mise à jour conserve vos réglages et votre écran d\'accueil.</string>
+    <string name="settings_updates_check">Rechercher des mises à jour</string>
+    <string name="settings_updates_checking">Recherche…</string>
+    <string name="settings_updates_latest">Vous avez la dernière version</string>
+    <string name="settings_updates_available">La version %1$s est disponible</string>
+    <string name="settings_updates_install">Télécharger et installer</string>
+    <string name="settings_updates_downloading">Téléchargement de la mise à jour…</string>
+    <string name="settings_updates_error">Impossible de joindre GitHub. Vérifiez la connexion et réessayez.</string>
+    <string name="settings_updates_install_error">La mise à jour n\'a pas pu être installée : %1$s</string>
+    <string name="settings_updates_notify">Me prévenir des mises à jour</string>
+    <string name="settings_updates_notify_desc">Vérifie GitHub une fois par jour et affiche une notification quand une nouvelle version sort</string>
+    <string name="settings_updates_allow_notifications">Autoriser les notifications</string>
+    <string name="update_channel">Mises à jour de l\'appli</string>
+    <string name="update_notification_title">Mise à jour disponible</string>
+    <string name="update_notification_text">Open Car Project %1$s est prête. Touchez pour l\'installer.</string>
 </resources>

@@ -1,5 +1,6 @@
 package org.opencarproject.launcher.presentation
 
+import org.opencarproject.launcher.presentation.update.UpdateNotifier
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
@@ -100,6 +101,7 @@ class LauncherActivity : ComponentActivity() {
         // Consumed once so a later relaunch of this same intent doesn't reopen settings.
         val openSettings = intent.getBooleanExtra(EXTRA_OPEN_SETTINGS, false)
         intent.removeExtra(EXTRA_OPEN_SETTINGS)
+        if (savedInstanceState == null && intent.action == UpdateNotifier.ACTION_UPDATE) UpdateNotifier.installLatest(this)
         setContent {
             val ready by viewModel.ready.collectAsStateWithLifecycle()
             if (!ready) return@setContent
@@ -171,6 +173,12 @@ class LauncherActivity : ComponentActivity() {
         startActivity(Intent(this, LauncherActivity::class.java).putExtra(EXTRA_OPEN_SETTINGS, true))
         @Suppress("DEPRECATION")
         overridePendingTransition(0, 0)
+    }
+
+    // Home is singleTask: the update notification arrives here while it is running.
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.action == UpdateNotifier.ACTION_UPDATE) UpdateNotifier.installLatest(this)
     }
 
     override fun onStart() {

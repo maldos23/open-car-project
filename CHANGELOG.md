@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Settings → "Updates": shows the installed version, checks the latest GitHub release and, if it
+  is newer, downloads and installs it in place (Android asks to confirm, and the first time to
+  allow installing from Open Car Project). Updating keeps your settings and layout.
+- "Notify me about updates" (on by default): checks GitHub once a day and posts a notification,
+  also shown in the island, when a new version is out; tapping it starts the update.
+
 ## [0.16.0] - 2026-10-28
 
 ### Added
