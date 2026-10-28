@@ -14,11 +14,17 @@ import android.media.MediaMetadata
 import android.media.session.MediaSession
 import android.media.session.PlaybackState
 import android.os.SystemClock
+import org.opencarproject.launcher.core.model.RadarSensor
+import org.opencarproject.launcher.core.model.RadarState
+import org.opencarproject.launcher.data.source.ReverseSource
 
 /**
  * Debug only. Publishes a fake MediaSession to test the player and the island:
  *
  * Test wallpaper: ... -a org.opencarproject.launcher.DEBUG_WALLPAPER
+ *
+ * Fake parking radar (reverse overlay): ... -a org.opencarproject.launcher.DEBUG_RADAR \
+ *   --es rear "-1,0,1,5,0,-1" [--es front ...] [--es left "0,0,3,0"] [--ez clear true]
  *
  * adb shell am broadcast -n org.opencarproject.launcher/.debug.FakeMediaSessionReceiver \
  *   -a org.opencarproject.launcher.DEBUG_MEDIA --es title "Canción" --es artist "Artista" \
@@ -30,6 +36,23 @@ import android.os.SystemClock
 class FakeMediaSessionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == "org.opencarproject.launcher.DEBUG_RADAR") {
+            // Zones per sensor, left to right (-1 none, 0 clear, 1 closest .. 10 farthest);
+            // `--ez clear true` removes the radar ("No sensors").
+            // Bumpers default to this car's layout (corners absent, inner sensors clear); sides to none.
+            fun zones(key: String, default: String) =
+                (intent.getStringExtra(key) ?: default).split(",").map { RadarSensor(it.trim().toIntOrNull() ?: -1) }
+            ReverseSource.debugRadar(
+                if (intent.getBooleanExtra("clear", false)) null
+                else RadarState(
+                    front = zones("front", "-1,0,0,0,0,-1"),
+                    rear = zones("rear", "-1,0,0,0,0,-1"),
+                    left = zones("left", "-1,-1,-1,-1"),
+                    right = zones("right", "-1,-1,-1,-1"),
+                ),
+            )
+            return
+        }
         if (intent.action == "org.opencarproject.launcher.DEBUG_WALLPAPER") {
             // Test wallpaper: diagonal gradient of vivid colors.
             val bmp = createBitmap(1280, 800)

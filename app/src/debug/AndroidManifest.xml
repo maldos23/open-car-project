@@ -10,6 +10,7 @@
             <intent-filter>
                 <action android:name="org.opencarproject.launcher.DEBUG_MEDIA" />
                 <action android:name="org.opencarproject.launcher.DEBUG_WALLPAPER" />
+                <action android:name="org.opencarproject.launcher.DEBUG_RADAR" />
             </intent-filter>
         </receiver>
     </application>

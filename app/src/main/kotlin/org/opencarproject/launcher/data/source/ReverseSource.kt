@@ -14,7 +14,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -51,15 +50,33 @@ object ReverseSource {
         app = appContext
         receiver = object : BroadcastReceiver() {
             override fun onReceive(c: Context, intent: Intent) {
+                if (intent.action == ACTION_VENDOR_VIEW) {
+                    if (hideVendorView && intent.getBooleanExtra("show", false)) closeVendorView(c)
+                    return
+                }
                 _reversing.value = intent.action == ACTION_START
             }
         }.also {
-            val filter = IntentFilter().apply { addAction(ACTION_START); addAction(ACTION_STOP) }
+            val filter = IntentFilter().apply { addAction(ACTION_START); addAction(ACTION_STOP); addAction(ACTION_VENDOR_VIEW) }
             // Sent by the system firmware, so the receiver must be exported.
             ContextCompat.registerReceiver(appContext, it, filter, ContextCompat.RECEIVER_EXPORTED)
         }
+        // A reverse that began before this receiver existed (process just started) sent its
+        // broadcast to nobody: take the current gear state from the firmware property instead.
+        if (systemProperty("sys.qf.backcar_state") == "true") _reversing.value = true
         bindRadar(appContext)
     }
+
+    /** (flipX, flipY) the vendor applies to the reverse video, so ours looks the same. */
+    fun cameraMirror(): Pair<Boolean, Boolean> = RadarProtocol.cameraMirror(
+        systemProperty("persist.sys.backcar_mirror")?.toIntOrNull() ?: 0,
+        systemProperty("ro.qf.platform").orEmpty(),
+    )
+
+    @SuppressLint("PrivateApi")
+    private fun systemProperty(name: String): String? = runCatching {
+        Class.forName("android.os.SystemProperties").getMethod("get", String::class.java).invoke(null, name) as String
+    }.getOrNull()
 
     fun stop() {
         val context = app ?: return
@@ -106,23 +123,27 @@ object ReverseSource {
         if (runCatching { context.bindService(intent, conn, Context.BIND_AUTO_CREATE) }.getOrDefault(false)) connection = conn
     }
 
+    /** Close the vendor's own reverse view whenever it appears ("Hide the system camera"). */
+    @Volatile var hideVendorView = false
+
     /**
-     * Closes the vendor's reverse view the way its camera key does (`USER_BACK_CAM`, data 0). It
-     * only acts while that view is showing, and the view appears a moment after reverse is
-     * engaged, so it is sent a few times.
-     * ponytail: fixed retries; watch `sys.qf.backcar_state` instead if a unit shows it later.
+     * Closes the vendor's reverse view the way its camera key does (`USER_BACK_CAM`, data 0), as
+     * soon as the vendor announces it is showing (`BACKCAR_VIEW`, show = true).
+     * ponytail: one flash frame remains (the vendor draws before announcing); only a system app could prevent it.
      */
-    suspend fun closeVendorView(context: Context) {
-        for (wait in longArrayOf(400, 800, 1500, 2500)) {
-            delay(wait)
-            if (!_reversing.value) return
-            context.sendBroadcast(Intent(ACTION_USER_BACK_CAM).setPackage(VENDOR_CAMERA_APP).putExtra("data", 0))
-        }
+    private fun closeVendorView(context: Context) {
+        Log.d(TAG, "vendor reverse view shown, closing it")
+        context.sendBroadcast(Intent(ACTION_USER_BACK_CAM).setPackage(VENDOR_CAMERA_APP).putExtra("data", 0))
     }
+
+    /** Debug builds only: radar frames injected without a car. */
+    internal fun debugRadar(state: RadarState?) { _radar.value = state }
 
     private const val ACTION_USER_BACK_CAM = "com.qf.action.USER_BACK_CAM"
     private const val VENDOR_CAMERA_APP = "com.qf.backcar"
     private const val TAG = "ReverseSource"
     private const val ACTION_START = "com.qf.action.BACKCAR_START"
     private const val ACTION_STOP = "com.qf.action.BACKCAR_STOP"
+    /** Sent by the vendor camera app when its full-screen view shows or hides. */
+    private const val ACTION_VENDOR_VIEW = "com.qf.action.BACKCAR_VIEW"
 }

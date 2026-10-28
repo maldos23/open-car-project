@@ -32,7 +32,7 @@ class ReverseCamera(context: Context, private val cameraId: String, private val 
     @SuppressLint("MissingPermission") // checked by the caller; a SecurityException lands in onError
     fun open(texture: SurfaceTexture) {
         runCatching {
-            val size = previewSize()
+            val size = previewSize(manager, cameraId)
             texture.setDefaultBufferSize(size.width, size.height)
             manager.openCamera(cameraId, object : CameraDevice.StateCallback() {
                 override fun onOpened(camera: CameraDevice) {
@@ -64,14 +64,19 @@ class ReverseCamera(context: Context, private val cameraId: String, private val 
         }, handler)
     }
 
-    /** 720x480 when offered, else the smallest size at least 640 wide (still near the source). */
-    private fun previewSize(): Size {
-        val sizes = manager.getCameraCharacteristics(cameraId)
-            .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-            ?.getOutputSizes(SurfaceTexture::class.java).orEmpty()
-        return sizes.firstOrNull { it.width == 720 && it.height == 480 }
-            ?: sizes.filter { it.width >= 640 }.minByOrNull { it.width * it.height }
-            ?: Size(720, 480)
+
+    companion object {
+        /** 720x480 when offered, else the smallest size at least 640 wide (still near the source). */
+        fun previewSize(manager: CameraManager, cameraId: String): Size {
+            val sizes = runCatching {
+                manager.getCameraCharacteristics(cameraId)
+                    .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+                    ?.getOutputSizes(SurfaceTexture::class.java)
+            }.getOrNull().orEmpty()
+            return sizes.firstOrNull { it.width == 720 && it.height == 480 }
+                ?: sizes.filter { it.width >= 640 }.minByOrNull { it.width * it.height }
+                ?: Size(720, 480)
+        }
     }
 
     fun close() {

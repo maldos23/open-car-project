@@ -40,6 +40,46 @@ class RadarProtocolTest {
     }
 
     @Test
+    fun proximity01_closerIsHigher() {
+        assertEquals(0f, RadarProtocol.proximity01(-1), 0f)
+        assertEquals(0f, RadarProtocol.proximity01(0), 0f)
+        assertEquals(1f, RadarProtocol.proximity01(1), 1e-6f)
+        assertEquals(0.6f, RadarProtocol.proximity01(5), 1e-6f)
+        assertEquals(0.1f, RadarProtocol.proximity01(10), 1e-6f)
+    }
+
+    @Test
+    fun profile_interpolatesBetweenSensors() {
+        // 4 sensors, obstacle at the second one; 8 samples → sensor i sits between samples 2i and 2i+1.
+        val p = RadarProtocol.profile(listOf(0f, 1f, 0f, 0f), 8)
+        assertEquals(8, p.size)
+        assertEquals(0f, p[0], 1e-6f) // left edge holds sensor 0
+        assertEquals(0.75f, p[2], 1e-6f) // near sensor 1, on its left
+        assertEquals(0.75f, p[3], 1e-6f) // near sensor 1, on its right
+        assertEquals(0.25f, p[4], 1e-6f) // fading towards sensor 2
+        assertEquals(0f, p[7], 1e-6f)
+        assertEquals(p.max(), p[2], 0f) // peak is around the obstacle
+    }
+
+    @Test
+    fun profile_edgeCases() {
+        assertEquals(listOf(0.4f, 0.4f, 0.4f), RadarProtocol.profile(listOf(0.4f), 3).toList())
+        assertEquals(listOf(0f, 0f), RadarProtocol.profile(emptyList(), 2).toList())
+        assertEquals(0, RadarProtocol.profile(listOf(1f), 0).size)
+    }
+
+    @Test
+    fun cameraMirror_followsVendorRules() {
+        // K706 (platform 8581) with the default 0: the vendor flips horizontally.
+        assertEquals(true to false, RadarProtocol.cameraMirror(0, "8581"))
+        assertEquals(false to false, RadarProtocol.cameraMirror(1, "8581"))
+        assertEquals(true to true, RadarProtocol.cameraMirror(2, "8581"))
+        // Other platforms use the value as is.
+        assertEquals(false to false, RadarProtocol.cameraMirror(0, "9863"))
+        assertEquals(false to true, RadarProtocol.cameraMirror(2, ""))
+    }
+
+    @Test
     fun parseRadar_rejectsOtherFrames() {
         assertNull(RadarProtocol.parseRadar(frame(type = 3)))
         assertNull(RadarProtocol.parseRadar(frame(data = ByteArray(20))))
