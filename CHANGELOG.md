@@ -6,10 +6,19 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.15.1] - 2026-10-28
+
 ### Fixed
 
 - The floating music island expands and shrinks much faster, and when shrunk the whole bubble
   (except the cover, which opens the music app) expands it again, not just the level meter.
+
+### Screenshots
+
+**Faster floating island.** The island over Google Maps now resizes in a fraction of the time,
+and a tap anywhere on the shrunk bubble (except the cover) expands it.
+
+![Floating music island over Google Maps](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.15.1/floating-island-snappy.png)
 
 ## [0.15.0] - 2026-10-28
 
@@ -568,7 +577,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.15.0...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.15.1...develop
+[0.15.1]: https://github.com/maldos23/open-car-project/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/maldos23/open-car-project/compare/v0.14.1...v0.15.0
 [0.14.1]: https://github.com/maldos23/open-car-project/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/maldos23/open-car-project/compare/v0.13.2...v0.14.0
