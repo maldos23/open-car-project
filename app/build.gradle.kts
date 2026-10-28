@@ -16,8 +16,8 @@ android {
         // Keep a low floor (Android 8.0) for compatibility with tablet fleets.
         minSdk = 26
         targetSdk = 37
-        versionCode = 33
-        versionName = "0.17.0"
+        versionCode = 34
+        versionName = "0.18.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
