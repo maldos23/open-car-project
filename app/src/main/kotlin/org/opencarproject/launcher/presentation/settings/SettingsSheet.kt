@@ -430,6 +430,13 @@ fun SettingsSheet(
                     selected = settings.embeddedMapApp.takeIf { pkg -> navApps.any { it.packageName == pkg } } ?: "",
                     onSelect = { v -> onChange { it.copy(embeddedMapApp = v) } },
                 )
+                Choice(
+                    title = stringResource(R.string.settings_embedded_map_scale),
+                    options = listOf(100, 75, 50).map { it to stringResource(R.string.percent_value, it) },
+                    selected = settings.embeddedMapScale,
+                    onSelect = { v -> onChange { it.copy(embeddedMapScale = v) } },
+                    note = stringResource(R.string.settings_embedded_map_scale_note),
+                )
             }
 
             Choice(

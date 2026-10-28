@@ -30,6 +30,9 @@
     <string name="embedded_map_open">Open map</string>
     <string name="settings_embedded_map_app">Embedded map app</string>
     <string name="embedded_map_app_auto">Automatic</string>
+    <string name="settings_embedded_map_scale">Embedded map resolution</string>
+    <string name="settings_embedded_map_scale_note">Lower uses less CPU and GPU; the map looks softer.</string>
+    <string name="percent_value">%1$d%%</string>
     <string name="module_media">Player</string>
 
     <!-- Launcher -->

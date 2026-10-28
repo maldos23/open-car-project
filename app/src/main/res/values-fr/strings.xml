@@ -23,6 +23,9 @@
     <string name="embedded_map_open">Ouvrir la carte</string>
     <string name="settings_embedded_map_app">App de la carte intégrée</string>
     <string name="embedded_map_app_auto">Automatique</string>
+    <string name="settings_embedded_map_scale">Résolution de la carte intégrée</string>
+    <string name="settings_embedded_map_scale_note">Plus basse, elle utilise moins le CPU et le GPU ; la carte est moins nette.</string>
+    <string name="percent_value">%1$d %%</string>
     <string name="module_media">Lecteur</string>
 
     <string name="settings_title">Paramètres</string>

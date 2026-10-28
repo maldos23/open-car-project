@@ -23,6 +23,9 @@
     <string name="embedded_map_open">Abrir mapa</string>
     <string name="settings_embedded_map_app">App do mapa integrado</string>
     <string name="embedded_map_app_auto">Automático</string>
+    <string name="settings_embedded_map_scale">Resolução do mapa integrado</string>
+    <string name="settings_embedded_map_scale_note">Menor resolução usa menos CPU e GPU; o mapa fica menos nítido.</string>
+    <string name="percent_value">%1$d%%</string>
     <string name="module_media">Player</string>
 
     <string name="settings_title">Configurações</string>

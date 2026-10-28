@@ -1,14 +1,13 @@
 package org.opencarproject.launcher.presentation.widget
 
+import org.opencarproject.launcher.presentation.common.rememberAmbientFloat
 import org.opencarproject.launcher.R
 import androidx.compose.ui.res.stringResource
 import android.content.Context
 import android.service.notification.StatusBarNotification
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -403,13 +402,7 @@ private fun IslandIndicatorMark(indicator: IslandIndicator) {
         return
     }
     val color = if (indicator == IslandIndicator.CALL) CallGreen else MaterialTheme.colorScheme.primary
-    val transition = rememberInfiniteTransition(label = "pulse")
-    val pulse by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(900), RepeatMode.Reverse),
-        label = "p",
-    )
+    val pulse by rememberAmbientFloat(0f, 1f, 900, FastOutSlowInEasing, reverse = true)
     // Read in the draw phase only: no recomposition per frame.
     Canvas(Modifier.size(10.dp)) {
         drawCircle(color.copy(alpha = 0.45f + 0.55f * pulse), radius = size.minDimension / 2 * (0.75f + 0.25f * pulse))

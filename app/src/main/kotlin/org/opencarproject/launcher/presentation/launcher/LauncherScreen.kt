@@ -1,5 +1,6 @@
 package org.opencarproject.launcher.presentation.launcher
 
+import org.opencarproject.launcher.presentation.common.rememberAmbientFloat
 import org.opencarproject.launcher.R
 import androidx.compose.ui.res.stringResource
 import android.Manifest
@@ -10,11 +11,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
@@ -42,6 +40,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.navigationBarsPadding
 import org.opencarproject.launcher.core.util.requestUninstall
 import org.opencarproject.launcher.data.embed.EmbeddedAppSession
+import org.opencarproject.launcher.presentation.common.AmbientClockEffect
 import org.opencarproject.launcher.presentation.common.MotionGlowOverlay
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -187,6 +186,9 @@ fun LauncherScreen(
     BackHandler(enabled = true) { }
     // "Back" ends editing.
     BackHandler(enabled = state.layoutMode == LayoutMode.EDIT) { viewModel.toggleEditMode() }
+
+    // Decorative loops tick together on one low-rate clock (see AmbientClock).
+    AmbientClockEffect()
 
     // Embedded app sessions outlive their card; close them once no such card is left.
     val hasEmbeddedApp = state.items.any { it.kind == CatalogItemKind.EMBEDDED_MAP }
@@ -662,12 +664,11 @@ private fun LauncherBackground(style: BackgroundStyle, particles: Boolean) {
         BackgroundStyle.SOLID -> Unit
         BackgroundStyle.GRADIENT -> {
             val scheme = MaterialTheme.colorScheme
-            val t = rememberInfiniteTransition(label = "bg")
-            val drift by t.animateFloat(0f, 1f, infiniteRepeatable(tween(20_000, easing = LinearEasing), RepeatMode.Reverse), label = "drift")
+            val drift by rememberAmbientFloat(0f, 1f, 20_000, reverse = true)
             val c1 = scheme.surface
             val c2 = androidx.compose.ui.graphics.lerp(scheme.surface, scheme.primaryContainer, 0.75f)
             val c3 = androidx.compose.ui.graphics.lerp(scheme.surface, scheme.tertiaryContainer, 0.6f)
-            val rise by t.animateFloat(0f, 1f, infiniteRepeatable(tween(30_000, easing = LinearEasing)), label = "rise")
+            val rise by rememberAmbientFloat(0f, 1f, 30_000)
             val glow = scheme.onSurface
             Box(
                 Modifier.fillMaxSize().drawBehind {
