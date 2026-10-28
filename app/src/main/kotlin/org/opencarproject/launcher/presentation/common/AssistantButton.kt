@@ -18,6 +18,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import android.content.ComponentName
+import android.content.Intent
 import android.provider.Settings
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -203,9 +204,12 @@ fun AssistantButton(
 private fun rememberAssistantLogo(): ImageBitmap? {
     val context = LocalContext.current
     // "assistant" holds the default assistant's "package/service"; the app's icon is the logo.
+    // Head units often leave it empty: then the app that answers the assist action is used.
     val pkg = remember {
         runCatching { Settings.Secure.getString(context.contentResolver, "assistant") }.getOrNull()
             ?.let { ComponentName.unflattenFromString(it)?.packageName }
+            ?: context.packageManager.resolveActivity(Intent(Intent.ACTION_ASSIST), 0)
+                ?.activityInfo?.packageName?.takeIf { it != "android" }
     } ?: return null
     return rememberAppIcon(pkg, sizePx = 96, withoutBackground = true)
 }
