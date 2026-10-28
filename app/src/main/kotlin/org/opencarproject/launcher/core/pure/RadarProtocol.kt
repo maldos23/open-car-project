@@ -59,6 +59,29 @@ object RadarProtocol {
         )
     }
 
+    /**
+     * How the vendor camera app flips the reverse video (`BaseBackCarView.AdjustMirror`):
+     * `persist.sys.backcar_mirror` 0..3 picks none / horizontal / vertical / both, except that on
+     * some platforms (`ro.qf.platform` 7861, 7862, 7870, 8581) 0↔1 and 2↔3 are swapped, so the
+     * default 0 flips horizontally there. Returns (flipX, flipY).
+     */
+    fun cameraMirror(mirrorProperty: Int, platform: String): Pair<Boolean, Boolean> {
+        val swapped = listOf("7862", "8581", "7861", "7870").any { it in platform }
+        val mode = if (!swapped) mirrorProperty else when (mirrorProperty) {
+            0 -> 1
+            1 -> 0
+            2 -> 3
+            3 -> 2
+            else -> mirrorProperty
+        }
+        return when (mode) {
+            1 -> true to false
+            2 -> false to true
+            3 -> true to true
+            else -> false to false
+        }
+    }
+
     private const val HEADER = 0x98.toByte()
     private const val TYPE = 0x04
     private const val DATA = 3

@@ -278,6 +278,10 @@ private fun CameraPreview(cameraId: String) {
             modifier = Modifier.fillMaxSize(),
             factory = { viewContext ->
                 TextureView(viewContext).apply {
+                    // Same flip as the head unit's own reverse view (read when the preview opens).
+                    val (flipX, flipY) = ReverseSource.cameraMirror()
+                    scaleX = if (flipX) -1f else 1f
+                    scaleY = if (flipY) -1f else 1f
                     surfaceTextureListener = object : TextureView.SurfaceTextureListener {
                         override fun onSurfaceTextureAvailable(t: SurfaceTexture, w: Int, h: Int) {
                             texture.value = t

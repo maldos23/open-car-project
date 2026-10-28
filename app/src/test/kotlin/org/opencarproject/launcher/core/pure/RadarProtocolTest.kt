@@ -69,6 +69,17 @@ class RadarProtocolTest {
     }
 
     @Test
+    fun cameraMirror_followsVendorRules() {
+        // K706 (platform 8581) with the default 0: the vendor flips horizontally.
+        assertEquals(true to false, RadarProtocol.cameraMirror(0, "8581"))
+        assertEquals(false to false, RadarProtocol.cameraMirror(1, "8581"))
+        assertEquals(true to true, RadarProtocol.cameraMirror(2, "8581"))
+        // Other platforms use the value as is.
+        assertEquals(false to false, RadarProtocol.cameraMirror(0, "9863"))
+        assertEquals(false to true, RadarProtocol.cameraMirror(2, ""))
+    }
+
+    @Test
     fun parseRadar_rejectsOtherFrames() {
         assertNull(RadarProtocol.parseRadar(frame(type = 3)))
         assertNull(RadarProtocol.parseRadar(frame(data = ByteArray(20))))

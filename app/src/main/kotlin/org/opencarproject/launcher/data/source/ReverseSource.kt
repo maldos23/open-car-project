@@ -67,6 +67,12 @@ object ReverseSource {
         bindRadar(appContext)
     }
 
+    /** (flipX, flipY) the vendor applies to the reverse video, so ours looks the same. */
+    fun cameraMirror(): Pair<Boolean, Boolean> = RadarProtocol.cameraMirror(
+        systemProperty("persist.sys.backcar_mirror")?.toIntOrNull() ?: 0,
+        systemProperty("ro.qf.platform").orEmpty(),
+    )
+
     @SuppressLint("PrivateApi")
     private fun systemProperty(name: String): String? = runCatching {
         Class.forName("android.os.SystemProperties").getMethod("get", String::class.java).invoke(null, name) as String
