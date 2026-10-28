@@ -400,6 +400,9 @@ fun SettingsSheet(
                 onChange = onMenuIconScaleChange,
             )
 
+            SwitchRow(stringResource(R.string.settings_smooth_animations), stringResource(R.string.settings_smooth_animations_desc), settings.smoothAnimations) { v ->
+                onChange { it.copy(smoothAnimations = v) }
+            }
             SwitchRow(stringResource(R.string.settings_app_labels), stringResource(R.string.settings_app_labels_desc), settings.showAppLabels) { v ->
                 onChange { it.copy(showAppLabels = v) }
             }

@@ -89,6 +89,8 @@ data class LauncherSettings(
     val dockIconSize: DockIconSize = DockIconSize.MEDIUM,
     /** Label under the icon of desktop apps (icon only by default). */
     val showAppLabels: Boolean = false,
+    /** Decorative animations at full frame rate instead of the lighter ~12 fps. */
+    val smoothAnimations: Boolean = false,
     /** Shortcuts ("package/activity") on each side of the bottom bar, in order. */
     val dockLeftApps: List<String> = emptyList(),
     val dockRightApps: List<String> = emptyList(),

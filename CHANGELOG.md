@@ -6,6 +6,21 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.14.1] - 2026-10-27
+
+### Added
+
+- Settings → "Smooth animations" (off by default): backgrounds, glows, weather and player
+  effects animate at full frame rate again instead of the lighter ~12 fps, at the cost of more
+  CPU and GPU (on a K706 the home screen went from ~83% to ~177% total CPU).
+
+### Screenshots
+
+**Smooth animations.** Settings → "Smooth animations" brings the decorative animations back to
+full frame rate for units with CPU to spare. Off by default to keep the lighter ~12 fps.
+
+![Smooth animations setting turned on](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.14.1/smooth-animations.png)
+
 ## [0.14.0] - 2026-10-27
 
 ### Changed
@@ -519,7 +534,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.14.0...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.14.1...develop
+[0.14.1]: https://github.com/maldos23/open-car-project/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/maldos23/open-car-project/compare/v0.13.2...v0.14.0
 [0.13.2]: https://github.com/maldos23/open-car-project/compare/v0.13.1...v0.13.2
 [0.13.1]: https://github.com/maldos23/open-car-project/compare/v0.13.0...v0.13.1
