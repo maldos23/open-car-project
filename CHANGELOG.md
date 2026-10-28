@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-10-27
+
 ### Added
 
 - Settings → Reverse camera → "Clean up the image" (off by default): the analog reverse video is
@@ -29,6 +31,22 @@ All notable changes to this project are documented here. The format follows
   radar panel is no longer squeezed into a thin strip.
 - The floating reverse camera is no longer mirrored compared to the head unit's own view: it
   applies the same flip the system camera app does (`persist.sys.backcar_mirror`).
+
+### Screenshots
+
+**Top-view radar.** The reverse overlay shows the car from above in one color, with three
+proximity arcs in front and behind. The sensors the car has are counted and their readings
+interpolated across the bumper, so the arcs light up right where the obstacle is and grow
+towards the car (green, amber, red) as it gets closer.
+
+![Reverse radar as a top view of the car](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.13.0/reverse-radar.png)
+
+**Cleaner reverse camera.** "Clean up the image" processes the analog video on the GPU. Left:
+noise reduction at 0%; right: at 100%, same night scene on a K706. Colour speckles and flicker
+are gone (frame-to-frame noise 13.6 → 3.4). Noise reduction, sharpness, brightness and contrast
+are sliders applied live.
+
+![Reverse camera before and after the cleanup](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.13.0/reverse-clean-image.png)
 
 ## [0.12.0] - 2026-10-27
 
@@ -431,7 +449,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.12.0...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.13.0...develop
+[0.13.0]: https://github.com/maldos23/open-car-project/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/maldos23/open-car-project/compare/v0.11.1...v0.12.0
 [0.11.1]: https://github.com/maldos23/open-car-project/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/maldos23/open-car-project/compare/v0.10.4...v0.11.0
