@@ -6,12 +6,23 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.13.1] - 2026-10-27
+
 ### Fixed
 
 - Embedded map: opening the app drawer and coming back no longer restarts the map app.
 - Embedded map: after using the navigation app full screen (or after the head unit closes it in
   the background), the card puts it back within a couple of seconds, with its current state,
   instead of freezing on an old frame.
+
+### Screenshots
+
+**Embedded map stays live.** Back on the home screen after using Waze full screen, the card shows
+the app as it was left (here the "Going home?" prompt dismissed in the full app) within a couple
+of seconds. Opening the app drawer no longer restarts it, and if the head unit closes the app in
+the background the card relaunches it by itself.
+
+![Embedded Waze card showing the state left in the full app](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.13.1/embedded-map-restored.png)
 
 ## [0.13.0] - 2026-10-27
 
@@ -456,7 +467,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.13.0...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.13.1...develop
+[0.13.1]: https://github.com/maldos23/open-car-project/compare/v0.13.0...v0.13.1
 [0.13.0]: https://github.com/maldos23/open-car-project/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/maldos23/open-car-project/compare/v0.11.1...v0.12.0
 [0.11.1]: https://github.com/maldos23/open-car-project/compare/v0.11.0...v0.11.1
