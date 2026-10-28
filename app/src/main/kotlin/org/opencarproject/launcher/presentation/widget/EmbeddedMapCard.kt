@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import org.opencarproject.launcher.R
 import org.opencarproject.launcher.data.embed.EmbedState
 import org.opencarproject.launcher.data.embed.EmbeddedAppSession
@@ -59,11 +60,17 @@ fun EmbeddedMapCard(chosenPackage: String, modifier: Modifier = Modifier) {
 @Composable
 private fun EmbeddedApp(packageName: String, modifier: Modifier) {
     val context = LocalContext.current
-    var state by remember { mutableStateOf(EmbedState.CONNECTING) }
-    val session = remember(packageName) {
-        EmbeddedAppSession(context.applicationContext, packageName) { state = it }
+    val session = remember(packageName) { EmbeddedAppSession.of(context, packageName) }
+    var state by remember(session) { mutableStateOf(session.state) }
+    // Leaving composition only detaches: the app keeps running on the session's display.
+    DisposableEffect(session) {
+        session.listener = { state = it }
+        onDispose { session.listener = null }
     }
-    DisposableEffect(session) { onDispose { session.release() } }
+    LifecycleResumeEffect(session) {
+        session.resume()
+        onPauseOrDispose { session.pause() }
+    }
 
     Box(modifier.fillMaxSize()) {
         AndroidView(

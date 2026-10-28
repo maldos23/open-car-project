@@ -41,6 +41,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.navigationBarsPadding
 import org.opencarproject.launcher.core.util.requestUninstall
+import org.opencarproject.launcher.data.embed.EmbeddedAppSession
 import org.opencarproject.launcher.presentation.common.MotionGlowOverlay
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -186,6 +187,10 @@ fun LauncherScreen(
     BackHandler(enabled = true) { }
     // "Back" ends editing.
     BackHandler(enabled = state.layoutMode == LayoutMode.EDIT) { viewModel.toggleEditMode() }
+
+    // Embedded app sessions outlive their card; close them once no such card is left.
+    val hasEmbeddedApp = state.items.any { it.kind == CatalogItemKind.EMBEDDED_MAP }
+    LaunchedEffect(hasEmbeddedApp) { if (!hasEmbeddedApp) EmbeddedAppSession.releaseAll() }
 
     LauncherBackground(settings.background, particles = settings.gradientParticles)
     Scaffold(
