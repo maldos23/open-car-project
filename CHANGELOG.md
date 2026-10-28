@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-10-28
+
 ### Added
 
 - Settings → "Updates": shows the installed version, checks the latest GitHub release and, if it
@@ -13,6 +15,19 @@ All notable changes to this project are documented here. The format follows
   allow installing from Open Car Project). Updating keeps your settings and layout.
 - "Notify me about updates" (on by default): checks GitHub once a day and posts a notification,
   also shown in the island, when a new version is out; tapping it starts the update.
+
+### Screenshots
+
+**Updates in Settings.** Settings → "Updates" shows the installed version; "Check for updates"
+looks at the latest GitHub release and, when it is newer, "Download and install" updates the
+launcher in place, keeping your settings and layout.
+
+![Updates section in Settings with a newer version available](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.17.0/updates-settings.png)
+
+**Update notification.** Once a day the launcher checks GitHub and, when a new version is out,
+posts a notification (here in the island and the notifications card). Tapping it starts the update.
+
+![Update available notification on the home screen](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.17.0/update-notification.png)
 
 ## [0.16.0] - 2026-10-28
 
@@ -606,7 +621,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.16.0...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.17.0...develop
+[0.17.0]: https://github.com/maldos23/open-car-project/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/maldos23/open-car-project/compare/v0.15.1...v0.16.0
 [0.15.1]: https://github.com/maldos23/open-car-project/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/maldos23/open-car-project/compare/v0.14.1...v0.15.0
