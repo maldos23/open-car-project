@@ -1,5 +1,6 @@
 package org.opencarproject.launcher.presentation.widget
 
+import org.opencarproject.launcher.presentation.common.rememberAmbientFloat
 import org.opencarproject.launcher.R
 import androidx.compose.ui.res.stringResource
 import android.app.Notification
@@ -10,12 +11,9 @@ import android.service.notification.StatusBarNotification
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -229,26 +227,9 @@ private fun NavigateButton() {
         animationSpec = spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium),
         label = "press",
     )
-
-    val transition = rememberInfiniteTransition(label = "navigate")
-    val pulse = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(2200, easing = LinearEasing)),
-        label = "pulse",
-    )
-    val sway = transition.animateFloat(
-        initialValue = -1f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(1500, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "sway",
-    )
-    val dash = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(900, easing = LinearEasing)),
-        label = "dash",
-    )
+    val pulse = rememberAmbientFloat(0f, 1f, 2200)
+    val sway = rememberAmbientFloat(-1f, 1f, 1500, FastOutSlowInEasing, reverse = true)
+    val dash = rememberAmbientFloat(0f, 1f, 900)
     val primary = MaterialTheme.colorScheme.primary
 
     BoxWithConstraints(

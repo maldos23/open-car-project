@@ -2,8 +2,6 @@ package org.opencarproject.launcher.presentation.common
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.material3.MaterialTheme
@@ -44,10 +42,9 @@ fun AnimatedWeatherIcon(
     /** Cloud/fog color; white works best on a colored background. */
     cloudColor: Color? = null,
 ) {
-    val transition = rememberInfiniteTransition(label = "weather")
     // Short cycle for falling/blinking elements; long cycle for the sun's rotation.
-    val t by transition.animateFloat(0f, 1f, infiniteRepeatable(tween(2400, easing = LinearEasing)), label = "t")
-    val spin by transition.animateFloat(0f, 360f, infiniteRepeatable(tween(14_000, easing = LinearEasing)), label = "spin")
+    val t by rememberAmbientFloat(0f, 1f, 2400)
+    val spin by rememberAmbientFloat(0f, 360f, 14_000)
     val cloud = cloudColor ?: MaterialTheme.colorScheme.onSurfaceVariant
     // Solid (no alpha): with transparency, overlapping circles leave blotches.
     val backCloud = cloudColor?.let { lerp(it, Color.Gray, 0.35f) } ?: MaterialTheme.colorScheme.outlineVariant

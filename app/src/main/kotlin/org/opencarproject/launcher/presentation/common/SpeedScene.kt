@@ -24,7 +24,11 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
+import kotlinx.coroutines.flow.first
+import org.opencarproject.launcher.core.model.WeatherCondition
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -94,11 +98,19 @@ fun SpeedScene(
     // Distance traveled in "scene units": the city/stars scroll with it.
     var travel by remember { mutableFloatStateOf(0f) }
     var time by remember { mutableFloatStateOf(0f) }
+    val currentSky by rememberUpdatedState(sky)
     LaunchedEffect(vehicleSpeed) {
         var last = 0L
         while (true) {
+            // Parked under a dry sky nothing needs to move: wait instead of redrawing every frame
+            // (any animation redraws the whole launcher window, which is costly on head units).
+            if (!sceneMoves(vehicleSpeed, launch.value, currentSky)) {
+                snapshotFlow { sceneMoves(vehicleSpeed, launch.value, currentSky) }.first { it }
+                last = 0L
+            }
             withFrameNanos { now ->
-                if (last != 0L) {
+                // A long gap (launcher was hidden) would teleport the scenery: skip that frame.
+                if (last != 0L && now - last < 500_000_000L) {
                     val dt = (now - last) / 1e9f
                     time += dt
                     travel += dt * vehicleSpeed.kmh
@@ -232,6 +244,12 @@ private fun SpeedText(kmh: () -> Float, mph: Boolean, needsGps: Boolean, numberS
     Text(SpeedUnits.label(mph), color = Color.White.copy(alpha = 0.85f), fontWeight = FontWeight.Bold, fontSize = unitSize, lineHeight = unitSize, style = ReadoutShadow, modifier = if (unitBeside) Modifier.padding(start = 6.dp, top = 6.dp) else Modifier)
 }
 
+/** The scene animates while driving, during the rocket launch or when rain or snow falls. */
+private fun sceneMoves(speed: VehicleSpeed, launch: Float, sky: SkyState) =
+    speed.kmh >= 0.5f || launch > 0f || sky.condition in FALLING
+
+private val FALLING = setOf(WeatherCondition.RAIN, WeatherCondition.DRIZZLE, WeatherCondition.THUNDERSTORM, WeatherCondition.SNOW)
+
 private val ReadoutShadow = TextStyle(shadow = Shadow(Color(0x99000000), Offset(0f, 2f), 6f))
 
 /**
@@ -244,9 +262,10 @@ fun StandaloneSpeedometer(style: SpeedDialStyle, source: SpeedSource, rocketKmh:
     val onFire by remember(speed, rocketKmh) { derivedStateOf { speed.rawKmh >= rocketKmh } }
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
     var time by remember { mutableFloatStateOf(0f) }
-    LaunchedEffect(Unit) {
+    // The clock only drives the ring of fire: it runs while the ring is shown.
+    LaunchedEffect(onFire) {
         var last = 0L
-        while (true) withFrameNanos { now ->
+        while (onFire) withFrameNanos { now ->
             if (last != 0L) time += (now - last) / 1e9f
             last = now
         }

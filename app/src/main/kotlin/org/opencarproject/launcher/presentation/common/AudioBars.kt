@@ -2,8 +2,6 @@ package org.opencarproject.launcher.presentation.common
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
@@ -21,13 +19,7 @@ import kotlin.math.PI
  */
 @Composable
 fun AudioBars(colors: List<Color>, modifier: Modifier = Modifier, periodMs: Int = 1600) {
-    val transition = rememberInfiniteTransition(label = "audioBars")
-    val t by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = (2 * PI).toFloat(),
-        animationSpec = infiniteRepeatable(tween(periodMs, easing = LinearEasing)),
-        label = "t",
-    )
+    val t by rememberAmbientFloat(0f, (2 * PI).toFloat(), periodMs)
     Canvas(modifier) {
         val barWidth = size.width / (colors.size + (colors.size - 1) * 0.7f)
         val gap = barWidth * 0.7f

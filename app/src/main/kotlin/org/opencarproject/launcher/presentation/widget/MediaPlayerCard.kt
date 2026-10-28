@@ -1,5 +1,6 @@
 package org.opencarproject.launcher.presentation.widget
 
+import org.opencarproject.launcher.presentation.common.rememberAmbientFloat
 import org.opencarproject.launcher.R
 import androidx.compose.ui.res.stringResource
 import android.content.Context
@@ -11,11 +12,8 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -131,8 +129,7 @@ fun MediaPlayerCard(modifier: Modifier = Modifier) {
     val second by animateColorAsState(palette.getOrNull(1) ?: base.darker(), tween(900), label = "c1")
     val third by animateColorAsState(palette.getOrNull(2) ?: lerp(base, Color.White, 0.25f), tween(900), label = "c2")
     val surface = MaterialTheme.colorScheme.surfaceContainerHighest
-    val transition = rememberInfiniteTransition(label = "bg")
-    val phase = transition.animateFloat(0f, (2 * PI).toFloat(), infiniteRepeatable(tween(24_000, easing = LinearEasing)), label = "phase")
+    val phase = rememberAmbientFloat(0f, (2 * PI).toFloat(), 24_000)
     val playingAlpha by animateFloatAsState(if (current?.isPlaying == true) 1f else 0.55f, tween(600), label = "alpha")
     val tint = 0.85f * playingAlpha
     val a = lerp(surface, first, tint)
@@ -170,8 +167,7 @@ fun MediaPlayerCard(modifier: Modifier = Modifier) {
 /** Nothing playing: a "breathing" note. */
 @Composable
 private fun IdleState() {
-    val t = rememberInfiniteTransition(label = "idle")
-    val breathe by t.animateFloat(0.85f, 1.1f, infiniteRepeatable(tween(1600, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "breathe")
+    val breathe by rememberAmbientFloat(0.85f, 1.1f, 1600, FastOutSlowInEasing, reverse = true)
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Icon(
             Icons.Rounded.MusicNote,
@@ -402,8 +398,7 @@ private fun AppLogo(packageName: String, modifier: Modifier) {
 /** Equalizer: bars that dance while playing and flatten (motionless) when paused. */
 @Composable
 private fun Equalizer(playing: Boolean, modifier: Modifier) {
-    val t = rememberInfiniteTransition(label = "eq")
-    val phase by t.animateFloat(0f, (2 * PI).toFloat(), infiniteRepeatable(tween(1100, easing = LinearEasing)), label = "phase")
+    val phase by rememberAmbientFloat(0f, (2 * PI).toFloat(), 1100)
     val energy by animateFloatAsState(if (playing) 1f else 0f, tween(500), label = "energy")
     val color = LocalContentColor.current
     Canvas(modifier) {

@@ -9,10 +9,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -146,9 +143,8 @@ fun WeatherIndicator(unit: TemperatureUnit, modifier: Modifier = Modifier) {
     val c1 = animateColorAsState(from, tween(1200), label = "c1")
     val c2 = animateColorAsState(to, tween(1200), label = "c2")
     // Slowly sliding gradient; during storms, a brief flash now and then.
-    val t = rememberInfiniteTransition(label = "weatherBg")
-    val drift = t.animateFloat(0f, 1f, infiniteRepeatable(tween(7000, easing = LinearEasing), RepeatMode.Reverse), label = "drift")
-    val flashPhase = t.animateFloat(0f, 1f, infiniteRepeatable(tween(4200, easing = LinearEasing)), label = "flash")
+    val drift = rememberAmbientFloat(0f, 1f, 7000, reverse = true)
+    val flashPhase = rememberAmbientFloat(0f, 1f, 4200)
     val storm = current?.condition == WeatherCondition.THUNDERSTORM
     // Text turns white at the same pace as the gradient fades in: switching at once left white
     // text on the still-light pill for a moment.

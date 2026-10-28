@@ -7,10 +7,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -106,20 +103,9 @@ fun AssistantButton(
 ) {
     if (style == AssistantStyle.SPARKLES) return AssistantSparkles(onClick, modifier)
     val animated = style == AssistantStyle.GOOGLE_ANIMATED
-    val transition = rememberInfiniteTransition(label = "assistant")
     // Animated values are read only while drawing: the pill redraws, it never recomposes.
-    val angle = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(tween(4000, easing = LinearEasing)),
-        label = "spin",
-    )
-    val glow = transition.animateFloat(
-        initialValue = 0.35f,
-        targetValue = 0.75f,
-        animationSpec = infiniteRepeatable(tween(1800, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "glow",
-    )
+    val angle = rememberAmbientFloat(0f, 360f, 4000)
+    val glow = rememberAmbientFloat(0.35f, 0.75f, 1800, FastOutSlowInEasing, reverse = true)
     val shape = RoundedCornerShape(percent = 50)
     // The colors flow along the pill (the shape doesn't rotate). The sweep is closed,
     // so the repeated tile has no seam.
@@ -217,13 +203,7 @@ private fun rememberAssistantLogo(): ImageBitmap? {
 /** Three four-pointed sparkles in Google colors that twinkle and slowly turn; no text. */
 @Composable
 private fun AssistantSparkles(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val transition = rememberInfiniteTransition(label = "sparkles")
-    val phase = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(2400, easing = LinearEasing)),
-        label = "twinkle",
-    )
+    val phase = rememberAmbientFloat(0f, 1f, 2400)
     val label = stringResource(R.string.assistant_open)
     Box(
         modifier
