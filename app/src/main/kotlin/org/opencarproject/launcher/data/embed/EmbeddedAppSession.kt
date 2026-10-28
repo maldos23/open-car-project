@@ -13,6 +13,7 @@ import org.opencarproject.launcher.core.pure.StackList
 import org.opencarproject.launcher.core.pure.TouchLine
 import org.opencarproject.launcher.core.pure.TouchPointer
 import java.util.concurrent.Executors
+import kotlin.math.roundToInt
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 
@@ -50,12 +51,34 @@ class EmbeddedAppSession private constructor(
     @Volatile private var running = false
     private var touch: AdbStream? = null
 
+    /**
+     * Fraction of the card's resolution the app draws at; the system scales its frames up to the
+     * card. The app draws fewer pixels, the map is softer. Main thread.
+     */
+    var renderScale = 1f
+        set(value) {
+            if (field == value) return
+            field = value
+            sized?.let { (holder, width, height) -> fit(holder, width, height) }
+        }
+
+    // The card's view and its size in px, to re-fit when the resolution changes (main thread).
+    private var sized: Triple<SurfaceHolder, Int, Int>? = null
+
+    /** Sizes [holder]'s buffer for a card of [width]×[height] px at [renderScale]. */
+    fun fit(holder: SurfaceHolder, width: Int, height: Int) {
+        sized = Triple(holder, width, height)
+        if (renderScale >= 1f) holder.setSizeFromLayout()
+        else holder.setFixedSize((width * renderScale).roundToInt(), (height * renderScale).roundToInt())
+    }
+
     override fun surfaceCreated(holder: SurfaceHolder) = Unit
 
     // Always follows surfaceCreated with the size.
     @SuppressLint("WrongConstant") // FLAGS includes the hidden DESTROY_CONTENT_ON_REMOVAL.
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        val dpi = context.resources.displayMetrics.densityDpi
+        // Same layout in dp at any resolution: the density scales with the buffer.
+        val dpi = (context.resources.displayMetrics.densityDpi * renderScale).roundToInt()
         display?.let {
             val reattached = it.surface !== holder.surface
             it.surface = holder.surface
@@ -73,6 +96,7 @@ class EmbeddedAppSession private constructor(
     // Without a surface the display turns off; it survives until the card shows again.
     // A recomposed card may attach its new view before the old one lets go: only detach our own.
     override fun surfaceDestroyed(holder: SurfaceHolder) {
+        if (sized?.first === holder) sized = null
         display?.takeIf { it.surface === holder.surface }?.surface = null
     }
 
@@ -146,13 +170,13 @@ class EmbeddedAppSession private constructor(
         }
     }
 
-    /** Forwards a touch on the card; display and card share the same pixel size. */
+    /** Forwards a touch on the card, scaled from card pixels to the display's. */
     fun onTouch(event: MotionEvent) {
         if (io.isShutdown) return
         val line = TouchLine(
             action = event.actionMasked,
             index = event.actionIndex,
-            pointers = (0 until event.pointerCount).map { TouchPointer(event.getPointerId(it), event.getX(it), event.getY(it)) },
+            pointers = (0 until event.pointerCount).map { TouchPointer(event.getPointerId(it), event.getX(it) * renderScale, event.getY(it) * renderScale) },
         ).encode()
         io.execute {
             runCatching { touch?.sink?.apply { writeUtf8(line).writeByte('\n'.code).flush() } }

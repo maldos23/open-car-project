@@ -134,6 +134,8 @@ data class LauncherSettings(
     val reverseContrast: Float = 0.5f,
     /** Package the "Maps (embedded)" module runs; empty = the default navigation app. */
     val embeddedMapApp: String = "",
+    /** Resolution (% of the card) the embedded app draws at; lower costs less on weak GPUs. */
+    val embeddedMapScale: Int = 100,
 )
 
 /** Current weather for the dock. */

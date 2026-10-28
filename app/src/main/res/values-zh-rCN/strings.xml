@@ -23,6 +23,9 @@
     <string name="embedded_map_open">打开地图</string>
     <string name="settings_embedded_map_app">内嵌地图应用</string>
     <string name="embedded_map_app_auto">自动</string>
+    <string name="settings_embedded_map_scale">内嵌地图分辨率</string>
+    <string name="settings_embedded_map_scale_note">分辨率越低，CPU 和 GPU 占用越少；地图会略显模糊。</string>
+    <string name="percent_value">%1$d%%</string>
     <string name="module_media">播放器</string>
 
     <string name="settings_title">设置</string>

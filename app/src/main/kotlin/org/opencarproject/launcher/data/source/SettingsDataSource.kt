@@ -80,6 +80,7 @@ class SettingsDataSource(private val context: Context) {
     private val moduleCornerKey = intPreferencesKey("module_corner_dp")
     private val assistantStyleKey = stringPreferencesKey("assistant_style")
     private val embeddedMapAppKey = stringPreferencesKey("embedded_map_app")
+    private val embeddedMapScaleKey = intPreferencesKey("embedded_map_scale")
     private val assistantGlowKey = booleanPreferencesKey("assistant_glow")
     private val climateBarKey = booleanPreferencesKey("climate_bar")
     private val reverseOverlayKey = booleanPreferencesKey("reverse_overlay")
@@ -143,6 +144,7 @@ class SettingsDataSource(private val context: Context) {
             prefs[reverseBrightnessKey] = next.reverseBrightness
             prefs[reverseContrastKey] = next.reverseContrast
             prefs[embeddedMapAppKey] = next.embeddedMapApp
+            prefs[embeddedMapScaleKey] = next.embeddedMapScale
         }
     }
 
@@ -194,6 +196,7 @@ class SettingsDataSource(private val context: Context) {
         reverseBrightness = (this[reverseBrightnessKey] ?: 0.5f).coerceIn(0f, 1f),
         reverseContrast = (this[reverseContrastKey] ?: 0.5f).coerceIn(0f, 1f),
         embeddedMapApp = this[embeddedMapAppKey] ?: "",
+        embeddedMapScale = (this[embeddedMapScaleKey] ?: 100).coerceIn(50, 100),
     )
 
     /** Stored value, or the default if missing or from a version that no longer exists. */

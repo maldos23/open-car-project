@@ -17,6 +17,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +41,7 @@ import org.opencarproject.launcher.data.embed.EmbeddedAppSession
  * elsewhere it explains why and offers to open the app normally.
  */
 @Composable
-fun EmbeddedMapCard(chosenPackage: String, modifier: Modifier = Modifier) {
+fun EmbeddedMapCard(chosenPackage: String, renderScale: Float = 1f, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     // The app chosen in Settings if still installed, else the default navigation app.
     val packageName = remember(chosenPackage) {
@@ -52,15 +53,16 @@ fun EmbeddedMapCard(chosenPackage: String, modifier: Modifier = Modifier) {
         return
     }
     // A new app means a new display and session: the old app's task closes with its display.
-    key(packageName) { EmbeddedApp(packageName, modifier) }
+    key(packageName) { EmbeddedApp(packageName, renderScale, modifier) }
 }
 
 // Every touch is replayed in the embedded app, which does its own click handling.
 @SuppressLint("ClickableViewAccessibility")
 @Composable
-private fun EmbeddedApp(packageName: String, modifier: Modifier) {
+private fun EmbeddedApp(packageName: String, renderScale: Float, modifier: Modifier) {
     val context = LocalContext.current
     val session = remember(packageName) { EmbeddedAppSession.of(context, packageName) }
+    SideEffect { session.renderScale = renderScale }
     var state by remember(session) { mutableStateOf(session.state) }
     // Leaving composition only detaches: the app keeps running on the session's display.
     DisposableEffect(session) {
@@ -77,6 +79,10 @@ private fun EmbeddedApp(packageName: String, modifier: Modifier) {
             factory = {
                 SurfaceView(it).apply {
                     holder.addCallback(session)
+                    // The buffer follows the card's size at the chosen resolution.
+                    addOnLayoutChangeListener { _, l, t, r, b, ol, ot, or, ob ->
+                        if (r - l != or - ol || b - t != ob - ot) session.fit(holder, r - l, b - t)
+                    }
                     setOnTouchListener { _, event -> session.onTouch(event); true }
                 }
             },

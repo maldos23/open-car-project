@@ -246,7 +246,7 @@ fun PlacedItemCard(
                 CatalogItemKind.CLIMATE -> ClimateCard()
                 CatalogItemKind.EMBEDDED_MAP -> {
                     val settings by viewModel.settings.collectAsStateWithLifecycle()
-                    EmbeddedMapCard(settings.embeddedMapApp)
+                    EmbeddedMapCard(settings.embeddedMapApp, settings.embeddedMapScale / 100f)
                 }
             }
         }
