@@ -1,5 +1,6 @@
 package org.opencarproject.launcher.core.pure
 
+import org.opencarproject.launcher.core.model.DoorState
 import org.opencarproject.launcher.core.model.RadarSensor
 import org.opencarproject.launcher.core.model.closest
 import org.junit.Assert.assertEquals
@@ -84,5 +85,15 @@ class RadarProtocolTest {
         assertNull(RadarProtocol.parseRadar(frame(type = 3)))
         assertNull(RadarProtocol.parseRadar(frame(data = ByteArray(20))))
         assertNull(RadarProtocol.parseRadar(ByteArray(0)))
+    }
+
+    @Test
+    fun parseDoors_readsEachBit() {
+        // Front left (bit 7) and trunk (bit 3) open.
+        val open = RadarProtocol.parseDoors(frame(type = 3, data = byteArrayOf(0x88.toByte())))
+        assertEquals(DoorState(frontLeft = true, trunk = true), open)
+        assertEquals(DoorState(), RadarProtocol.parseDoors(frame(type = 3, data = byteArrayOf(0))))
+        assertFalse(DoorState().anyOpen)
+        assertNull(RadarProtocol.parseDoors(frame()))
     }
 }

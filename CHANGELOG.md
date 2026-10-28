@@ -6,6 +6,22 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **Launcher door alert:** a setting in Climate to show open doors, trunk and hood over every app
+  with the launcher's design (a car from above with what's open in red) instead of the stereo's
+  own view, read live from the CAN app. The stereo's view comes back when it's switched off.
+- **Launcher volume indicator:** an optional pill over every app with the launcher's design when
+  the volume changes (knob, steering wheel or dock). The stereo's own bar can't be switched off by
+  a regular app, so it still shows at the top.
+- **Resume the last track:** the player keeps the last song and app after the car restarts; Play
+  wakes that app up and resumes it.
+
+### Fixed
+
+- **Volume:** on QF head units the dock volume shows and changes the stereo's real volume (the one
+  its own bar shows), not Android's music stream.
+
 ## [0.17.0] - 2026-10-28
 
 ### Added

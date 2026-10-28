@@ -66,6 +66,8 @@ data class ClimateVendor(
     val acPopupSetting: String,
     val carModeProperty: String,
     val acFrameType: Int,
+    /** Popup type of the vendor's door view (`extra_popup_type` 3: "another app shows the doors"). */
+    val doorPopupType: Int = 3,
 )
 
 /** What the climate card can show. */

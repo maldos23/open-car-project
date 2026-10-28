@@ -349,4 +349,15 @@
     <string name="update_channel">App updates</string>
     <string name="update_notification_title">Update available</string>
     <string name="update_notification_text">Open Car Project %1$s is ready. Tap to install it.</string>
+    <string name="settings_door_alert">Launcher door alert</string>
+    <string name="settings_door_alert_desc">Shows open doors, trunk and hood over every app with the launcher\'s design, instead of the stereo\'s</string>
+    <string name="doors_open">Open</string>
+    <string name="door_front_left">Front left door</string>
+    <string name="door_front_right">Front right door</string>
+    <string name="door_rear_left">Rear left door</string>
+    <string name="door_rear_right">Rear right door</string>
+    <string name="door_trunk">Trunk</string>
+    <string name="door_hood">Hood</string>
+    <string name="settings_volume_indicator">Launcher volume indicator</string>
+    <string name="settings_volume_indicator_desc">Shows the volume over every app with the launcher\'s design when it changes. The stereo\'s own bar can\'t be turned off and still appears at the top</string>
 </resources>

@@ -10,6 +10,18 @@ data class RadarSensor(val zone: Int, val distanceCm: Int? = null) {
     val detected: Boolean get() = zone > 0
 }
 
+/** Open/closed state of each door, the trunk and the hood (true = open). */
+data class DoorState(
+    val frontLeft: Boolean = false,
+    val frontRight: Boolean = false,
+    val rearLeft: Boolean = false,
+    val rearRight: Boolean = false,
+    val trunk: Boolean = false,
+    val hood: Boolean = false,
+) {
+    val anyOpen: Boolean get() = frontLeft || frontRight || rearLeft || rearRight || trunk || hood
+}
+
 /** Parking radar state; each zone lists its sensors from the car's left to its right. */
 data class RadarState(
     val front: List<RadarSensor>,
