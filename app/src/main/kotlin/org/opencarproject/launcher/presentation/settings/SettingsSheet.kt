@@ -771,6 +771,18 @@ private fun ReverseCameraSettings(settings: LauncherSettings, onChange: ((Launch
                         range = 0f..1f,
                         steps = 9,
                     ) { v -> onChange { it.copy(reverseSharpness = v) } }
+                    SliderRow(
+                        title = stringResource(R.string.settings_reverse_brightness),
+                        value = settings.reverseBrightness,
+                        range = 0f..1f,
+                        steps = 9,
+                    ) { v -> onChange { it.copy(reverseBrightness = v) } }
+                    SliderRow(
+                        title = stringResource(R.string.settings_reverse_contrast),
+                        value = settings.reverseContrast,
+                        range = 0f..1f,
+                        steps = 9,
+                    ) { v -> onChange { it.copy(reverseContrast = v) } }
                 }
             }
             val ids = remember { runCatching { context.getSystemService(CameraManager::class.java).cameraIdList.toList() }.getOrDefault(emptyList()) }

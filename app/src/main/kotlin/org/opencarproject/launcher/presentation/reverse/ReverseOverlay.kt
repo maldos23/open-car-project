@@ -110,7 +110,7 @@ object ReverseOverlay {
     private var owner: OverlayOwner? = null
     private val preview = MutableStateFlow(false)
     /** Cleanup strengths, pushed live to an open preview. */
-    internal val imageTuning = MutableStateFlow(ReverseImageTuning.of(0.6f, 0.3f))
+    internal val imageTuning = MutableStateFlow(ReverseImageTuning.of(0.8f, 0.2f))
     /** Closed by the user during this reverse; reopens on the next one. */
     private val dismissed = MutableStateFlow(false)
 
@@ -118,7 +118,7 @@ object ReverseOverlay {
     fun apply(context: Context, next: LauncherSettings) {
         val app = context.applicationContext
         settings = next
-        imageTuning.value = ReverseImageTuning.of(next.reverseDenoise, next.reverseSharpness)
+        imageTuning.value = ReverseImageTuning.of(next.reverseDenoise, next.reverseSharpness, next.reverseBrightness, next.reverseContrast)
         ReverseSource.hideVendorView = next.reverseOverlay && next.hideSystemReverseView
         if (!next.reverseOverlay) {
             scope?.cancel(); scope = null

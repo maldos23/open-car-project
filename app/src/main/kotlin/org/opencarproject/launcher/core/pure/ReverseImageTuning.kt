@@ -16,9 +16,14 @@ data class ReverseImageTuning(
     val chromaSmoothing: Float,
     /** Unsharp-mask amount. */
     val sharpen: Float,
+    /** Added to every channel (-0.25..0.25; 0 = unchanged). */
+    val brightness: Float = 0f,
+    /** Gain around mid-grey (0.5..1.5; 1 = unchanged). */
+    val contrast: Float = 1f,
 ) {
     companion object {
-        fun of(denoise: Float, sharpness: Float): ReverseImageTuning {
+        /** All sliders are 0..1; brightness and contrast are neutral at 0.5. */
+        fun of(denoise: Float, sharpness: Float, brightness: Float = 0.5f, contrast: Float = 0.5f): ReverseImageTuning {
             val d = denoise.coerceIn(0f, 1f)
             val s = sharpness.coerceIn(0f, 1f)
             return ReverseImageTuning(
@@ -27,6 +32,8 @@ data class ReverseImageTuning(
                 edgeFalloff = lerp(80f, 10f, d),
                 chromaSmoothing = d,
                 sharpen = s * 1.2f,
+                brightness = (brightness.coerceIn(0f, 1f) - 0.5f) * 0.5f,
+                contrast = 0.5f + contrast.coerceIn(0f, 1f),
             )
         }
 

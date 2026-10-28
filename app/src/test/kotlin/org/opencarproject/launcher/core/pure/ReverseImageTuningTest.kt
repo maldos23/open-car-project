@@ -24,6 +24,16 @@ class ReverseImageTuningTest {
     }
 
     @Test
+    fun brightnessAndContrast_neutralAtHalf() {
+        val n = ReverseImageTuning.of(0.5f, 0.5f)
+        assertEquals(0f, n.brightness, 1e-6f)
+        assertEquals(1f, n.contrast, 1e-6f)
+        val t = ReverseImageTuning.of(0.5f, 0.5f, brightness = 1f, contrast = 0f)
+        assertEquals(0.25f, t.brightness, 1e-6f)
+        assertEquals(0.5f, t.contrast, 1e-6f)
+    }
+
+    @Test
     fun valuesAreClamped() {
         assertEquals(ReverseImageTuning.of(1f, 1f), ReverseImageTuning.of(5f, 9f))
         assertEquals(ReverseImageTuning.of(0f, 0f), ReverseImageTuning.of(-1f, -1f))

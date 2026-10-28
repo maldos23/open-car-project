@@ -157,6 +157,8 @@
     <string name="settings_reverse_clean_image_desc">Quita el ruido analógico y las líneas de entrelazado y da nitidez a la cámara de reversa, con la GPU.</string>
     <string name="settings_reverse_denoise">Reducción de ruido</string>
     <string name="settings_reverse_sharpness">Nitidez</string>
+    <string name="settings_reverse_brightness">Brillo</string>
+    <string name="settings_reverse_contrast">Contraste</string>
     <string name="reverse_camera_option">Cámara %1$s</string>
     <string name="settings_reverse_permission">Permitir mostrar sobre otras apps</string>
     <string name="settings_reverse_test">Probar</string>

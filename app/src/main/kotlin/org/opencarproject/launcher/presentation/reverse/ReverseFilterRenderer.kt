@@ -42,7 +42,7 @@ class ReverseFilterRenderer(
 
     @Volatile private var outWidth = outputWidth
     @Volatile private var outHeight = outputHeight
-    @Volatile private var tuning = ReverseImageTuning.of(denoise = 0.6f, sharpness = 0.3f)
+    @Volatile private var tuning = ReverseImageTuning.of(denoise = 0.8f, sharpness = 0.2f)
 
     /** New slider values; applied from the next frame. */
     fun setTuning(value: ReverseImageTuning) {
@@ -172,6 +172,8 @@ class ReverseFilterRenderer(
             GLES20.glUniform1i(GLES20.glGetUniformLocation(sharpen, "uFrame"), 0)
             GLES20.glUniform2f(GLES20.glGetUniformLocation(sharpen, "uTexel"), 1f / inputSize.width, 1f / inputSize.height)
             GLES20.glUniform1f(GLES20.glGetUniformLocation(sharpen, "uAmount"), t.sharpen)
+            GLES20.glUniform1f(GLES20.glGetUniformLocation(sharpen, "uBrightness"), t.brightness)
+            GLES20.glUniform1f(GLES20.glGetUniformLocation(sharpen, "uContrast"), t.contrast)
             GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
             EGL14.eglSwapBuffers(display, surface)
 
@@ -322,6 +324,8 @@ class ReverseFilterRenderer(
             uniform sampler2D uFrame;
             uniform vec2 uTexel;
             uniform float uAmount;
+            uniform float uBrightness;
+            uniform float uContrast;
             varying vec2 vUv;
             void main() {
                 vec3 c = texture2D(uFrame, vUv).rgb;
@@ -329,7 +333,9 @@ class ReverseFilterRenderer(
                     + texture2D(uFrame, vUv - vec2(uTexel.x, 0.0)).rgb
                     + texture2D(uFrame, vUv + vec2(0.0, uTexel.y)).rgb
                     + texture2D(uFrame, vUv - vec2(0.0, uTexel.y)).rgb) * 0.25;
-                gl_FragColor = vec4(clamp(c + (c - blur) * uAmount, 0.0, 1.0), 1.0);
+                vec3 sharp = c + (c - blur) * uAmount;
+                // Contrast around mid-grey, then brightness.
+                gl_FragColor = vec4(clamp((sharp - 0.5) * uContrast + 0.5 + uBrightness, 0.0, 1.0), 1.0);
             }
         """
     }
