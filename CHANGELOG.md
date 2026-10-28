@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Much lower CPU and GPU use on head units:
+  - The embedded map no longer runs while you're in another app or the screen is off (the
+    navigation app keeps guiding in the background, as when you switch to it).
+  - Map frames are shown as their own layer instead of redrawing the whole home screen every frame.
+  - Decorative animations (background, glows, weather, player) run at a lower frame rate.
+  - The speed scene holds still while the car is parked under a dry sky.
+
 ## [0.13.2] - 2026-10-27
 
 ### Fixed

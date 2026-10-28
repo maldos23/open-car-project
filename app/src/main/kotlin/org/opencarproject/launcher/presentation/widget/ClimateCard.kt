@@ -1,10 +1,9 @@
 package org.opencarproject.launcher.presentation.widget
 
+import org.opencarproject.launcher.presentation.common.rememberAmbientFloat
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -211,8 +210,7 @@ private fun Modifier.iceWind(activity: Float, fan: Int): Modifier {
         val r = Random(7)
         List(FLAKES) { Flake(r.nextFloat(), r.nextFloat(), 1 + r.nextInt(3), 0.6f + r.nextFloat() * 0.8f, r.nextFloat() * 2f * PI.toFloat(), r.nextFloat()) }
     }
-    val phase = rememberInfiniteTransition(label = "wind")
-        .animateFloat(0f, 1f, infiniteRepeatable(tween(9_000, easing = LinearEasing)), label = "phase")
+    val phase = rememberAmbientFloat(0f, 1f, 9_000)
     val color = MaterialTheme.colorScheme.primary
     // Always a breeze when on; each fan step adds flakes.
     val visible = (8 + fan * 3).coerceAtMost(FLAKES)

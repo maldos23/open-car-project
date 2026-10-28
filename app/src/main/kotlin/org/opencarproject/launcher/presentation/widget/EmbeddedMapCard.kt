@@ -1,7 +1,7 @@
 package org.opencarproject.launcher.presentation.widget
 
 import android.annotation.SuppressLint
-import android.view.TextureView
+import android.view.SurfaceView
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -75,8 +75,8 @@ private fun EmbeddedApp(packageName: String, modifier: Modifier) {
     Box(modifier.fillMaxSize()) {
         AndroidView(
             factory = {
-                TextureView(it).apply {
-                    surfaceTextureListener = session
+                SurfaceView(it).apply {
+                    holder.addCallback(session)
                     setOnTouchListener { _, event -> session.onTouch(event); true }
                 }
             },

@@ -2,14 +2,12 @@ package org.opencarproject.launcher.data.embed
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.SurfaceTexture
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.os.Handler
 import android.os.Looper
 import android.view.MotionEvent
-import android.view.Surface
-import android.view.TextureView
+import android.view.SurfaceHolder
 import dadb.AdbStream
 import org.opencarproject.launcher.core.pure.StackList
 import org.opencarproject.launcher.core.pure.TouchLine
@@ -22,17 +20,22 @@ import java.util.concurrent.TimeUnit
 enum class EmbedState { CONNECTING, RUNNING, UNAVAILABLE }
 
 /**
- * Runs [packageName] inside a TextureView: its surface backs a VirtualDisplay owned by the
+ * Runs [packageName] inside a SurfaceView: its surface backs a VirtualDisplay owned by the
  * launcher, the root adb shell moves the app's stack onto that display, and [TouchInjector] (as root)
  * replays the card's touches there. All adb I/O happens on one background thread, in order.
  *
  * Sessions outlive the card's composition (see [of]): the pager or a sheet may dispose the card,
  * and releasing the display would close the app with it.
+ *
+ * A SurfaceView (not a TextureView) keeps the app's frames out of the launcher's window: the
+ * system composes them as their own layer, so the launcher doesn't redraw for every map frame.
+ * Its surface also goes away while the home screen is hidden, which turns the display off and
+ * stops the app drawing frames nobody sees.
  */
 class EmbeddedAppSession private constructor(
     private val context: Context,
     private val packageName: String,
-) : TextureView.SurfaceTextureListener {
+) : SurfaceHolder.Callback {
 
     /** Last state, read by a card that (re)attaches; [listener] hears the changes. Main thread. */
     var state = EmbedState.CONNECTING
@@ -46,37 +49,32 @@ class EmbeddedAppSession private constructor(
     // Written on the io thread: the app was last seen running on the display.
     @Volatile private var running = false
     private var touch: AdbStream? = null
-    private var surface: Surface? = null
 
+    override fun surfaceCreated(holder: SurfaceHolder) = Unit
+
+    // Always follows surfaceCreated with the size.
     @SuppressLint("WrongConstant") // FLAGS includes the hidden DESTROY_CONTENT_ON_REMOVAL.
-    override fun onSurfaceTextureAvailable(texture: SurfaceTexture, width: Int, height: Int) {
-        val surface = Surface(texture).also { this.surface = it }
+    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
         val dpi = context.resources.displayMetrics.densityDpi
         display?.let {
-            it.surface = surface
+            val reattached = it.surface !== holder.surface
+            it.surface = holder.surface
             it.resize(width, height, dpi)
-            // The vendor may have killed the app while the card was hidden: check (quietly).
-            start(showProgress = false)
+            // The app may have moved or been closed while the card was hidden: a quiet check
+            // that never cold-starts an app the user closed or retries an unavailable card.
+            if (reattached && !io.isShutdown) io.execute(::keepOnCard)
             return
         }
         display = context.getSystemService(DisplayManager::class.java)
-            .createVirtualDisplay(NAME, width, height, dpi, surface, FLAGS)
+            .createVirtualDisplay(NAME, width, height, dpi, holder.surface, FLAGS)
         start()
     }
 
-    override fun onSurfaceTextureSizeChanged(texture: SurfaceTexture, width: Int, height: Int) {
-        display?.resize(width, height, context.resources.displayMetrics.densityDpi)
+    // Without a surface the display turns off; it survives until the card shows again.
+    // A recomposed card may attach its new view before the old one lets go: only detach our own.
+    override fun surfaceDestroyed(holder: SurfaceHolder) {
+        display?.takeIf { it.surface === holder.surface }?.surface = null
     }
-
-    // The display survives while the card is off screen; it just stops drawing.
-    override fun onSurfaceTextureDestroyed(texture: SurfaceTexture): Boolean {
-        display?.surface = null
-        surface?.release()
-        surface = null
-        return true
-    }
-
-    override fun onSurfaceTextureUpdated(texture: SurfaceTexture) = Unit
 
     /** Connects (again) and puts the app on the display, starting it if it isn't running. */
     fun start(showProgress: Boolean = true) {

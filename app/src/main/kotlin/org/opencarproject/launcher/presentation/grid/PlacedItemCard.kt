@@ -205,7 +205,9 @@ fun PlacedItemCard(
                 val p = presence.value
                 scaleX = scale * (0.85f + 0.15f * p)
                 scaleY = scale * (0.85f + 0.15f * p)
-                alpha = p
+                // A SurfaceView (embedded map) is its own system layer: fading the card would hide
+                // it until the fade ends, so that card only scales in.
+                if (item.kind != CatalogItemKind.EMBEDDED_MAP) alpha = p
                 shadowElevation = elevation.toPx()
                 shape = cardShape
                 clip = false
