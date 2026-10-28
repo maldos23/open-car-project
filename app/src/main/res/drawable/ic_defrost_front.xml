@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Front defrost: windshield with three wavy arrows rising through it. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Windshield: curved top and bottom edges, slanted sides. -->
+    <path
+        android:pathData="M3.2,6.4 Q12,2.2 20.8,6.4 L16.2,16.6 Q12,14.6 7.8,16.6 Z"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="1.5"
+        android:strokeLineJoin="miter" />
+    <!-- Arrow stems, gently S-shaped from below the windshield up into it. -->
+    <path
+        android:pathData="M10.2,21.5 C10.2,19 8.9,17.4 8.9,14.6 L8.9,10.4 M13.1,21.5 C13.1,19 11.8,17.4 11.8,14.6 L11.8,10.4 M16,21.5 C16,19 14.7,17.4 14.7,14.6 L14.7,10.4"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="1.4" />
+    <!-- Arrow heads. -->
+    <path
+        android:pathData="M8.9,7.2 L10.5,10.4 L7.3,10.4 Z M11.8,7.2 L13.4,10.4 L10.2,10.4 Z M14.7,7.2 L16.3,10.4 L13.1,10.4 Z"
+        android:fillColor="#FF000000" />
+</vector>

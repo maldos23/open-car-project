@@ -6,6 +6,17 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Settings → Climate → "Over every app" (off by default, under "Climate bar"): the climate bar
+  also slides up over other apps, such as a map, with the same show and hide animation. It never
+  takes the keyboard and only covers itself. Needs "display over other apps".
+
+### Changed
+
+- With the air going only to the windshield ("FRONT"), the climate bar and card show the usual
+  front defrost symbol (windshield with rising arrows) instead of the seated person.
+
 ## [0.15.1] - 2026-10-28
 
 ### Fixed

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,6 +22,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -70,6 +72,10 @@ fun FanBars(state: ClimateState, modifier: Modifier = Modifier, barHeight: Dp = 
 fun AirModeIcon(state: ClimateState, modifier: Modifier = Modifier, size: Dp = 32.dp) {
     val color = if (state.power) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
     val description = airModeLabel(state)
+    // Windshield only ("FRONT"): the usual front defrost symbol reads better than the person.
+    if (ClimateProtocol.blowsWindshield(state) && !state.airFace && !state.airFeet) {
+        return Icon(painterResource(R.drawable.ic_defrost_front), description, modifier.size(size), tint = color)
+    }
     Canvas(modifier.size(size).semantics { contentDescription = description }) {
         val s = this.size.minDimension
         val w = s * 0.09f
