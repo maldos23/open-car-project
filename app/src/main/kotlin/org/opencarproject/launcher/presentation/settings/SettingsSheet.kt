@@ -751,6 +751,11 @@ private fun ReverseCameraSettings(settings: LauncherSettings, onChange: ((Launch
                 stringResource(R.string.settings_reverse_hide_system_desc),
                 settings.hideSystemReverseView,
             ) { v -> onChange { it.copy(hideSystemReverseView = v) } }
+            SwitchRow(
+                stringResource(R.string.settings_reverse_clean_image),
+                stringResource(R.string.settings_reverse_clean_image_desc),
+                settings.reverseCleanImage,
+            ) { v -> onChange { it.copy(reverseCleanImage = v) } }
             val ids = remember { runCatching { context.getSystemService(CameraManager::class.java).cameraIdList.toList() }.getOrDefault(emptyList()) }
             if (ids.size > 1) {
                 Choice(

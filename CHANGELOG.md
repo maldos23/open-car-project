@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Settings → Reverse camera → "Clean up the image" (off by default): the analog reverse video is
+  processed on the GPU before it's shown: interlacing lines blended, edge-preserving and temporal
+  denoise (removes most of the analog grain), and a light sharpen. Falls back to the plain
+  preview if the GPU can't run it.
+
 ### Changed
 
 - Reverse overlay radar: a one-color top view of the car with three proximity arcs in front and

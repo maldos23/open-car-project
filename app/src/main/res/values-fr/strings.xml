@@ -153,6 +153,8 @@
     <string name="settings_reverse_camera">Caméra</string>
     <string name="settings_reverse_hide_system">Masquer la caméra du système</string>
     <string name="settings_reverse_hide_system_desc">Ferme la vue de recul plein écran de l\'autoradio pour que cette fenêtre flottante soit visible.</string>
+    <string name="settings_reverse_clean_image">Nettoyer l\'image</string>
+    <string name="settings_reverse_clean_image_desc">Supprime le bruit analogique et les lignes d\'entrelacement et rend la caméra de recul plus nette, sur le GPU.</string>
     <string name="reverse_camera_option">Caméra %1$s</string>
     <string name="settings_reverse_permission">Autoriser l\'affichage par-dessus les autres apps</string>
     <string name="settings_reverse_test">Tester</string>
