@@ -545,6 +545,10 @@ fun SettingsSheet(
                         onChange { it.copy(climateBar = v) }
                     }
                     ClimateEverywhereSettings(settings, onChange)
+                    SwitchRow(stringResource(R.string.settings_door_alert), stringResource(R.string.settings_door_alert_desc), settings.launcherDoorAlert) { v ->
+                        onChange { it.copy(launcherDoorAlert = v) }
+                    }
+                    OverlayPermissionButton(settings.launcherDoorAlert)
                 }
             }
 
@@ -855,12 +859,6 @@ private fun UpdateSettings(settings: LauncherSettings, onChange: ((LauncherSetti
 /** Climate bar over every app: switch and overlay permission, only while the bar is on. */
 @Composable
 private fun ClimateEverywhereSettings(settings: LauncherSettings, onChange: ((LauncherSettings) -> LauncherSettings) -> Unit) {
-    val context = LocalContext.current
-    var canDraw by remember { mutableStateOf(ClimateOverlay.canDraw(context)) }
-    LifecycleResumeEffect(Unit) {
-        canDraw = ClimateOverlay.canDraw(context)
-        onPauseOrDispose { }
-    }
     AnimatedVisibility(settings.climateBar) {
         SwitchRow(
             stringResource(R.string.settings_climate_bar_everywhere),
@@ -868,7 +866,19 @@ private fun ClimateEverywhereSettings(settings: LauncherSettings, onChange: ((La
             settings.climateBarEverywhere,
         ) { v -> onChange { it.copy(climateBarEverywhere = v) } }
     }
-    AnimatedVisibility(settings.climateBar && settings.climateBarEverywhere && !canDraw) {
+    OverlayPermissionButton(settings.climateBar && settings.climateBarEverywhere)
+}
+
+/** Opens "display over other apps" while [needed] and the permission is missing. */
+@Composable
+private fun OverlayPermissionButton(needed: Boolean) {
+    val context = LocalContext.current
+    var canDraw by remember { mutableStateOf(ClimateOverlay.canDraw(context)) }
+    LifecycleResumeEffect(Unit) {
+        canDraw = ClimateOverlay.canDraw(context)
+        onPauseOrDispose { }
+    }
+    AnimatedVisibility(needed && !canDraw) {
         FilledTonalButton(
             onClick = {
                 runCatching {

@@ -3,7 +3,9 @@ package org.opencarproject.launcher.data.source
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.media.MediaMetadata
 import android.media.session.MediaController
 import android.media.session.MediaSession
@@ -12,6 +14,10 @@ import android.media.session.PlaybackState
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.KeyEvent
+import androidx.core.content.edit
+import java.io.File
+import kotlin.concurrent.thread
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -38,6 +44,8 @@ data class NowPlaying(
     val queueTitle: String = "",
     /** [QueueEntry.id] of the item playing now, or -1 if unknown. */
     val activeQueueId: Long = -1,
+    /** Remembered from an earlier session that is gone: play wakes its app up again. */
+    val restored: Boolean = false,
 )
 
 /** One item of the player app's queue; [id] is what `skipToQueueItem` takes. */
@@ -186,7 +194,9 @@ object MediaSessionSource {
     private var lastAnnouncedTrack: Triple<String, String, String>? = null
 
     private fun publish() {
-        val next = controller?.toNowPlaying()
+        val live = controller?.toNowPlaying()
+        live?.let(::remember)
+        val next = live ?: lastTrack()
         _nowPlaying.value = next
         if (next == null || next.title.isBlank() || !next.isPlaying) return
         val track = Triple(next.packageName, next.title, next.artist)
@@ -195,6 +205,70 @@ object MediaSessionSource {
             _trackChanged.tryEmit(next)
         }
     }
+
+    /**
+     * Plays the live session or, when it's gone (car restarted, app killed), wakes the app of the
+     * remembered track with a media-button press, which players handle by resuming where they were.
+     * Apps without a media-button receiver are just opened.
+     */
+    fun play(context: Context) {
+        controller?.let { return it.transportControls.play() }
+        val pkg = last?.packageName ?: return
+        val button = Intent(Intent.ACTION_MEDIA_BUTTON).setPackage(pkg)
+        if (context.packageManager.queryBroadcastReceivers(button, 0).isEmpty()) {
+            context.packageManager.getLaunchIntentForPackage(pkg)?.let {
+                runCatching { context.startActivity(it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+            }
+            return
+        }
+        for (action in listOf(KeyEvent.ACTION_DOWN, KeyEvent.ACTION_UP)) {
+            context.sendBroadcast(Intent(button).putExtra(Intent.EXTRA_KEY_EVENT, KeyEvent(action, KeyEvent.KEYCODE_MEDIA_PLAY)))
+        }
+    }
+
+    /** The track last seen playing, persisted in the app's data so it survives restarts and updates. */
+    private var last: NowPlaying? = null
+    private var lastLoaded = false
+
+    private fun remember(track: NowPlaying) {
+        if (track.title.isBlank()) return
+        val old = last
+        if (old != null && old.packageName == track.packageName && old.title == track.title && old.artist == track.artist && old.art === track.art) return
+        last = track.copy(isPlaying = false, durationMs = 0, positionMs = 0, sessionActivity = null, queue = emptyList(), restored = true)
+        lastLoaded = true
+        val context = app ?: return
+        thread(name = "last-track") {
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit {
+                putString("package", track.packageName).putString("title", track.title)
+                putString("artist", track.artist).putString("album", track.album)
+            }
+            val file = File(context.filesDir, ART_FILE)
+            runCatching { if (track.art == null) file.delete() else file.outputStream().use { track.art.compress(Bitmap.CompressFormat.PNG, 100, it) } }
+        }
+    }
+
+    private fun lastTrack(): NowPlaying? {
+        if (!lastLoaded) {
+            lastLoaded = true
+            val context = app ?: return null
+            val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            val pkg = prefs.getString("package", null) ?: return null
+            last = NowPlaying(
+                packageName = pkg,
+                title = prefs.getString("title", "").orEmpty(),
+                artist = prefs.getString("artist", "").orEmpty(),
+                album = prefs.getString("album", "").orEmpty(),
+                art = runCatching { BitmapFactory.decodeFile(File(context.filesDir, ART_FILE).path) }.getOrNull(),
+                isPlaying = false, durationMs = 0, positionMs = 0, positionUpdatedAt = 0, speed = 0f,
+                sessionActivity = null, restored = true,
+            )
+        }
+        // An app that was uninstalled can't be resumed.
+        return last?.takeIf { t -> app?.packageManager?.getLaunchIntentForPackage(t.packageName) != null }
+    }
+
+    private const val PREFS = "last_track"
+    private const val ART_FILE = "last_track_art.png"
 
     private fun MediaController.toNowPlaying(): NowPlaying {
         val meta = metadata

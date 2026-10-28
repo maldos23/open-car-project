@@ -322,4 +322,13 @@
     <string name="update_channel">应用更新</string>
     <string name="update_notification_title">有可用更新</string>
     <string name="update_notification_text">Open Car Project %1$s 已就绪。点按即可安装。</string>
+    <string name="settings_door_alert">启动器车门提醒</string>
+    <string name="settings_door_alert_desc">以启动器的样式在所有应用上方显示打开的车门、后备箱和引擎盖，而不是使用主机自带的提醒</string>
+    <string name="doors_open">已打开</string>
+    <string name="door_front_left">左前门</string>
+    <string name="door_front_right">右前门</string>
+    <string name="door_rear_left">左后门</string>
+    <string name="door_rear_right">右后门</string>
+    <string name="door_trunk">后备箱</string>
+    <string name="door_hood">引擎盖</string>
 </resources>

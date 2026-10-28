@@ -56,6 +56,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.delay
+import org.opencarproject.launcher.data.source.StereoVolume
 import kotlin.math.roundToInt
 
 /** `VOLUME_CHANGED_ACTION` is a hidden SDK constant, but the broadcast is receivable. */
@@ -65,16 +66,18 @@ private const val ACTION_VOLUME_CHANGED = "android.media.VOLUME_CHANGED_ACTION"
 private const val AUTO_HIDE_MS = 4_000L
 
 /**
- * Dock volume button: the badge shows the media audio level (%) and updates
- * live, including when changed with the physical or steering-wheel buttons. Tapping it opens a
+ * Dock volume button: the badge shows the audio level (%) and updates live (the stereo's own
+ * volume on QF head units, where it drives the speakers; otherwise Android's music stream), including when changed with the physical or steering-wheel buttons. Tapping it opens a
  * floating control with mute, −, bar and +.
  */
 @Composable
 fun VolumeButton(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val audio = remember { context.getSystemService(AudioManager::class.java) }
-    val max = remember { audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1) }
-    var level by remember { mutableIntStateOf(audio.getStreamVolume(AudioManager.STREAM_MUSIC)) }
+    val stereo = remember { StereoVolume.get() != null }
+    val max = remember { if (stereo) StereoVolume.MAX else audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1) }
+    fun read() = if (stereo) StereoVolume.get() ?: 0 else audio.getStreamVolume(AudioManager.STREAM_MUSIC)
+    var level by remember { mutableIntStateOf(read()) }
     // Last level before muting, to restore it when unmuting.
     var beforeMute by remember { mutableIntStateOf(max / 2) }
     val popup = remember { MutableTransitionState(false) }
@@ -83,18 +86,20 @@ fun VolumeButton(modifier: Modifier = Modifier) {
     DisposableEffect(audio) {
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(c: Context, intent: Intent) {
-                level = audio.getStreamVolume(AudioManager.STREAM_MUSIC)
+                level = read()
             }
         }
-        ContextCompat.registerReceiver(context, receiver, IntentFilter(ACTION_VOLUME_CHANGED), ContextCompat.RECEIVER_NOT_EXPORTED)
+        // The stereo's broadcast comes from its firmware app, so that receiver must be exported.
+        if (stereo) ContextCompat.registerReceiver(context, receiver, IntentFilter(StereoVolume.ACTION_CHANGED), ContextCompat.RECEIVER_EXPORTED)
+        else ContextCompat.registerReceiver(context, receiver, IntentFilter(ACTION_VOLUME_CHANGED), ContextCompat.RECEIVER_NOT_EXPORTED)
         onDispose { context.unregisterReceiver(receiver) }
     }
 
     fun setLevel(value: Int) {
         val clamped = value.coerceIn(0, max)
         // No FLAG_SHOW_UI: our own control replaces the system panel.
-        runCatching { audio.setStreamVolume(AudioManager.STREAM_MUSIC, clamped, 0) }
-        level = audio.getStreamVolume(AudioManager.STREAM_MUSIC)
+        if (stereo) StereoVolume.set(clamped) else runCatching { audio.setStreamVolume(AudioManager.STREAM_MUSIC, clamped, 0) }
+        level = read()
         lastTouch = System.currentTimeMillis()
     }
 

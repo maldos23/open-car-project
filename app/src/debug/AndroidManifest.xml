@@ -12,6 +12,7 @@
                 <action android:name="org.opencarproject.launcher.DEBUG_WALLPAPER" />
                 <action android:name="org.opencarproject.launcher.DEBUG_RADAR" />
                 <action android:name="org.opencarproject.launcher.DEBUG_CLIMATE" />
+                <action android:name="org.opencarproject.launcher.DEBUG_DOORS" />
             </intent-filter>
         </receiver>
     </application>

@@ -2,9 +2,11 @@ package org.opencarproject.launcher.debug
 
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import org.opencarproject.launcher.core.model.DoorState
 import org.opencarproject.launcher.core.model.ClimateState
 import org.opencarproject.launcher.core.model.ClimateTemp
 import org.opencarproject.launcher.data.source.ClimateSource
+import org.opencarproject.launcher.data.source.DoorSource
 import org.opencarproject.launcher.data.source.SettingsDataSource
 import android.content.BroadcastReceiver
 import androidx.core.graphics.createBitmap
@@ -36,6 +38,9 @@ import org.opencarproject.launcher.data.source.ReverseSource
  *   --ei temp 22 --ei fan 3 [--es air face|feet|front] [--ez off true] [--ez everywhere true]
  *   (the bar only shows on a change, so send two different readings)
  *
+ * Fake doors (door alert): ... -a org.opencarproject.launcher.DEBUG_DOORS \
+ *   --es open "fl,fr,rl,rr,trunk,hood" (any subset; "none" closes all) [--ez enable true]
+ *
  * adb shell am broadcast -n org.opencarproject.launcher/.debug.FakeMediaSessionReceiver \
  *   -a org.opencarproject.launcher.DEBUG_MEDIA --es title "Canción" --es artist "Artista" \
  *   --es album "Álbum" --ei color 0xE53935 --es state play|pause|stop --el duration 210000 --el position 30000
@@ -61,6 +66,17 @@ class FakeMediaSessionReceiver : BroadcastReceiver() {
                     right = zones("right", "-1,-1,-1,-1"),
                 ),
             )
+            return
+        }
+        if (intent.action == "org.opencarproject.launcher.DEBUG_DOORS") {
+            if (intent.hasExtra("enable")) {
+                // The setting is hidden without a CAN app: switch the launcher's alert on from here.
+                val enable = intent.getBooleanExtra("enable", false)
+                val app = context.applicationContext
+                MainScope().launch { SettingsDataSource(app).update { it.copy(launcherDoorAlert = enable) } }
+            }
+            val open = intent.getStringExtra("open").orEmpty().split(",").map { it.trim() }.toSet()
+            DoorSource.debugDoors(DoorState("fl" in open, "fr" in open, "rl" in open, "rr" in open, "trunk" in open, "hood" in open))
             return
         }
         if (intent.action == "org.opencarproject.launcher.DEBUG_CLIMATE") {

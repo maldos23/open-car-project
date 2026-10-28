@@ -326,4 +326,13 @@
     <string name="update_channel">Actualizaciones de la app</string>
     <string name="update_notification_title">Actualización disponible</string>
     <string name="update_notification_text">Open Car Project %1$s está lista. Toca para instalarla.</string>
+    <string name="settings_door_alert">Aviso de puertas del launcher</string>
+    <string name="settings_door_alert_desc">Muestra puertas, cajuela y cofre abiertos sobre todas las apps con el diseño del launcher en vez del estéreo</string>
+    <string name="doors_open">Abierto</string>
+    <string name="door_front_left">Puerta delantera izquierda</string>
+    <string name="door_front_right">Puerta delantera derecha</string>
+    <string name="door_rear_left">Puerta trasera izquierda</string>
+    <string name="door_rear_right">Puerta trasera derecha</string>
+    <string name="door_trunk">Cajuela</string>
+    <string name="door_hood">Cofre</string>
 </resources>

@@ -120,6 +120,8 @@ data class LauncherSettings(
     val climateBar: Boolean = false,
     /** The climate bar floats over every app, not only Home (needs "display over other apps"). */
     val climateBarEverywhere: Boolean = false,
+    /** Door/trunk/hood alert drawn by the launcher over every app instead of the stereo's own. */
+    val launcherDoorAlert: Boolean = false,
     /** Checks GitHub once a day and notifies when a newer release is out. */
     val updateNotify: Boolean = true,
     /** Floating reverse camera + parking radar over any app while in reverse (off = system camera only). */

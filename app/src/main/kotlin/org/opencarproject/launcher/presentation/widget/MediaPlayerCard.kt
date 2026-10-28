@@ -438,8 +438,9 @@ internal fun Controls(isPlaying: Boolean, controls: MediaController.TransportCon
 @Composable
 private fun PlayPause(isPlaying: Boolean, controls: MediaController.TransportControls?, big: Boolean, onBg: Color) {
     val size: Dp = if (big) 64.dp else 52.dp
+    val context = LocalContext.current
     FilledIconButton(
-        onClick = { if (isPlaying) controls?.pause() else controls?.play() },
+        onClick = { if (isPlaying) controls?.pause() else MediaSessionSource.play(context) },
         modifier = Modifier.size(size),
         colors = IconButtonDefaults.filledIconButtonColors(
             containerColor = onBg,

@@ -85,6 +85,7 @@ class SettingsDataSource(private val context: Context) {
     private val assistantGlowKey = booleanPreferencesKey("assistant_glow")
     private val climateBarKey = booleanPreferencesKey("climate_bar")
     private val climateBarEverywhereKey = booleanPreferencesKey("climate_bar_everywhere")
+    private val launcherDoorAlertKey = booleanPreferencesKey("launcher_door_alert")
     private val updateNotifyKey = booleanPreferencesKey("update_notify")
     private val reverseOverlayKey = booleanPreferencesKey("reverse_overlay")
     private val reverseCameraIdKey = stringPreferencesKey("reverse_camera_id")
@@ -144,6 +145,7 @@ class SettingsDataSource(private val context: Context) {
             prefs[assistantGlowKey] = next.assistantGlow
             prefs[climateBarKey] = next.climateBar
             prefs[climateBarEverywhereKey] = next.climateBarEverywhere
+            prefs[launcherDoorAlertKey] = next.launcherDoorAlert
             prefs[updateNotifyKey] = next.updateNotify
             prefs[reverseOverlayKey] = next.reverseOverlay
             prefs[reverseCameraIdKey] = next.reverseCameraId
@@ -203,6 +205,7 @@ class SettingsDataSource(private val context: Context) {
         assistantGlow = this[assistantGlowKey] ?: true,
         climateBar = this[climateBarKey] ?: false,
         climateBarEverywhere = this[climateBarEverywhereKey] ?: false,
+        launcherDoorAlert = this[launcherDoorAlertKey] ?: false,
         updateNotify = this[updateNotifyKey] ?: true,
         reverseOverlay = this[reverseOverlayKey] ?: false,
         reverseCameraId = this[reverseCameraIdKey] ?: "1",
