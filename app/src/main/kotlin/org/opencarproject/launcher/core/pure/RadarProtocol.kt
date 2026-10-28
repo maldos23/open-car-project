@@ -1,5 +1,6 @@
 package org.opencarproject.launcher.core.pure
 
+import org.opencarproject.launcher.core.model.DoorState
 import org.opencarproject.launcher.core.model.RadarSensor
 import org.opencarproject.launcher.core.model.RadarState
 
@@ -82,6 +83,18 @@ object RadarProtocol {
         }
     }
 
+    /**
+     * Parses `[0x98, 0x03, len, bits, 0xFF]` (`QfSdkDataPack.packDoorWindow`): bit 7 front left,
+     * 6 front right, 5 rear left, 4 rear right, 3 trunk, 2 hood; set = open. Null for other frames.
+     */
+    fun parseDoors(frame: ByteArray): DoorState? {
+        if (frame.size < DATA + 1 || frame[0] != HEADER || frame[1].toInt() != DOOR_TYPE) return null
+        val bits = frame[DATA].toInt()
+        fun bit(n: Int) = bits and (1 shl n) != 0
+        return DoorState(bit(7), bit(6), bit(5), bit(4), bit(3), bit(2))
+    }
+
+    private const val DOOR_TYPE = 0x03
     private const val HEADER = 0x98.toByte()
     private const val TYPE = 0x04
     private const val DATA = 3

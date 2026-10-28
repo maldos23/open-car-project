@@ -12,5 +12,6 @@
   "acPopupType": 1,
   "acPopupSetting": "KeyAcPopupWindow",
   "carModeProperty": "persist.sys.car_mode",
-  "acFrameType": 1
+  "acFrameType": 1,
+  "doorPopupType": 3
 }

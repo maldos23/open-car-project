@@ -437,7 +437,7 @@ private fun closenessColor(p: Float, close: Color): Color? = when {
 }
 
 /** Car seen from above, nose up, in one color; windshield and rear window are cut out. */
-private fun DrawScope.drawCarSilhouette(cx: Float, top: Float, w: Float, h: Float, color: Color) {
+internal fun DrawScope.drawCarSilhouette(cx: Float, top: Float, w: Float, h: Float, color: Color) {
     val l = cx - w / 2
     val r = cx + w / 2
     val bottom = top + h

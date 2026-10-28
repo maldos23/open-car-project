@@ -6,6 +6,40 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-10-28
+
+### Added
+
+- **Launcher door alert:** a setting in Climate to show open doors, trunk and hood over every app
+  with the launcher's design (a car from above with what's open in red) instead of the stereo's
+  own view, read live from the CAN app. The stereo's view comes back when it's switched off.
+- **Launcher volume indicator:** an optional pill over every app with the launcher's design when
+  the volume changes (knob, steering wheel or dock). The stereo's own bar can't be switched off by
+  a regular app, so it still shows at the top.
+- **Resume the last track:** the player keeps the last song and app after the car restarts; Play
+  wakes that app up and resumes it.
+
+### Fixed
+
+- **Volume:** on QF head units the dock volume shows and changes the stereo's real volume (the one
+  its own bar shows), not Android's music stream.
+
+### Screenshots
+
+**Launcher door alert.** Open doors, trunk and hood slide down from the top over any app, here
+over Maps, and the stereo's own door view stays hidden.
+
+![Launcher door alert](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.18.0/door-alert.png)
+
+**Launcher volume indicator.** A pill near the bottom while the volume changes, over any app.
+
+![Launcher volume indicator](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.18.0/volume-pill.png)
+
+**Resume the last track.** After a restart the player shows the last song in pause; Play wakes
+that app up and resumes it.
+
+![Last track remembered](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.18.0/media-restored.png)
+
 ## [0.17.0] - 2026-10-28
 
 ### Added
@@ -621,7 +655,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.17.0...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.18.0...develop
+[0.18.0]: https://github.com/maldos23/open-car-project/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/maldos23/open-car-project/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/maldos23/open-car-project/compare/v0.15.1...v0.16.0
 [0.15.1]: https://github.com/maldos23/open-car-project/compare/v0.15.0...v0.15.1

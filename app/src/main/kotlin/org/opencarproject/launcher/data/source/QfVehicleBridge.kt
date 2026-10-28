@@ -39,6 +39,10 @@ class QfVehicleBridge private constructor(
 
     fun removeRadarCallback(callback: IBinder) = call("removeRadarStateCallBack") { writeStrongBinder(callback) }
 
+    fun addDoorCallback(callback: IBinder) = call("addDoorWindowCallBack") { writeStrongBinder(callback) }
+
+    fun removeDoorCallback(callback: IBinder) = call("removeDoorWindowCallBack") { writeStrongBinder(callback) }
+
     /** Sends a `SettingType` (e.g. `"Power"`) the way the vendor's AC panel does; false if unknown. */
     fun send(context: Context, settingType: String): Boolean {
         val value = settingTypes[settingType] ?: return false
@@ -99,6 +103,7 @@ class QfVehicleBridge private constructor(
         private const val TAG = "ClimateSource"
         private val METHODS = listOf(
             "addAcStateCallBack", "removeAcStateCallBack", "addRadarStateCallBack", "removeRadarStateCallBack",
+            "addDoorWindowCallBack", "removeDoorWindowCallBack",
         )
 
         /** Reads the vendor classes for [remote]; null when they're missing. */
