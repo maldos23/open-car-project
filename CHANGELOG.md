@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Assistant "App logo" style: on head units with no default assistant set in the system, the
+  pill (and its preview in Settings) showed the animated bars instead of a logo; it now shows the
+  logo of the app that answers the assistant button (usually Google).
+- Media player card: the artwork no longer disappears when the card is resized. Small sizes show
+  it beside the text (up to 40% of the width), and the smallest one shows it behind the play button.
+
 ## [0.13.1] - 2026-10-27
 
 ### Fixed
