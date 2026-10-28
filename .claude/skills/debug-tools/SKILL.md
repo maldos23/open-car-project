@@ -34,6 +34,16 @@ adb shell am broadcast -n $P/.debug.FakeMediaSessionReceiver -a $P.DEBUG_RADAR \
 adb shell am broadcast -n $P/.debug.FakeMediaSessionReceiver -a $P.DEBUG_RADAR --ez clear true
 ```
 
+## Climate bar (debug builds only)
+
+The emulator has no CAN service, so the climate settings are hidden. `everywhere` switches the
+bar on (and over every app or not); the bar shows only on a change, so send two readings.
+
+```bash
+adb shell am broadcast -n $P/.debug.FakeMediaSessionReceiver -a $P.DEBUG_CLIMATE --ez everywhere true --ei temp 21
+adb shell am broadcast -n $P/.debug.FakeMediaSessionReceiver -a $P.DEBUG_CLIMATE --ei temp 23 --es air front   # face|feet|front, --ez off true
+```
+
 ## Notifications
 
 ```bash

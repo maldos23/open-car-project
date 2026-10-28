@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.opencarproject.launcher.core.model.ClimateState
 import org.opencarproject.launcher.core.model.ClimateStatus
 import org.opencarproject.launcher.core.model.ClimateVendor
 import org.opencarproject.launcher.core.pure.ClimateProtocol
@@ -80,6 +81,9 @@ object ClimateSource {
         val bound = runCatching { appContext.bindService(intent, conn, Context.BIND_AUTO_CREATE) }.getOrDefault(false)
         if (bound) connection = conn else _status.value = ClimateStatus.Unavailable
     }
+
+    /** Debug builds: a fake reading, for the emulator (no CAN service there). */
+    internal fun debugClimate(state: ClimateState) { _status.value = ClimateStatus.Ready(null, state, emptySet()) }
 
     fun stop() {
         if (--users > 0) return

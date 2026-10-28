@@ -11,6 +11,7 @@
                 <action android:name="org.opencarproject.launcher.DEBUG_MEDIA" />
                 <action android:name="org.opencarproject.launcher.DEBUG_WALLPAPER" />
                 <action android:name="org.opencarproject.launcher.DEBUG_RADAR" />
+                <action android:name="org.opencarproject.launcher.DEBUG_CLIMATE" />
             </intent-filter>
         </receiver>
     </application>

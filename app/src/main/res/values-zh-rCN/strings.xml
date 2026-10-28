@@ -295,6 +295,8 @@
     <string name="settings_climate_native_popup_desc">空调变化时车机在任何界面上弹出的空调窗口</string>
     <string name="settings_climate_bar">空调条</string>
     <string name="settings_climate_bar_desc">空调变化时在桌面底部显示几秒钟温度和风量</string>
+    <string name="settings_climate_bar_everywhere">在所有应用上显示</string>
+    <string name="settings_climate_bar_everywhere_desc">也在其他应用（如地图）上方显示空调条。需要“显示在其他应用上层”权限</string>
     <string name="climate_waiting">等待车辆数据…</string>
     <string name="settings_floating_island">悬浮音乐岛</string>
     <string name="settings_floating_island_desc">播放音乐且你在其他应用（如地图）中时，以小型悬浮岛显示播放器。可拖动到任意位置；点按封面可打开应用。</string>

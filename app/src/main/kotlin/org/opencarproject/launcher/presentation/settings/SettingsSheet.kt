@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import org.opencarproject.launcher.presentation.reverse.ReverseOverlay
+import org.opencarproject.launcher.presentation.widget.ClimateOverlay
 import org.opencarproject.launcher.presentation.widget.FloatingIsland
 import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.AnimatedVisibility
@@ -536,6 +537,7 @@ fun SettingsSheet(
                     SwitchRow(stringResource(R.string.settings_climate_bar), stringResource(R.string.settings_climate_bar_desc), settings.climateBar) { v ->
                         onChange { it.copy(climateBar = v) }
                     }
+                    ClimateEverywhereSettings(settings, onChange)
                 }
             }
 
@@ -761,6 +763,37 @@ private fun FloatingIslandSettings(settings: LauncherSettings, onChange: ((Launc
         ) { v -> onChange { it.copy(floatingIslandShrink = v) } }
     }
     AnimatedVisibility(settings.floatingIsland && !canDraw) {
+        FilledTonalButton(
+            onClick = {
+                runCatching {
+                    context.startActivity(
+                        Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}"))
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                    )
+                }
+            },
+            modifier = Modifier.height(48.dp),
+        ) { Text(stringResource(R.string.settings_reverse_permission)) }
+    }
+}
+
+/** Climate bar over every app: switch and overlay permission, only while the bar is on. */
+@Composable
+private fun ClimateEverywhereSettings(settings: LauncherSettings, onChange: ((LauncherSettings) -> LauncherSettings) -> Unit) {
+    val context = LocalContext.current
+    var canDraw by remember { mutableStateOf(ClimateOverlay.canDraw(context)) }
+    LifecycleResumeEffect(Unit) {
+        canDraw = ClimateOverlay.canDraw(context)
+        onPauseOrDispose { }
+    }
+    AnimatedVisibility(settings.climateBar) {
+        SwitchRow(
+            stringResource(R.string.settings_climate_bar_everywhere),
+            stringResource(R.string.settings_climate_bar_everywhere_desc),
+            settings.climateBarEverywhere,
+        ) { v -> onChange { it.copy(climateBarEverywhere = v) } }
+    }
+    AnimatedVisibility(settings.climateBar && settings.climateBarEverywhere && !canDraw) {
         FilledTonalButton(
             onClick = {
                 runCatching {
