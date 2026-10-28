@@ -6,6 +6,27 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-10-28
+
+### Added
+
+- Settings → Climate → "Over every app" (off by default, under "Climate bar"): the climate bar
+  also slides up over other apps, such as a map, with the same show and hide animation. It never
+  takes the keyboard and only covers itself. Needs "display over other apps".
+
+### Changed
+
+- With the air going only to the windshield ("FRONT"), the climate bar and card show the usual
+  front defrost symbol (windshield with rising arrows) instead of the seated person.
+
+### Screenshots
+
+**Climate bar over every app.** With "Over every app" on, a climate change slides the bar up over
+the app in front (here, Google Maps) for a few seconds, then it slides away. Here the air goes to
+the windshield, shown with the new front defrost symbol.
+
+![Climate bar over Google Maps with the front defrost symbol](https://raw.githubusercontent.com/maldos23/open-car-project/main/docs/screenshots/releases/0.16.0/climate-bar-over-apps.png)
+
 ## [0.15.1] - 2026-10-28
 
 ### Fixed
@@ -577,7 +598,8 @@ First public release.
 - Docs in English, Spanish and Simplified Chinese; CI, gitflow/commit checks and signed release
   builds.
 
-[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.15.1...develop
+[Unreleased]: https://github.com/maldos23/open-car-project/compare/v0.16.0...develop
+[0.16.0]: https://github.com/maldos23/open-car-project/compare/v0.15.1...v0.16.0
 [0.15.1]: https://github.com/maldos23/open-car-project/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/maldos23/open-car-project/compare/v0.14.1...v0.15.0
 [0.14.1]: https://github.com/maldos23/open-car-project/compare/v0.14.0...v0.14.1

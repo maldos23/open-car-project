@@ -299,6 +299,8 @@
     <string name="settings_climate_native_popup_desc">A janela de A/C da central que aparece sobre qualquer tela quando o clima muda</string>
     <string name="settings_climate_bar">Barra de clima</string>
     <string name="settings_climate_bar_desc">Mostra a temperatura e a ventilação na parte de baixo da tela inicial por alguns segundos quando o clima muda</string>
+    <string name="settings_climate_bar_everywhere">Sobre todos os apps</string>
+    <string name="settings_climate_bar_everywhere_desc">Também mostra a barra sobre outros apps, como um mapa. Precisa de \"sobrepor a outros apps\"</string>
     <string name="climate_waiting">Aguardando o carro…</string>
     <string name="settings_floating_island">Ilha de música flutuante</string>
     <string name="settings_floating_island_desc">Enquanto toca música e você está em outro app (como um mapa), mostra o player em uma pequena ilha flutuante. Arraste para onde quiser; toque na capa para abrir o app.</string>

@@ -299,6 +299,8 @@
     <string name="settings_climate_native_popup_desc">La ventana de A/C del radio que aparece sobre cualquier pantalla al cambiar el clima</string>
     <string name="settings_climate_bar">Barra de clima</string>
     <string name="settings_climate_bar_desc">Muestra la temperatura y el ventilador abajo del escritorio unos segundos cuando cambia el clima</string>
+    <string name="settings_climate_bar_everywhere">Sobre todas las apps</string>
+    <string name="settings_climate_bar_everywhere_desc">También muestra la barra sobre otras apps, como un mapa. Necesita \"mostrar sobre otras apps\"</string>
     <string name="climate_waiting">Esperando al auto…</string>
     <string name="settings_floating_island">Isla de música flotante</string>
     <string name="settings_floating_island_desc">Mientras suena música y estás en otra app (como un mapa), muestra el reproductor en una pequeña isla flotante. Arrástrala a donde quieras; toca la portada para abrir la app.</string>

@@ -1,5 +1,11 @@
 package org.opencarproject.launcher.debug
 
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import org.opencarproject.launcher.core.model.ClimateState
+import org.opencarproject.launcher.core.model.ClimateTemp
+import org.opencarproject.launcher.data.source.ClimateSource
+import org.opencarproject.launcher.data.source.SettingsDataSource
 import android.content.BroadcastReceiver
 import androidx.core.graphics.createBitmap
 import android.content.Context
@@ -26,6 +32,10 @@ import org.opencarproject.launcher.data.source.ReverseSource
  * Fake parking radar (reverse overlay): ... -a org.opencarproject.launcher.DEBUG_RADAR \
  *   --es rear "-1,0,1,5,0,-1" [--es front ...] [--es left "0,0,3,0"] [--ez clear true]
  *
+ * Fake climate reading (climate bar): ... -a org.opencarproject.launcher.DEBUG_CLIMATE \
+ *   --ei temp 22 --ei fan 3 [--es air face|feet|front] [--ez off true] [--ez everywhere true]
+ *   (the bar only shows on a change, so send two different readings)
+ *
  * adb shell am broadcast -n org.opencarproject.launcher/.debug.FakeMediaSessionReceiver \
  *   -a org.opencarproject.launcher.DEBUG_MEDIA --es title "Canción" --es artist "Artista" \
  *   --es album "Álbum" --ei color 0xE53935 --es state play|pause|stop --el duration 210000 --el position 30000
@@ -49,6 +59,25 @@ class FakeMediaSessionReceiver : BroadcastReceiver() {
                     rear = zones("rear", "-1,0,0,0,0,-1"),
                     left = zones("left", "-1,-1,-1,-1"),
                     right = zones("right", "-1,-1,-1,-1"),
+                ),
+            )
+            return
+        }
+        if (intent.action == "org.opencarproject.launcher.DEBUG_CLIMATE") {
+            if (intent.hasExtra("everywhere")) {
+                // The climate settings are hidden without a CAN app: switch the bar on from here.
+                val everywhere = intent.getBooleanExtra("everywhere", false)
+                val app = context.applicationContext
+                MainScope().launch { SettingsDataSource(app).update { it.copy(climateBar = true, climateBarEverywhere = everywhere) } }
+            }
+            val air = intent.getStringExtra("air") ?: "face"
+            val temp = ClimateTemp.Value(intent.getIntExtra("temp", 22).toFloat(), fahrenheit = false)
+            ClimateSource.debugClimate(
+                ClimateState(
+                    power = !intent.getBooleanExtra("off", false), ac = true, auto = false, recirculation = false, dual = false,
+                    frontDefrost = air == "front", rearDefrost = false, airWindshield = air == "front",
+                    airFace = air == "face", airFeet = air == "feet", fanSpeed = intent.getIntExtra("fan", 3), maxFanSpeed = 7,
+                    leftTemp = temp, rightTemp = temp,
                 ),
             )
             return
