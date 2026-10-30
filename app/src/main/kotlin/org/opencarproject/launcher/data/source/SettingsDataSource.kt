@@ -184,7 +184,7 @@ class SettingsDataSource(private val context: Context) {
         vehicleColor = enumOr(this[vehicleColorKey], VehicleColor.RED),
         sceneTheme = enumOr(this[sceneThemeKey], SceneTheme.CITY),
         appMenuStyle = enumOr(this[appMenuStyleKey], AppMenuStyle.BOTTOM_SHEET),
-        accentColor = enumOr(this[accentColorKey], AccentColor.BLUE),
+        accentColor = enumOr(this[accentColorKey], AccentColor.PURPLE),
         dockIconSize = enumOr(this[dockIconSizeKey], DockIconSize.MEDIUM),
         showAppLabels = this[appLabelsKey] ?: false,
         smoothAnimations = this[smoothAnimationsKey] ?: false,

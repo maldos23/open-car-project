@@ -85,7 +85,7 @@ data class LauncherSettings(
     val sceneTheme: SceneTheme = SceneTheme.CITY,
     val timeFormat: TimeFormat = TimeFormat.SYSTEM,
     val appMenuStyle: AppMenuStyle = AppMenuStyle.BOTTOM_SHEET,
-    val accentColor: AccentColor = AccentColor.BLUE,
+    val accentColor: AccentColor = AccentColor.PURPLE,
     val dockIconSize: DockIconSize = DockIconSize.MEDIUM,
     /** Label under the icon of desktop apps (icon only by default). */
     val showAppLabels: Boolean = false,

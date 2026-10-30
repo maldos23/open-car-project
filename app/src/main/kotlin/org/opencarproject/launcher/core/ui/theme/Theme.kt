@@ -16,50 +16,51 @@ import org.opencarproject.launcher.core.model.ThemeMode
 import org.opencarproject.launcher.core.pure.AccentPalette
 
 /**
- * Native Material 3 color scheme (dark theme, typical of a vehicle environment).
+ * Native Material 3 color scheme (dark theme, typical of a vehicle environment), in the
+ * Morado fork's purple palette.
  * Components use the native Material 3 `Card`, `FilledTonalIconButton`, `IconButton`, etc.,
  * without custom styles.
  */
 private val DarkColors = darkColorScheme(
-    primary = Color(0xFF8CD0FF),
-    onPrimary = Color(0xFF00344D),
-    primaryContainer = Color(0xFF004C6E),
-    onPrimaryContainer = Color(0xFFC9E7FF),
-    secondary = Color(0xFFB6C9D9),
-    onSecondary = Color(0xFF21323E),
-    secondaryContainer = Color(0xFF374955),
-    onSecondaryContainer = Color(0xFFD1E5F6),
-    tertiary = Color(0xFFB8C8EA),
-    onTertiary = Color(0xFF23304C),
-    background = Color(0xFF0F1419),
-    onBackground = Color(0xFFDEE4EA),
-    surface = Color(0xFF0F1419),
-    onSurface = Color(0xFFDEE4EA),
-    surfaceVariant = Color(0xFF41474D),
-    onSurfaceVariant = Color(0xFFC1C7CE),
-    surfaceContainerHigh = Color(0xFF1A2026),
-    outline = Color(0xFF8B9198),
+    primary = Color(0xFFA07CFF),
+    onPrimary = Color(0xFF0F0C15),
+    primaryContainer = Color(0xFF3B2A66),
+    onPrimaryContainer = Color(0xFFE6DCFF),
+    secondary = Color(0xFFC6B8E0),
+    onSecondary = Color(0xFF2A2140),
+    secondaryContainer = Color(0xFF241D31),
+    onSecondaryContainer = Color(0xFFE4DAF5),
+    tertiary = Color(0xFFE08BD8),
+    onTertiary = Color(0xFF3A1036),
+    background = Color(0xFF0F0C15),
+    onBackground = Color(0xFFF4F0FA),
+    surface = Color(0xFF0F0C15),
+    onSurface = Color(0xFFF4F0FA),
+    surfaceVariant = Color(0xFF2E2640),
+    onSurfaceVariant = Color(0xFFA99CBF),
+    surfaceContainerHigh = Color(0xFF1A1523),
+    outline = Color(0xFF8A7FA0),
 )
 
-/** Light variant with the same (blue) palette for daytime use. */
+/** Light variant with the same (purple) palette for daytime use. */
 private val LightColors = lightColorScheme(
-    primary = Color(0xFF00658F),
+    primary = Color(0xFF7B4FE0),
     onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = Color(0xFFC9E7FF),
-    onPrimaryContainer = Color(0xFF001E2E),
-    secondary = Color(0xFF4F616E),
+    primaryContainer = Color(0xFFEDE7F6),
+    onPrimaryContainer = Color(0xFF24104F),
+    secondary = Color(0xFF5E5470),
     onSecondary = Color(0xFFFFFFFF),
-    secondaryContainer = Color(0xFFD2E5F5),
-    onSecondaryContainer = Color(0xFF0B1D29),
-    tertiary = Color(0xFF515E7D),
+    secondaryContainer = Color(0xFFE6DDF4),
+    onSecondaryContainer = Color(0xFF1E1530),
+    tertiary = Color(0xFF9046C8),
     onTertiary = Color(0xFFFFFFFF),
-    background = Color(0xFFF6FAFE),
-    onBackground = Color(0xFF171C20),
-    surface = Color(0xFFF6FAFE),
-    onSurface = Color(0xFF171C20),
-    surfaceVariant = Color(0xFFDDE3EA),
-    onSurfaceVariant = Color(0xFF41474D),
-    outline = Color(0xFF71787E),
+    background = Color(0xFFF5F2FA),
+    onBackground = Color(0xFF1B1524),
+    surface = Color(0xFFF5F2FA),
+    onSurface = Color(0xFF1B1524),
+    surfaceVariant = Color(0xFFE2DAEE),
+    onSurfaceVariant = Color(0xFF5E5470),
+    outline = Color(0xFF7A6F8C),
 )
 
 /** `true` if the effective theme is dark (resolves [ThemeMode.SYSTEM] against the system). */
@@ -77,7 +78,7 @@ fun ThemeMode.isDark(): Boolean = when (this) {
 @Composable
 fun LauncherTheme(
     themeMode: ThemeMode = ThemeMode.DARK,
-    accent: AccentColor = AccentColor.BLUE,
+    accent: AccentColor = AccentColor.PURPLE,
     content: @Composable () -> Unit,
 ) {
     val dark = themeMode.isDark()

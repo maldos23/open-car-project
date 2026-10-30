@@ -1,7 +1,7 @@
 <resources>
     <!-- English is the fallback for locales without their own values-* folder.
          Every key must also exist in values-es, values-zh-rCN, values-pt and values-fr. -->
-    <string name="app_name" translatable="false">Open Car Project</string>
+    <string name="app_name" translatable="false">Morado</string>
 
     <!-- Common -->
     <string name="close">Close</string>
