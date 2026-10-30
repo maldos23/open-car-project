@@ -106,16 +106,18 @@ enum class AppMenuStyle {
 
 /** UI accent color. `hue` = hue used to generate the tones; `null` = custom palette. */
 enum class AccentColor(val hue: Float?) {
-    /** The launcher's original blue. */
-    BLUE(null),
+    /** Blue generated from its hue (the upstream launcher's original color). */
+    BLUE(205f),
     TEAL(175f),
     GREEN(140f),
-    PURPLE(270f),
+
+    /** The Morado fork's hand-tuned purple: uses the base palette in Theme.kt. */
+    PURPLE(null),
     PINK(330f),
     ORANGE(28f),
     RED(5f),
 
-    /** Material You: wallpaper colors (Android 12+; blue on earlier versions). */
+    /** Material You: wallpaper colors (Android 12+; purple on earlier versions). */
     DYNAMIC(null),
 }
 
