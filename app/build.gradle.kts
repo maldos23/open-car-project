@@ -89,7 +89,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
 
     // adb client to the device's own adbd (embedded Maps module on root-adb head units).
-    implementation("dev.mobile:dadb:1.2.10")
+    implementation("dev.mobile:dadb:2.0.0")
 
     // Compose UI.
     implementation("androidx.compose.ui:ui")
